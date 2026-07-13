@@ -281,8 +281,8 @@
     border:2.5px dashed var(--accent, var(--brand));
     border-radius:14px;
     display:flex; flex-direction:column; align-items:center; justify-content:center; gap:6px;
-    background:repeating-linear-gradient(45deg, color-mix(in srgb, var(--accent, var(--brand)) 10%, transparent) 0 8px, transparent 8px 16px);
-    color:color-mix(in srgb, var(--accent, var(--brand)) 65%, var(--white));
+    background:repeating-linear-gradient(45deg, rgba(255,255,255,0.07) 0 8px, transparent 8px 16px);
+    color:var(--accent, var(--brand));
     overflow:hidden;
   }
   .avatar-slot img{ width:100%; height:100%; object-fit:cover; border-radius:11px; }
@@ -290,7 +290,7 @@
   .avatar-slot .avatar-label{
     font-family:'Press Start 2P', cursive; font-size:8px; letter-spacing:1px;
   }
-  .avatar-slot .avatar-sub{ font-size:11px; color:color-mix(in srgb, var(--accent, var(--brand)) 45%, var(--white)); }
+  .avatar-slot .avatar-sub{ font-size:11px; color:#cfcfcf; }
   .detail-title{
     font-size:30px; font-weight:900; color:var(--accent, var(--brand));
     margin:0 0 16px; line-height:1.4;
@@ -668,6 +668,7 @@ async function loadAvatar(slot, item){
     const url = await fetchAvatarUrl(item);
     if (!url) return;
     const img = new Image();
+    img.crossOrigin = 'anonymous';   // 讓跨網域頭貼也能被截圖（需來源支援 CORS）
     img.alt = item.nickname;
     img.onload = () => {
       slot.innerHTML = '';
@@ -698,7 +699,7 @@ let flipping = false;
 // ===== 翻卡音效（Web Audio 合成，免外部檔案）=====
 // 可選：'coin' 金幣叮叮 ｜ 'coin_crisp' 清脆金幣 ｜ 'ding' 清亮鈴聲
 //        ｜ 'sparkle' 星光上升音 ｜ 'flip' 翻紙唰聲
-let FLIP_SOUND = 'coin_crisp';
+let FLIP_SOUND = 'sparkle';
 let audioCtx = null;
 
 function _tone(ctx, t, freq, vol, dur, type){
@@ -759,14 +760,42 @@ const SOUNDS = {
     g.gain.exponentialRampToValueAtTime(0.0001, now + dur);
     noise.connect(bp); bp.connect(g); g.connect(ctx.destination);
     noise.start(now); noise.stop(now + dur);
+  },
+  // 魔法音效：上升琶音 + 閃爍泛音 + 尾端「叮」，帶奇幻感
+  magic(ctx, now){
+    // 上升的魔法琶音（五聲音階）
+    [1047, 1319, 1568, 2093, 2637, 3136].forEach((f, i) => {
+      _tone(ctx, now + i * 0.045, f, 0.11, 0.4, 'triangle');
+    });
+    // 高頻閃爍顆粒（sparkle shimmer）
+    for (let i = 0; i < 7; i++){
+      const t = now + 0.05 + Math.random() * 0.35;
+      const f = 2600 + Math.random() * 2600;
+      _tone(ctx, t, f, 0.045, 0.14, 'sine');
+    }
+    // 尾端清亮的「叮」定音
+    _tone(ctx, now + 0.34, 3136, 0.13, 0.55, 'sine');
+    _tone(ctx, now + 0.34, 4186, 0.05, 0.45, 'sine');
+    // 低頻魔力嗡鳴鋪底
+    const sub = ctx.createOscillator();
+    const sg = ctx.createGain();
+    sub.type = 'sine';
+    sub.frequency.setValueAtTime(180, now);
+    sub.frequency.exponentialRampToValueAtTime(320, now + 0.4);
+    sg.gain.setValueAtTime(0.0001, now);
+    sg.gain.exponentialRampToValueAtTime(0.06, now + 0.1);
+    sg.gain.exponentialRampToValueAtTime(0.0001, now + 0.5);
+    sub.connect(sg); sg.connect(ctx.destination);
+    sub.start(now); sub.stop(now + 0.55);
   }
 };
 
-function playFlipSound(){
+function playFlipSound(sound){
   try {
     audioCtx = audioCtx || new (window.AudioContext || window.webkitAudioContext)();
     if (audioCtx.state === 'suspended') audioCtx.resume();
-    (SOUNDS[FLIP_SOUND] || SOUNDS.coin_crisp)(audioCtx, audioCtx.currentTime);
+    const name = sound || FLIP_SOUND;
+    (SOUNDS[name] || SOUNDS.coin_crisp)(audioCtx, audioCtx.currentTime);
   } catch(e){ /* 音效失敗不影響動畫 */ }
 }
 
@@ -792,7 +821,7 @@ grid.addEventListener('click', (e) => {
 
   // 翻牌轉到側邊（90°、邊緣朝前）時，詳情卡從另一側接續同方向轉正，動作連貫
   flipping = true;
-  playFlipSound();
+  playFlipSound(tile.dataset.idx === 'secret' ? 'magic' : null);
   tile.classList.add('flipping');
   setTimeout(openDetail, 330);
   tile.addEventListener('animationend', () => {
@@ -822,28 +851,47 @@ function showToast(msg){
 }
 
 sharePill.addEventListener('click', async () => {
+  if (typeof html2canvas === 'undefined') {
+    showToast('圖片產生元件未載入，請確認網路後重試');
+    return;
+  }
+  const prev = sharePill.textContent;
+  sharePill.textContent = '產生圖卡中…';
   try {
-    const canvas = await html2canvas(detailCard, { backgroundColor: null, scale: 2 });
-    canvas.toBlob(async (blob) => {
-      const name = isSecretOpen ? '本週小語.png' : `${currentItem.id}_榮譽卡.png`;
-      const file = new File([blob], name, { type: 'image/png' });
+    const cardBg = getComputedStyle(detailCard).backgroundColor || '#141414';
+    const canvas = await html2canvas(detailCard, {
+      backgroundColor: cardBg,
+      scale: Math.min(2, window.devicePixelRatio || 1),
+      useCORS: true,
+      allowTaint: false,
+      logging: false
+    });
+    const blob = await new Promise(res => canvas.toBlob(res, 'image/png'));
+    sharePill.textContent = prev;
+    if (!blob) { showToast('產生圖卡失敗，請再試一次'); return; }
 
-      if (navigator.canShare && navigator.canShare({ files: [file] })) {
-        try {
-          await navigator.share({ files: [file], title: '本週主播榮譽榜' });
-          showToast('分享成功！');
-        } catch (err) {}
-      } else {
-        const url = URL.createObjectURL(blob);
-        const a = document.createElement('a');
-        a.href = url;
-        a.download = name;
-        a.click();
-        URL.revokeObjectURL(url);
-        showToast('圖卡已下載！');
+    const name = isSecretOpen ? '本週小語.png' : `${currentItem.id}_榮譽卡.png`;
+    const file = new File([blob], name, { type: 'image/png' });
+
+    if (navigator.canShare && navigator.canShare({ files: [file] })) {
+      try {
+        await navigator.share({ files: [file], title: '本週主播榮譽榜' });
+        showToast('分享成功！');
+        return;
+      } catch (err) {
+        if (err && err.name === 'AbortError') return;  // 使用者自行取消，不算失敗
       }
-    }, 'image/png');
+    }
+    // 不支援原生分享 → 下載圖片
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = name;
+    a.click();
+    setTimeout(() => URL.revokeObjectURL(url), 1000);
+    showToast('圖卡已下載！');
   } catch(err) {
+    sharePill.textContent = prev;
     showToast('產生圖卡失敗，請再試一次');
   }
 });
