@@ -95,13 +95,22 @@
   }
   .title-row{
     display:flex; align-items:center; justify-content:center; gap:14px;
+    max-width:100%; padding:0 8px; flex-wrap:nowrap;
   }
+  .title-row h1{ flex:0 1 auto; min-width:0; white-space:nowrap; }
   .deco-gem{
-    width:26px; height:auto; image-rendering:pixelated;
+    flex:0 0 auto;
+    width:26px; height:26px; image-rendering:pixelated;
     filter:drop-shadow(0 2px 4px rgba(0,0,0,0.4));
     animation:float 2.6s ease-in-out infinite;
   }
   .deco-gem:last-child{ animation-delay:.5s; }
+  @media (max-width: 480px){
+    .title-row{ gap:9px; }
+    .title-row h1{ font-size:28px !important; }
+    .deco-gem{ width:22px; }
+    .deco-crown{ width:54px; }
+  }
   h1{
     font-size:22px;
     line-height:1.6;
@@ -300,11 +309,11 @@
     margin:0 0 10px; line-height:1.4;
   }
   .detail-desc{
-    font-size:19px; color:var(--white); line-height:1.8; margin:0 0 22px;
+    font-size:17px; color:var(--white); line-height:1.7; margin:0 0 18px;
   }
   .detail-id{
-    font-size:21px; font-weight:700; color:var(--white);
-    margin:0 0 26px; border-radius:0px;
+    font-size:19px; font-weight:700; color:var(--white);
+    margin:0 0 20px; border-radius:0px;
   }
   .detail-id .heart{ color:var(--accent, var(--brand)); }
   .detail-stat-label{
@@ -312,7 +321,44 @@
   }
   .detail-stat-value{
     font-family:'Lato', sans-serif;
-    font-size:45px; color:var(--white); margin:0;
+    font-size:40px; color:var(--white); margin:0;
+  }
+  /* 二、三名：緊追在後 */
+  .runners{
+    margin-top:22px; padding-top:16px;
+    border-top:1.5px dashed rgba(255,255,255,0.25);
+    text-align:left;
+  }
+  .runners-head{
+    font-family:'Work Sans', sans-serif;
+    font-size:13px; font-weight:700; letter-spacing:.5px;
+    color:var(--accent, var(--brand));
+    margin:0 0 10px; text-align:center;
+  }
+  .runner-row{
+    display:flex; align-items:center; gap:10px;
+    padding:7px 0;
+  }
+  .runner-row + .runner-row{ border-top:1px solid rgba(255,255,255,0.08); }
+  .runner-rank{
+    flex:0 0 auto;
+    width:22px; height:22px; border-radius:5px;
+    display:flex; align-items:center; justify-content:center;
+    font-family:'Lato', sans-serif; font-size:13px; font-weight:900;
+    color:var(--bg);
+    background:var(--accent, var(--brand));
+  }
+  .runner-name{
+    flex:1 1 auto; min-width:0;
+    font-size:14px; font-weight:700; color:var(--white);
+    display:flex; align-items:baseline; gap:6px;
+    white-space:nowrap; overflow:hidden; text-overflow:ellipsis;
+  }
+  .runner-id{ font-size:11px; font-weight:400; color:#9a9a9a; }
+  .runner-val{
+    flex:0 0 auto;
+    font-family:'Lato', sans-serif; font-size:14px; font-weight:700;
+    color:var(--accent, var(--brand));
   }
   .redraw-btn{
     background:transparent; color:var(--accent, var(--brand));
@@ -369,38 +415,38 @@
     .deco-crown, .deco-gem{ animation:none; }
   }
   .game-unlock{
-  max-width:400px; margin:26px auto 0; padding:0 20px;
-  text-align:center; opacity:0; max-height:0; overflow:hidden;
-  transition:opacity .4s ease, max-height .4s ease;
-}
-.game-unlock.show{ opacity:1; max-height:120px; }
-.game-unlock-btn{
-  background:#FFD100; color:#0d0d0d; border:none; border-radius:10px;
-  padding:14px 22px; font-size:14px; font-weight:900; cursor:pointer;
-  animation:pulse 1.6s ease-in-out infinite;
-}
-@keyframes pulse{ 0%,100%{transform:scale(1);} 50%{transform:scale(1.04);} }
-.game-overlay{
-  position:fixed; inset:0; z-index:60; background:rgba(0,0,0,0.88);
-  display:none; align-items:center; justify-content:center;
-  flex-direction:column; gap:14px; padding:20px;
-}
-.game-overlay.active{ display:flex; }
-.game-title{ font-size:16px; color:#FFD100; font-weight:900; text-align:center; }
-#gameCanvas{
-  width:100%; max-width:380px; aspect-ratio:5/3;
-  background:linear-gradient(180deg,#1a1a2e 0%,#16161f 70%,#0d0d0d 100%);
-  border:3px solid #00D2BE; border-radius:12px; touch-action:none;
-}
-.game-hud{
-  display:flex; justify-content:space-between; width:100%; max-width:380px;
-  font-size:13px; font-weight:900; color:#fff;
-}
-.game-close{
-  background:transparent; color:#888; border:2px solid #444;
-  border-radius:8px; padding:8px 16px; font-size:13px; cursor:pointer;
-}
-.game-hint{ font-size:12px; color:#888; text-align:center; }
+    max-width:400px; margin:26px auto 0; padding:0 20px;
+    text-align:center; opacity:0; max-height:0; overflow:hidden;
+    transition:opacity .4s ease, max-height .4s ease;
+  }
+  .game-unlock.show{ opacity:1; max-height:120px; }
+  .game-unlock-btn{
+    background:#FFD100; color:#0d0d0d; border:none; border-radius:10px;
+    padding:14px 22px; font-size:14px; font-weight:900; cursor:pointer;
+    animation:pulse 1.6s ease-in-out infinite;
+  }
+  @keyframes pulse{ 0%,100%{transform:scale(1);} 50%{transform:scale(1.04);} }
+  .game-overlay{
+    position:fixed; inset:0; z-index:60; background:rgba(0,0,0,0.88);
+    display:none; align-items:center; justify-content:center;
+    flex-direction:column; gap:14px; padding:20px;
+  }
+  .game-overlay.active{ display:flex; }
+  .game-title{ font-size:16px; color:#FFD100; font-weight:900; text-align:center; }
+  #gameCanvas{
+    width:100%; max-width:380px; aspect-ratio:5/3;
+    background:linear-gradient(180deg,#1a1a2e 0%,#16161f 70%,#0d0d0d 100%);
+    border:3px solid #00D2BE; border-radius:12px; touch-action:none;
+  }
+  .game-hud{
+    display:flex; justify-content:space-between; width:100%; max-width:380px;
+    font-size:13px; font-weight:900; color:#fff;
+  }
+  .game-close{
+    background:transparent; color:#888; border:2px solid #444;
+    border-radius:8px; padding:8px 16px; font-size:13px; cursor:pointer;
+  }
+  .game-hint{ font-size:12px; color:#888; text-align:center; }
 </style>
 </head>
 <body>
@@ -415,9 +461,9 @@
 <header>
   <img class="deco-crown" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAFgAAABACAYAAACeELDCAAABxUlEQVR4AezYMU4DQQyF4dF2FPRcjxsgcQ4kbsBtoOYW9BSUQRZVpOxzBvtlo82P5IL1zJvJty6iLIfPcVA1Nv5Td4vextcbcQdVy9YX3Pv5AJvfMMAAmwXM8UwwwGYBczwTDLBZwBzPBANsFjDH73KCzWZT8QBPcc0vBnjebGoHwFNc84sBnjeb2pECq986ozd12onFkaHqxJajR2pv9I4W/+OfyFCVRabAWQB9LQCw9il3AS4T6gCAtU+5C3CZUAcArH3K3Tbg8k12GmAHVt8ho+d2jTNUuc+3A7s/wLXnA2x+QwADbBYwxzPBAJsFzPFM8LUDq++Y0TPfvxwfd1RVPYAJrgom+wFWQA09gBsQVQTASqehB3ADoooAWOk09ABuQFQRKfDP08tQpcLP6T1+fw1V52SoNeru0VN7O3opcMcht5wBsPntAwywWcAczwTfHLD5A186ngk2i6fAd6/PQ1X1fm/3D0NVNV/dPXrV/Gx/CpwF0NcCAGufchfgMqEOAFj7lLsAlwl1AMDap9wFuEyoA5aP9zEonwETrAew3P0DLscQsCYA8JpM03OAmyDXYgBek2l6DnAT5FoMwGsyTc9/AQAA//+brXK+AAAABklEQVQDAG7LyDDVm/8VAAAAAElFTkSuQmCC" alt="">
   <div class="title-row">
-    <img class="deco-gem" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAEgAAABACAYAAAC5vjEqAAABfUlEQVR4AeyYwYlCQRAFZ71tFAsGsecNYfMwBw/mYB6G4NkgBKPwqDR4foV8Wr+fWmj2UNjTU/OExtVo/jv+bG6d1Tz+aBfUfYHu/goCwwpSEBgAbIIUBAYAm6BuQbTj/K7Xo7PofLg/YhMEihSkIDAA2AQpCAwAfj5B0HBpWEHwoiiI9gzacb53/yMVzIeYzqf56QAURA2WzhUEL6wgBYEBwCZIQWAAsAkiQbQn0J4B/cd1e4hFn5/KaX66vwmCF1CQgsAA4FckCEaYN1YQvI+CFAQGAK/+LvuvVKfzeaSC/m/HafZi6e7F/IrBEypIQWAAsAlSEBgAbIIUBAYAY4JqF0hVu0QqOH8yTmcXS7MXowFQEDVYOp+noBlZVxA8hoIUBAYAmyAFgQHAkxNUu0Sq2kVSwXzxt6jqm84uRv2JTxZEB3w6VxC8oIIUBAYAmyAFgQHAJujdgmoXSVW7TKr02WKP+7X9M0GgVkEKAgOATZCCwABgE6QgMAD4DgAA//8IPNjhAAAABklEQVQDADwL0tg7zD7tAAAAAElFTkSuQmCC" alt="">
-    <h1 class="pixel" style="font-family:'Work Sans', sans-serif; font-size:36px;">本週主播榮譽榜</h1>
-    <img class="deco-gem" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAEgAAABACAYAAAC5vjEqAAABfUlEQVR4AeyYsW1CQRAFz4T04syZQ5fiCiiAiAKogFIIycjohRS0EvEboa+Fz9dYWjkYsbc395BWrEbz33q/u3VW8/ijXVD3Bbr7KwgMK0hBYACwCVIQGABsgroF0Y5z/fsdnUXnw/0RmyBQpCAFgQHAJkhBYADw8wmChkvDCoIXRUG0Z9COc/j+GalgPsR0Ps1PB6AgarB0riB4YQUpCAwANkEKAgOATRAJoj2B9gzoP/4v51j0+amc5qf7myB4AQUpCAwAfkWCYIR5YwXB+yhIQWAA8Oq62X6lWh9PIxX0fztOsxdLdy/mVwyeUEEKAgOATZCCwABgE6QgMAD4DgAA//8FNfayAAAABklEQVQDADrK0Whuhn0JAAAAAElFTkSuQmCC" alt="">
+    <svg class="deco-gem" viewBox="0 0 9 8" shape-rendering="crispEdges" aria-hidden="true"><rect x="3" y="0" width="3" height="1" fill="#ffc3dd"/><rect x="2" y="1" width="5" height="1" fill="#f6418d"/><rect x="1" y="2" width="7" height="1" fill="#f6418d"/><rect x="0" y="3" width="9" height="1" fill="#f6418d"/><rect x="1" y="4" width="7" height="1" fill="#c01f6b"/><rect x="2" y="5" width="5" height="1" fill="#c01f6b"/><rect x="3" y="6" width="3" height="1" fill="#c01f6b"/><rect x="4" y="7" width="1" height="1" fill="#c01f6b"/></svg>
+    <h1 class="pixel" style="font-family:'Work Sans', sans-serif; font-size:36px; white-space:nowrap;">本週主播榮譽榜</h1>
+    <svg class="deco-gem" viewBox="0 0 9 9" shape-rendering="crispEdges" aria-hidden="true"><rect x="4" y="0" width="1" height="9" fill="#FFD100"/><rect x="0" y="4" width="9" height="1" fill="#FFD100"/><rect x="3" y="1" width="3" height="1" fill="#FFD100"/><rect x="1" y="3" width="1" height="3" fill="#FFD100"/><rect x="7" y="3" width="1" height="3" fill="#FFD100"/><rect x="3" y="7" width="3" height="1" fill="#FFD100"/><rect x="3" y="3" width="3" height="3" fill="#fff3a8"/></svg>
   </div>
   <div class="week-pill">
     <span class="date">2026/06/29-2026/07/06</span>
@@ -483,6 +529,23 @@ let DATA = [
     desc:"內容解鎖王<br>完全就是創作者來著", id:"hannababe",
     statLabel:"付費內容數", stat:"unlock", story_paid:30, post_paid:20 }
 ];
+
+// ===== 二、三名「緊追在後」假資料（依榜單順序對應，後續以資料庫取代）=====
+const FAKE_RUNNERS = [
+  [ {nickname:"溫柔風鈴鈴",  id:"linglingx", value:"8 則"},      {nickname:"小太陽學姐",  id:"sunnyho",   value:"7 則"} ],
+  [ {nickname:"不睡的貓頭鷹", id:"nightowlz", value:"82.4 小時"},   {nickname:"燃燒小宇宙",  id:"burnburn",  value:"79.1 小時"} ],
+  [ {nickname:"銀河首富候選人", id:"star_rich", value:"6.9M 鑽"},   {nickname:"小金庫本庫",  id:"vaultgirl", value:"5.3M 鑽"} ],
+  [ {nickname:"連招不斷電",   id:"comboqueen",value:"6.4M 鑽"},   {nickname:"指令收集家",  id:"cmd_mania", value:"4.8M 鑽"} ],
+  [ {nickname:"私訊小天使",   id:"dm_angel",  value:"2.4M 鑽"},   {nickname:"悄悄話達人",  id:"whisperer", value:"1.9M 鑽"} ],
+  [ {nickname:"舊台常騐客",   id:"onstage7", value:"25 場"},      {nickname:"開演不偼歇",  id:"showtime",  value:"22 場"} ],
+  [ {nickname:"鑑嬰0制造機",   id:"keymaster", value:"44 則"},      {nickname:"解鎖控本人",  id:"unlockr",   value:"38 則"} ]
+];
+function defaultRunners(i){
+  const pair = FAKE_RUNNERS[i % FAKE_RUNNERS.length] || FAKE_RUNNERS[0];
+  return pair.map((p, idx) => ({ rank: idx + 2, ...p }));
+}
+// 幫內建假資料附上二、三名
+DATA.forEach((d, i) => { d.runnersUp = defaultRunners(i); });
 
 // ===== 數據格式化 =====
 function num(v){ return typeof v === 'number' ? v : (parseFloat(String(v).replace(/[^0-9.\-]/g,'')) || 0); }
@@ -581,6 +644,17 @@ async function loadCards(){
       statValue: o.stat_value || '',
       avatar: o.avatar_url || ''
     }));
+    // 二、三名：讀表格 runner_up_1_id/value（=第2名）、runner_up_2_id/value（=第3名）；未提供則用假資料
+    DATA.forEach((d, i) => {
+      const o = rows[i] || {};
+      const rs = [1, 2].map(n => ({
+        rank: n + 1,
+        nickname: o['runner_up_' + n + '_name'] || '',
+        id: o['runner_up_' + n + '_id'] || '',
+        value: o['runner_up_' + n + '_value'] || ''
+      })).filter(r => r.id || r.nickname);
+      d.runnersUp = rs.length ? rs : defaultRunners(i);
+    });
     updateWeekPill(latest);
     buildGrid();
   } catch(e){ /* 抓取失敗則保留內建資料 */ }
@@ -699,6 +773,17 @@ function renderDetail(item){
     <p class="detail-id"><span class="heart">❤</span> @${item.id} <span class="heart">❤</span></p>
     ${item.statLabel ? `<p class="detail-stat-label">${item.statLabel}</p>` : ''}
     <p class="detail-stat-value">${item.statValue}</p>
+    ${(item.runnersUp && item.runnersUp.length) ? `
+      <div class="runners">
+        <p class="runners-head">緊追在後的是...</p>
+        ${item.runnersUp.map(r => `
+          <div class="runner-row">
+            <span class="runner-rank">${r.rank}</span>
+            <span class="runner-name">${r.nickname ? r.nickname + (r.id ? `<span class="runner-id">@${r.id}</span>` : '') : (r.id ? '@' + r.id : '')}</span>
+            ${r.value ? `<span class="runner-val">${r.value}</span>` : ''}
+          </div>
+        `).join('')}
+      </div>` : ''}
   `;
   loadAvatar(detailCard.querySelector('.avatar-slot'), item);
 }
@@ -852,10 +937,11 @@ function playFlipSound(sound){
 grid.addEventListener('click', (e) => {
   const tile = e.target.closest('.tile');
   if (!tile || flipping) return;
+
   viewedTiles.add(tile.dataset.idx);
-if (viewedTiles.size >= totalTiles) {
-  document.getElementById('gameUnlock').classList.add('show');
-}
+  if (viewedTiles.size >= totalTiles) {
+    document.getElementById('gameUnlock').classList.add('show');
+  }
 
   const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
@@ -949,6 +1035,8 @@ sharePill.addEventListener('click', async () => {
     showToast('產生圖卡失敗，請再試一次');
   }
 });
+
+// ===== 隱藏小遊戲：主播衝刺跑 =====
 const GAME_SPRITES = {
   run_0: "run_0.png",
   run_1: "run_1.png",
@@ -1008,8 +1096,7 @@ const GAME_SPRITES = {
   }
 
   function jump(){
-    if (state === 'idle') { resetGame(); return; }
-    if (state === 'over') { resetGame(); return; }
+    if (state === 'idle' || state === 'over') { resetGame(); return; }
     if (!player.jumping) {
       player.vy = -13;
       player.jumping = true;
@@ -1170,6 +1257,7 @@ const GAME_SPRITES = {
 
   requestAnimationFrame(loop);
 })();
+
 </script>
 
 <template id="__bundler_thumbnail">
