@@ -368,6 +368,39 @@
     body::after{ animation:none; }
     .deco-crown, .deco-gem{ animation:none; }
   }
+  .game-unlock{
+  max-width:400px; margin:26px auto 0; padding:0 20px;
+  text-align:center; opacity:0; max-height:0; overflow:hidden;
+  transition:opacity .4s ease, max-height .4s ease;
+}
+.game-unlock.show{ opacity:1; max-height:120px; }
+.game-unlock-btn{
+  background:#FFD100; color:#0d0d0d; border:none; border-radius:10px;
+  padding:14px 22px; font-size:14px; font-weight:900; cursor:pointer;
+  animation:pulse 1.6s ease-in-out infinite;
+}
+@keyframes pulse{ 0%,100%{transform:scale(1);} 50%{transform:scale(1.04);} }
+.game-overlay{
+  position:fixed; inset:0; z-index:60; background:rgba(0,0,0,0.88);
+  display:none; align-items:center; justify-content:center;
+  flex-direction:column; gap:14px; padding:20px;
+}
+.game-overlay.active{ display:flex; }
+.game-title{ font-size:16px; color:#FFD100; font-weight:900; text-align:center; }
+#gameCanvas{
+  width:100%; max-width:380px; aspect-ratio:5/3;
+  background:linear-gradient(180deg,#1a1a2e 0%,#16161f 70%,#0d0d0d 100%);
+  border:3px solid #00D2BE; border-radius:12px; touch-action:none;
+}
+.game-hud{
+  display:flex; justify-content:space-between; width:100%; max-width:380px;
+  font-size:13px; font-weight:900; color:#fff;
+}
+.game-close{
+  background:transparent; color:#888; border:2px solid #444;
+  border-radius:8px; padding:8px 16px; font-size:13px; cursor:pointer;
+}
+.game-hint{ font-size:12px; color:#888; text-align:center; }
 </style>
 </head>
 <body>
@@ -394,6 +427,21 @@
 <p class="hint" style="font-size:15.5px;">點開卡片看獲獎人是誰，記得截圖或分享出去炫耀一下 ✦</p>
 
 <div class="grid" id="grid"></div>
+
+<div class="game-unlock" id="gameUnlock">
+  <button class="game-unlock-btn" id="gameUnlockBtn">🎮 隱藏小遊戲已解鎖！點我玩玩看</button>
+</div>
+
+<div class="game-overlay" id="gameOverlay">
+  <p class="game-title">✦ 主播衝刺跑 ✦</p>
+  <div class="game-hud">
+    <span id="gameScore">分數：0</span>
+    <span id="gameBest">最高：0</span>
+  </div>
+  <canvas id="gameCanvas" width="500" height="300"></canvas>
+  <p class="game-hint">按空白鍵／點擊畫面 跳躍，跳起來吃鑽石加分，撞到石頭遊戲結束</p>
+  <button class="game-close" id="gameCloseBtn">✕ 離開遊戲</button>
+</div>
 
 <footer>
   <p style="font-size:15px;">下週榜單，敬請期待新副本！</p>
@@ -633,6 +681,8 @@ const detailCard = document.getElementById('detailCard');
 const sharePill = document.getElementById('sharePill');
 let currentItem = null;
 let isSecretOpen = false;
+const viewedTiles = new Set();
+const totalTiles = DATA.length + 1;
 
 function renderDetail(item){
   detailCard.style.setProperty('--accent', item.accent);
@@ -802,6 +852,10 @@ function playFlipSound(sound){
 grid.addEventListener('click', (e) => {
   const tile = e.target.closest('.tile');
   if (!tile || flipping) return;
+  viewedTiles.add(tile.dataset.idx);
+if (viewedTiles.size >= totalTiles) {
+  document.getElementById('gameUnlock').classList.add('show');
+}
 
   const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
@@ -895,6 +949,227 @@ sharePill.addEventListener('click', async () => {
     showToast('產生圖卡失敗，請再試一次');
   }
 });
+const GAME_SPRITES = {
+  run_0: "run_0.png",
+  run_1: "run_1.png",
+  run_2: "run_2.png",
+  run_3: "run_3.png",
+  run_4: "run_4.png",
+  diamond: "diamond.png",
+  rock1: "rock1.png",
+  grass: "grass.png",
+  rock_grass: "rock_grass.png"
+};
+
+(function(){
+  const canvas = document.getElementById('gameCanvas');
+  const ctx = canvas.getContext('2d');
+  const gameOverlay = document.getElementById('gameOverlay');
+  const gameUnlockBtn = document.getElementById('gameUnlockBtn');
+  const gameCloseBtn = document.getElementById('gameCloseBtn');
+  const scoreEl = document.getElementById('gameScore');
+  const bestEl = document.getElementById('gameBest');
+
+  const CW = canvas.width, CH = canvas.height;
+  const GROUND_Y = CH - 50;
+
+  const runImgs = ['run_0','run_1','run_2','run_3','run_4'].map(k => {
+    const img = new Image();
+    img.src = GAME_SPRITES[k];
+    return img;
+  });
+  const obstacleKeys = ['rock1','grass','rock_grass'];
+  const obstacleImgs = obstacleKeys.map(k => {
+    const img = new Image();
+    img.src = GAME_SPRITES[k];
+    return img;
+  });
+  const diamondImg = new Image();
+  diamondImg.src = GAME_SPRITES['diamond'];
+
+  let best = Number(localStorage.getItem('sprint_best') || 0);
+  bestEl.textContent = '最高：' + best;
+
+  let state = 'idle';
+  let player, obstacles, diamonds, speed, score, frame, spawnTimer, diamondTimer, animFrame, animTimer;
+
+  function resetGame(){
+    player = { x: 60, y: GROUND_Y - 70, w: 56, h: 70, vy: 0, jumping: false };
+    obstacles = [];
+    diamonds = [];
+    speed = 4.5;
+    score = 0;
+    frame = 0;
+    spawnTimer = 0;
+    diamondTimer = 0;
+    animFrame = 0;
+    animTimer = 0;
+    state = 'playing';
+  }
+
+  function jump(){
+    if (state === 'idle') { resetGame(); return; }
+    if (state === 'over') { resetGame(); return; }
+    if (!player.jumping) {
+      player.vy = -13;
+      player.jumping = true;
+    }
+  }
+
+  canvas.addEventListener('click', jump);
+  window.addEventListener('keydown', (e) => {
+    if (e.code === 'Space' && gameOverlay.classList.contains('active')) {
+      e.preventDefault();
+      jump();
+    }
+  });
+
+  gameUnlockBtn.addEventListener('click', () => {
+    gameOverlay.classList.add('active');
+    if (state === 'idle' || state === 'over') {
+      drawIdleScreen();
+    }
+  });
+  gameCloseBtn.addEventListener('click', () => {
+    gameOverlay.classList.remove('active');
+    state = 'idle';
+  });
+
+  function spawnObstacle(){
+    const key = Math.floor(Math.random() * obstacleImgs.length);
+    const h = 50 + Math.random() * 20;
+    obstacles.push({ x: CW + 20, y: GROUND_Y - h + 10, w: h * 0.9, h: h, imgIdx: key });
+  }
+
+  function spawnDiamond(){
+    const y = GROUND_Y - 90 - Math.random() * 40;
+    diamonds.push({ x: CW + 20, y, w: 34, h: 34, collected: false });
+  }
+
+  function rectsOverlap(a, b){
+    return a.x < b.x + b.w && a.x + a.w > b.x && a.y < b.y + b.h && a.y + a.h > b.y;
+  }
+
+  function drawBackground(){
+    ctx.clearRect(0, 0, CW, CH);
+    ctx.strokeStyle = 'rgba(0,210,190,0.5)';
+    ctx.lineWidth = 3;
+    ctx.beginPath();
+    ctx.moveTo(0, GROUND_Y + 20);
+    ctx.lineTo(CW, GROUND_Y + 20);
+    ctx.stroke();
+    ctx.fillStyle = 'rgba(255,255,255,0.15)';
+    for (let i = 0; i < 12; i++) {
+      const x = (i * 83 + (frame * 0.6)) % CW;
+      ctx.fillRect(x, 30 + (i % 4) * 20, 2, 2);
+    }
+  }
+
+  function drawIdleScreen(){
+    drawBackground();
+    ctx.drawImage(runImgs[0], player.x, player.y, player.w, player.h);
+    ctx.fillStyle = '#fff';
+    ctx.font = '14px sans-serif';
+    ctx.textAlign = 'center';
+    ctx.fillText('點擊畫面或按空白鍵開始', CW/2, CH/2);
+  }
+
+  function drawGameOver(){
+    ctx.fillStyle = 'rgba(0,0,0,0.55)';
+    ctx.fillRect(0, 0, CW, CH);
+    ctx.fillStyle = '#FFD100';
+    ctx.font = 'bold 22px sans-serif';
+    ctx.textAlign = 'center';
+    ctx.fillText('遊戲結束', CW/2, CH/2 - 16);
+    ctx.fillStyle = '#fff';
+    ctx.font = '16px sans-serif';
+    ctx.fillText('本次分數：' + score, CW/2, CH/2 + 14);
+    ctx.font = '13px sans-serif';
+    ctx.fillStyle = '#aaa';
+    ctx.fillText('點擊畫面或按空白鍵再玩一次', CW/2, CH/2 + 42);
+  }
+
+  function loop(){
+    requestAnimationFrame(loop);
+
+    if (state !== 'playing') return;
+
+    frame++;
+    scoreEl.textContent = '分數：' + score;
+
+    player.vy += 0.7;
+    player.y += player.vy;
+    if (player.y >= GROUND_Y - player.h) {
+      player.y = GROUND_Y - player.h;
+      player.vy = 0;
+      player.jumping = false;
+    }
+
+    animTimer++;
+    if (animTimer > 5) { animTimer = 0; animFrame = (animFrame + 1) % runImgs.length; }
+
+    spawnTimer--;
+    if (spawnTimer <= 0) {
+      spawnObstacle();
+      spawnTimer = 55 + Math.random() * 45 - Math.min(speed * 3, 40);
+    }
+    diamondTimer--;
+    if (diamondTimer <= 0) {
+      spawnDiamond();
+      diamondTimer = 90 + Math.random() * 90;
+    }
+
+    drawBackground();
+
+    const runSprite = player.jumping ? runImgs[2] : runImgs[animFrame];
+    ctx.drawImage(runSprite, player.x, player.y, player.w, player.h);
+    const playerBox = { x: player.x + 10, y: player.y + 8, w: player.w - 20, h: player.h - 12 };
+
+    for (let i = obstacles.length - 1; i >= 0; i--) {
+      const o = obstacles[i];
+      o.x -= speed;
+      ctx.drawImage(obstacleImgs[o.imgIdx], o.x, o.y, o.w, o.h);
+      const obBox = { x: o.x + 6, y: o.y + 6, w: o.w - 12, h: o.h - 10 };
+      if (rectsOverlap(playerBox, obBox)) {
+        endGame();
+        return;
+      }
+      if (o.x < -60) obstacles.splice(i, 1);
+    }
+
+    for (let i = diamonds.length - 1; i >= 0; i--) {
+      const d = diamonds[i];
+      d.x -= speed;
+      if (!d.collected) {
+        ctx.drawImage(diamondImg, d.x, d.y, d.w, d.h);
+        const dBox = { x: d.x, y: d.y, w: d.w, h: d.h };
+        if (rectsOverlap(playerBox, dBox)) {
+          d.collected = true;
+          score += 20;
+        }
+      }
+      if (d.x < -60) diamonds.splice(i, 1);
+    }
+
+    score += 1;
+    if (frame % 300 === 0) speed += 0.4;
+  }
+
+  function endGame(){
+    state = 'over';
+    if (score > best) {
+      best = score;
+      localStorage.setItem('sprint_best', String(best));
+      bestEl.textContent = '最高：' + best;
+    }
+    drawGameOver();
+  }
+
+  player = { x: 60, y: GROUND_Y - 70, w: 56, h: 70, vy: 0, jumping: false };
+  runImgs[0].onload = () => { if (state === 'idle') drawIdleScreen(); };
+
+  requestAnimationFrame(loop);
+})();
 </script>
 
 <template id="__bundler_thumbnail">
