@@ -895,6 +895,7 @@ const viewedTiles = new Set();
 const totalTiles = DATA.length + 1;
 
 function renderDetail(item){
+  shareToken++;   // 卡片內容即將改變，先前準備好的截圖作廢
   detailCard.style.setProperty('--accent', item.accent);
   overlay.style.setProperty('--accent', item.accent);
   const label = awardLabel(item);
@@ -926,6 +927,73 @@ function renderDetail(item){
   loadAvatar(detailCard.querySelector('.avatar-slot'), item);
 }
 
+// ===== 分享圖卡：提前預先產生截圖，縮短「點擊→跳分享選單」的延遲 =====
+// 手機瀏覽器（含 iOS）對 navigator.share() 有「使用者剛點擊」的時效限制，
+// 如果點擊後才臨時開始截圖（尤其要等頭貼圖片載入），常常會超過這個時效，
+// 導致瀏覽器直接判定不能分享、改走下載備案。所以改成：卡片一展開就在背景
+// 先把截圖準備好，使用者按下分享時直接用現成的圖，不用再等。
+let shareToken = 0;
+let pendingShare = { token: -1, blob: null, name: '' };
+let prepareTimer = null;
+
+function schedulePrepareShare(delay){
+  clearTimeout(prepareTimer);
+  prepareTimer = setTimeout(prepareShareSnapshot, delay ?? 200);
+}
+
+async function prepareShareSnapshot(){
+  if (typeof html2canvas === 'undefined') return;
+  const myToken = shareToken;
+  try {
+    const cardBg = getComputedStyle(detailCard).backgroundColor || '#141414';
+    const canvas = await html2canvas(detailCard, {
+      backgroundColor: cardBg,
+      scale: Math.min(2, window.devicePixelRatio || 1),
+      useCORS: true,
+      allowTaint: false,
+      logging: false
+    });
+    const blob = await new Promise(res => canvas.toBlob(res, 'image/png'));
+    if (myToken !== shareToken || !blob) return; // 期間卡片已切換／重抽，這份截圖作廢
+    const name = isSecretOpen ? '本週小語.png' : `${currentItem.id}_榮譽卡.png`;
+    pendingShare = { token: myToken, blob, name };
+  } catch(e){ /* 預先產生失敗，點擊分享時會退回即時產生 */ }
+}
+
+async function generateShareBlob(){
+  const cardBg = getComputedStyle(detailCard).backgroundColor || '#141414';
+  const canvas = await html2canvas(detailCard, {
+    backgroundColor: cardBg,
+    scale: Math.min(2, window.devicePixelRatio || 1),
+    useCORS: true,
+    allowTaint: false,
+    logging: false
+  });
+  const blob = await new Promise(res => canvas.toBlob(res, 'image/png'));
+  const name = isSecretOpen ? '本週小語.png' : `${currentItem.id}_榮譽卡.png`;
+  return { blob, name };
+}
+
+async function shareOrDownload(blob, name){
+  const file = new File([blob], name, { type: 'image/png' });
+  if (navigator.canShare && navigator.canShare({ files: [file] })) {
+    try {
+      await navigator.share({ files: [file], title: '本週主播榮譽榜' });
+      showToast('分享成功！');
+      return;
+    } catch (err) {
+      if (err && err.name === 'AbortError') return;  // 使用者自行取消，不算失敗
+    }
+  }
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = name;
+  a.click();
+  setTimeout(() => URL.revokeObjectURL(url), 1000);
+  showToast('圖卡已下載！');
+}
+
 // ===== 頭貼串接示範 =====
 // 後續接入平台 API 時，只要把 fetchAvatarUrl 改成實際查詢即可：
 //   const res = await fetch(`/api/streamer/${item.id}/avatar`);
@@ -939,7 +1007,7 @@ async function loadAvatar(slot, item){
   if (!slot) return;
   try {
     const url = await fetchAvatarUrl(item);
-    if (!url) return;
+    if (!url) { schedulePrepareShare(150); return; }
     const img = new Image();
     img.crossOrigin = 'anonymous';   // 讓跨網域頭貼也能被截圖（需來源支援 CORS）
     img.alt = item.nickname;
@@ -947,13 +1015,15 @@ async function loadAvatar(slot, item){
       slot.innerHTML = '';
       slot.appendChild(img);
       slot.classList.add('filled');
+      schedulePrepareShare(80);   // 頭貼載入完成，馬上重新準備一次截圖
     };
-    img.onerror = () => {};   // 失敗則保留虛線佔位
+    img.onerror = () => { schedulePrepareShare(150); };   // 失敗則保留虛線佔位，仍要準備截圖
     img.src = url;
-  } catch(e){ /* 保留虛線佔位 */ }
+  } catch(e){ schedulePrepareShare(150); }
 }
 
 function renderSecret(){
+  shareToken++;   // 卡片內容即將改變，先前準備好的截圖作廢
   const q = currentLang === 'zh' ? pickQuote() : QUOTES_EN[Math.floor(Math.random() * QUOTES_EN.length)];
   const a = pickAnimal();
   detailCard.style.setProperty('--accent', 'var(--white)');
@@ -1131,6 +1201,16 @@ function showToast(msg){
 }
 
 sharePill.addEventListener('click', async () => {
+  // 優先使用已經在背景準備好的截圖，跳過等待，盡量在使用者點擊的當下直接呼叫分享
+  if (pendingShare.token === shareToken && pendingShare.blob) {
+    const { blob, name } = pendingShare;
+    shareOrDownload(blob, name).catch(() => {
+      showToast('產生圖卡失敗，請再試一次');
+    });
+    return;
+  }
+
+  // 沒有現成截圖（例如手速太快、或預先產生失敗）才退回即時產生
   if (typeof html2canvas === 'undefined') {
     showToast('圖片產生元件未載入，請確認網路後重試');
     return;
@@ -1138,38 +1218,10 @@ sharePill.addEventListener('click', async () => {
   const prev = sharePill.textContent;
   sharePill.textContent = '產生圖卡中…';
   try {
-    const cardBg = getComputedStyle(detailCard).backgroundColor || '#141414';
-    const canvas = await html2canvas(detailCard, {
-      backgroundColor: cardBg,
-      scale: Math.min(2, window.devicePixelRatio || 1),
-      useCORS: true,
-      allowTaint: false,
-      logging: false
-    });
-    const blob = await new Promise(res => canvas.toBlob(res, 'image/png'));
+    const { blob, name } = await generateShareBlob();
     sharePill.textContent = prev;
     if (!blob) { showToast('產生圖卡失敗，請再試一次'); return; }
-
-    const name = isSecretOpen ? '本週小語.png' : `${currentItem.id}_榮譽卡.png`;
-    const file = new File([blob], name, { type: 'image/png' });
-
-    if (navigator.canShare && navigator.canShare({ files: [file] })) {
-      try {
-        await navigator.share({ files: [file], title: '本週主播榮譽榜' });
-        showToast('分享成功！');
-        return;
-      } catch (err) {
-        if (err && err.name === 'AbortError') return;  // 使用者自行取消，不算失敗
-      }
-    }
-    // 不支援原生分享 → 下載圖片
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = name;
-    a.click();
-    setTimeout(() => URL.revokeObjectURL(url), 1000);
-    showToast('圖卡已下載！');
+    await shareOrDownload(blob, name);
   } catch(err) {
     sharePill.textContent = prev;
     showToast('產生圖卡失敗，請再試一次');
