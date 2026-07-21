@@ -95,9 +95,13 @@
   }
   .title-row{
     display:flex; align-items:center; justify-content:center; gap:14px;
-    max-width:100%; padding:0 8px; flex-wrap:nowrap;
+    max-width:100%; padding:0 8px; flex-wrap:wrap; row-gap:6px;
   }
-  .title-row h1{ flex:0 1 auto; min-width:0; white-space:nowrap; }
+  .title-row h1{
+    flex:0 1 auto; min-width:0;
+    white-space:normal; word-break:keep-all; overflow-wrap:break-word;
+    font-size:clamp(22px, 8vw, 36px);
+  }
   .deco-gem{
     flex:0 0 auto;
     width:26px; height:26px; image-rendering:pixelated;
@@ -107,7 +111,6 @@
   .deco-gem:last-child{ animation-delay:.5s; }
   @media (max-width: 480px){
     .title-row{ gap:9px; }
-    .title-row h1{ font-size:28px !important; }
     .deco-gem{ width:22px; }
     .deco-crown{ width:54px; }
   }
@@ -483,7 +486,7 @@
   <img class="deco-crown" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAFgAAABACAYAAACeELDCAAABxUlEQVR4AezYMU4DQQyF4dF2FPRcjxsgcQ4kbsBtoOYW9BSUQRZVpOxzBvtlo82P5IL1zJvJty6iLIfPcVA1Nv5Td4vextcbcQdVy9YX3Pv5AJvfMMAAmwXM8UwwwGYBczwTDLBZwBzPBANsFjDH73KCzWZT8QBPcc0vBnjebGoHwFNc84sBnjeb2pECq986ozd12onFkaHqxJajR2pv9I4W/+OfyFCVRabAWQB9LQCw9il3AS4T6gCAtU+5C3CZUAcArH3K3Tbg8k12GmAHVt8ho+d2jTNUuc+3A7s/wLXnA2x+QwADbBYwxzPBAJsFzPFM8LUDq++Y0TPfvxwfd1RVPYAJrgom+wFWQA09gBsQVQTASqehB3ADoooAWOk09ABuQFQRKfDP08tQpcLP6T1+fw1V52SoNeru0VN7O3opcMcht5wBsPntAwywWcAczwTfHLD5A186ngk2i6fAd6/PQ1X1fm/3D0NVNV/dPXrV/Gx/CpwF0NcCAGufchfgMqEOAFj7lLsAlwl1AMDap9wFuEyoA5aP9zEonwETrAew3P0DLscQsCYA8JpM03OAmyDXYgBek2l6DnAT5FoMwGsyTc9/AQAA//+brXK+AAAABklEQVQDAG7LyDDVm/8VAAAAAElFTkSuQmCC" alt="">
   <div class="title-row">
     <svg class="deco-gem" viewBox="0 0 9 8" shape-rendering="crispEdges" aria-hidden="true"><rect x="3" y="0" width="3" height="1" fill="#ffc3dd"/><rect x="2" y="1" width="5" height="1" fill="#f6418d"/><rect x="1" y="2" width="7" height="1" fill="#f6418d"/><rect x="0" y="3" width="9" height="1" fill="#f6418d"/><rect x="1" y="4" width="7" height="1" fill="#c01f6b"/><rect x="2" y="5" width="5" height="1" fill="#c01f6b"/><rect x="3" y="6" width="3" height="1" fill="#c01f6b"/><rect x="4" y="7" width="1" height="1" fill="#c01f6b"/></svg>
-    <h1 class="pixel" style="font-family:'Work Sans', sans-serif; font-size:36px; white-space:nowrap;">本週主播榮譽榜</h1>
+    <h1 class="pixel" style="font-family:'Work Sans', sans-serif;">本週主播榮譽榜</h1>
     <svg class="deco-gem" viewBox="0 0 9 9" shape-rendering="crispEdges" aria-hidden="true"><rect x="4" y="0" width="1" height="9" fill="#FFD100"/><rect x="0" y="4" width="9" height="1" fill="#FFD100"/><rect x="3" y="1" width="3" height="1" fill="#FFD100"/><rect x="1" y="3" width="1" height="3" fill="#FFD100"/><rect x="7" y="3" width="1" height="3" fill="#FFD100"/><rect x="3" y="7" width="3" height="1" fill="#FFD100"/><rect x="3" y="3" width="3" height="3" fill="#fff3a8"/></svg>
   </div>
   <div class="week-pill">
