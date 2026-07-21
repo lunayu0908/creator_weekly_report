@@ -447,9 +447,30 @@
     border-radius:8px; padding:8px 16px; font-size:13px; cursor:pointer;
   }
   .game-hint{ font-size:12px; color:#888; text-align:center; }
+
+  /* 語言切換按鈕 */
+  .lang-switch{
+    position:fixed; top:16px; right:16px; z-index:70;
+    display:flex; background:rgba(21,21,21,0.85);
+    border:2px solid var(--brand); border-radius:999px;
+    padding:4px; gap:2px;
+    backdrop-filter:blur(4px);
+  }
+  .lang-btn{
+    border:none; background:transparent; color:#888;
+    font-size:12px; font-weight:900; padding:6px 12px;
+    border-radius:999px; cursor:pointer;
+    font-family:'Noto Sans TC', sans-serif;
+  }
+  .lang-btn.active{ background:var(--brand); color:var(--bg); }
 </style>
 </head>
 <body>
+
+<div class="lang-switch" id="langSwitch">
+  <button class="lang-btn" data-lang="zh">中文</button>
+  <button class="lang-btn" data-lang="en">EN</button>
+</div>
 
 <!-- 預載好運動物圖（静態 <img> 使離線打包時能將圖片內嵌為 data URI）-->
 <div style="display:none" aria-hidden="true">
@@ -577,6 +598,7 @@ const statValueBuilders = {
 DATA.forEach(d => {
   const build = statValueBuilders[d.stat];
   if (build) d.statValue = build(d);
+  d.awardKey = d.stat;
 });
 
 // ===== Google Sheet 串接 =====
@@ -642,7 +664,8 @@ async function loadCards(){
       id: o.creator_id || '',
       statLabel: o.stat_label || '',
       statValue: o.stat_value || '',
-      avatar: o.avatar_url || ''
+      avatar: o.avatar_url || '',
+      awardKey: o.award_key || ''
     }));
     // 二、三名：讀表格 runner_up_1_id/value（=第2名）、runner_up_2_id/value（=第3名）；未提供則用假資料
     DATA.forEach((d, i) => {
@@ -717,6 +740,101 @@ function animSrc(key){
 }
 function pickAnimal(){ return LUCK_ANIMALS[Math.floor(Math.random()*LUCK_ANIMALS.length)]; }
 
+// ===== 多語系 =====
+// 中文維持原本 AI 生成的創意文案；其他語言用固定、簡單、直譯的版本，
+// 避免台灣時事梗直接翻譯後變得莫名其妙。之後若要擴充語言，
+// 只要在 AWARD_LABELS 跟 UI_TEXT 裡新增對應語言的 key 即可，不需要動 n8n。
+const AWARD_LABELS = {
+  en: {
+    free_content: "Most Free Content",
+    marathon: "Longest Streaming Hours",
+    total_rev: "Highest Total Revenue",
+    command: "Top Command Earnings",
+    chat: "Top DM Earnings",
+    shows: "Most Paid Shows",
+    unlock: "Most Unlocked Content",
+    swag_socialite: "Most Unique DM Chats",
+    rising_star: "Most New Followers"
+  }
+};
+const UI_TEXT = {
+  zh: {
+    title: "本週主播榮譽榜",
+    hint: "點開卡片看獲獎人是誰，記得截圖或分享出去炫耀一下 ✦",
+    footer1: "下週榜單，敬請期待新副本！",
+    footer2: "continued? yes!",
+    share: "📤 點擊分享到社群",
+    secretTitle: "SECRET CARD",
+    secretDesc: "神秘卡片，是什麼呢？<br>好像在暗示你點開它！",
+    secretCardTitle: "本週小語",
+    redraw: "🎲 再抽一次",
+    runnersHead: "緊追在後的是...",
+    gameUnlock: "🎮 隱藏小遊戲已解鎖！點我玩玩看"
+  },
+  en: {
+    title: "Weekly Creator Awards",
+    hint: "Tap a card to reveal the winner — screenshot & share it! ✦",
+    footer1: "New leaderboard next week!",
+    footer2: "continued? yes!",
+    share: "📤 Share",
+    secretTitle: "SECRET CARD",
+    secretDesc: "A mystery card...<br>go on, tap it!",
+    secretCardTitle: "Message of the Week",
+    redraw: "🎲 Draw Again",
+    runnersHead: "Runners-up",
+    gameUnlock: "🎮 Hidden game unlocked! Tap to play"
+  }
+};
+const QUOTES_EN = [
+  "Small consistent efforts add up to big results.",
+  "The hours nobody sees are the ones that count most.",
+  "Rest is part of the process, not the opposite of it.",
+  "Every stream is one more step forward.",
+  "You don't need to sprint every day — steady wins.",
+  "Today's small win is tomorrow's milestone."
+];
+
+let currentLang = localStorage.getItem('report_lang') || 'zh';
+
+function t(key){ return (UI_TEXT[currentLang] || UI_TEXT.zh)[key]; }
+
+function awardLabel(item){
+  if (currentLang === 'zh') return item.award || item.nickname;
+  const map = AWARD_LABELS[currentLang] || {};
+  return map[item.awardKey] || item.award || item.nickname;
+}
+
+function applyStaticTexts(){
+  document.querySelector('h1.pixel').textContent = t('title');
+  document.querySelector('.hint').textContent = t('hint');
+  const footerPs = document.querySelectorAll('footer p');
+  if (footerPs[0]) footerPs[0].textContent = t('footer1');
+  if (footerPs[1]) footerPs[1].textContent = t('footer2');
+  const sharePillEl = document.getElementById('sharePill');
+  if (sharePillEl) sharePillEl.textContent = t('share');
+  const gameUnlockBtnEl = document.getElementById('gameUnlockBtn');
+  if (gameUnlockBtnEl) gameUnlockBtnEl.textContent = t('gameUnlock');
+}
+
+function setLang(lang){
+  currentLang = lang;
+  localStorage.setItem('report_lang', lang);
+  document.querySelectorAll('.lang-btn').forEach(b => {
+    b.classList.toggle('active', b.dataset.lang === lang);
+  });
+  applyStaticTexts();
+  buildGrid();
+  if (overlay.classList.contains('active')) {
+    if (isSecretOpen) renderSecret(); else if (currentItem) renderDetail(currentItem);
+  }
+}
+
+document.getElementById('langSwitch').addEventListener('click', (e) => {
+  const btn = e.target.closest('.lang-btn');
+  if (!btn) return;
+  setLang(btn.dataset.lang);
+});
+
 // ===== 建立網格卡片 =====
 const grid = document.getElementById('grid');
 
@@ -729,8 +847,8 @@ function buildGrid(){
     tile.dataset.idx = idx;
     tile.innerHTML = `
       <div class="tile-badge">${item.icon}</div>
-      <p class="tile-title">${item.award || item.nickname}</p>
-      <p class="tile-desc">${item.desc}</p>
+      <p class="tile-title">${awardLabel(item)}</p>
+      <p class="tile-desc">${currentLang === 'zh' ? item.desc : ''}</p>
     `;
     grid.appendChild(tile);
   });
@@ -740,11 +858,16 @@ function buildGrid(){
   secretTile.dataset.idx = 'secret';
   secretTile.innerHTML = `
     <div class="tile-badge">🔒</div>
-    <p class="tile-title">SECRET CARD</p>
-    <p class="tile-desc">神秘卡片，是什麼呢？<br>好像在暗示你點開它！</p>
+    <p class="tile-title">${t('secretTitle')}</p>
+    <p class="tile-desc">${t('secretDesc')}</p>
   `;
   grid.appendChild(secretTile);
 }
+
+document.querySelectorAll('.lang-btn').forEach(b => {
+  b.classList.toggle('active', b.dataset.lang === currentLang);
+});
+applyStaticTexts();
 
 buildGrid();      // 先用內建資料渲染
 loadCards();      // 再抓 Google Sheet 覆蓋
@@ -761,25 +884,27 @@ const totalTiles = DATA.length + 1;
 function renderDetail(item){
   detailCard.style.setProperty('--accent', item.accent);
   overlay.style.setProperty('--accent', item.accent);
+  const label = awardLabel(item);
+  const showZhExtras = currentLang === 'zh';
   detailCard.innerHTML = `
     <div class="detail-icon">${item.icon}</div>
-    <p class="detail-title">${item.award || item.nickname}</p>
+    <p class="detail-title">${label}</p>
     <div class="avatar-slot" data-avatar="${item.id}">
       <span class="avatar-label">AVATAR</span>
       <span class="avatar-sub">主播頭貼</span>
     </div>
-    ${item.award && item.nickname ? `<p class="detail-nickname">${item.nickname}</p>` : ''}
-    <p class="detail-desc">${item.desc}</p>
+    ${showZhExtras && item.award && item.nickname ? `<p class="detail-nickname">${item.nickname}</p>` : ''}
+    ${showZhExtras ? `<p class="detail-desc">${item.desc}</p>` : ''}
     <p class="detail-id"><span class="heart">❤</span> @${item.id} <span class="heart">❤</span></p>
-    ${item.statLabel ? `<p class="detail-stat-label">${item.statLabel}</p>` : ''}
+    ${showZhExtras && item.statLabel ? `<p class="detail-stat-label">${item.statLabel}</p>` : ''}
     <p class="detail-stat-value">${item.statValue}</p>
     ${(item.runnersUp && item.runnersUp.length) ? `
       <div class="runners">
-        <p class="runners-head">緊追在後的是...</p>
+        <p class="runners-head">${t('runnersHead')}</p>
         ${item.runnersUp.map(r => `
           <div class="runner-row">
             <span class="runner-rank">${r.rank}</span>
-            <span class="runner-name">${r.nickname ? r.nickname + (r.id ? `<span class="runner-id">@${r.id}</span>` : '') : (r.id ? '@' + r.id : '')}</span>
+            <span class="runner-name">${showZhExtras && r.nickname ? r.nickname + (r.id ? `<span class="runner-id">@${r.id}</span>` : '') : (r.id ? '@' + r.id : '')}</span>
             ${r.value ? `<span class="runner-val">${r.value}</span>` : ''}
           </div>
         `).join('')}
@@ -816,16 +941,16 @@ async function loadAvatar(slot, item){
 }
 
 function renderSecret(){
-  const q = pickQuote();
+  const q = currentLang === 'zh' ? pickQuote() : QUOTES_EN[Math.floor(Math.random() * QUOTES_EN.length)];
   const a = pickAnimal();
   detailCard.style.setProperty('--accent', 'var(--white)');
   overlay.style.setProperty('--accent', 'var(--white)');
   detailCard.innerHTML = `
-    <p class="luck-greeting">${a.greeting}</p>
+    ${currentLang === 'zh' ? `<p class="luck-greeting">${a.greeting}</p>` : ''}
     <img class="luck-animal" src="${animSrc(a.key)}" alt="">
-    <p class="detail-title" style="color:var(--white);">本週小語</p>
+    <p class="detail-title" style="color:var(--white);">${t('secretCardTitle')}</p>
     <p class="detail-desc" style="font-size:16px;">${q}</p>
-    <button class="redraw-btn" id="redrawBtn">🎲 再抽一次</button>
+    <button class="redraw-btn" id="redrawBtn">${t('redraw')}</button>
   `;
 }
 
