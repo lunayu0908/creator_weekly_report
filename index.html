@@ -791,7 +791,17 @@ const QUOTES_EN = [
   "Rest is part of the process, not the opposite of it.",
   "Every stream is one more step forward.",
   "You don't need to sprint every day — steady wins.",
-  "Today's small win is tomorrow's milestone."
+  "Today's small win is tomorrow's milestone.",
+  "Progress doesn't always look like progress in the moment.",
+  "Showing up consistently is its own kind of talent.",
+  "The quiet weeks build the loud ones.",
+  "You're allowed to take it one stream at a time.",
+  "Growth is rarely a straight line, and that's okay.",
+  "What feels ordinary today might be someone's inspiration tomorrow.",
+  "You don't have to be the loudest to be remembered.",
+  "Every small habit is a vote for who you're becoming.",
+  "Not every week needs a highlight to still matter.",
+  "Keep going — the best part is usually further than it looks."
 ];
 
 let currentLang = localStorage.getItem('report_lang') || 'zh';
@@ -1080,6 +1090,7 @@ grid.addEventListener('click', (e) => {
       renderDetail(currentItem);
     }
     overlay.classList.add('active');
+    document.getElementById('langSwitch').style.display = 'none';
   };
 
   if (reduce) { openDetail(); return; }
@@ -1106,6 +1117,7 @@ overlay.addEventListener('click', (e) => {
 
 function closeOverlay(){
   overlay.classList.remove('active');
+  document.getElementById('langSwitch').style.display = 'flex';
 }
 
 function showToast(msg){
