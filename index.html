@@ -95,13 +95,9 @@
   }
   .title-row{
     display:flex; align-items:center; justify-content:center; gap:14px;
-    max-width:100%; padding:0 8px; flex-wrap:wrap; row-gap:6px;
+    max-width:100%; padding:0 8px; flex-wrap:nowrap;
   }
-  .title-row h1{
-    flex:0 1 auto; min-width:0;
-    white-space:normal; word-break:keep-all; overflow-wrap:break-word;
-    font-size:clamp(22px, 8vw, 36px);
-  }
+  .title-row h1{ flex:0 1 auto; min-width:0; white-space:nowrap; }
   .deco-gem{
     flex:0 0 auto;
     width:26px; height:26px; image-rendering:pixelated;
@@ -111,6 +107,7 @@
   .deco-gem:last-child{ animation-delay:.5s; }
   @media (max-width: 480px){
     .title-row{ gap:9px; }
+    .title-row h1{ font-size:28px !important; }
     .deco-gem{ width:22px; }
     .deco-crown{ width:54px; }
   }
@@ -450,30 +447,70 @@
     border-radius:8px; padding:8px 16px; font-size:13px; cursor:pointer;
   }
   .game-hint{ font-size:12px; color:#888; text-align:center; }
+  .game-lb-btn{
+    background:transparent; color:#00D2BE; border:2px solid #00D2BE;
+    border-radius:8px; padding:4px 10px; font-size:12px; font-weight:900; cursor:pointer;
+  }
+  .game-over-actions{
+    display:none; gap:10px; width:100%; max-width:380px;
+  }
+  .game-over-actions.show{ display:flex; }
+  .game-over-actions button{
+    flex:1; border-radius:10px; padding:12px 10px; font-size:13px; font-weight:900;
+    cursor:pointer; border:none;
+  }
+  .retry-btn{ background:#00D2BE; color:#0d0d0d; }
+  .record-btn{ background:#FFD100; color:#0d0d0d; }
 
-  /* 語言切換按鈕 */
-  .lang-switch{
-    position:fixed; top:16px; right:16px; z-index:70;
-    display:flex; background:rgba(21,21,21,0.85);
-    border:2px solid var(--brand); border-radius:999px;
-    padding:4px; gap:2px;
-    backdrop-filter:blur(4px);
+  .name-modal-overlay, .leaderboard-overlay{
+    position:fixed; inset:0; z-index:70; background:rgba(0,0,0,0.75);
+    display:none; align-items:center; justify-content:center; padding:20px;
   }
-  .lang-btn{
-    border:none; background:transparent; color:#888;
-    font-size:12px; font-weight:900; padding:6px 12px;
-    border-radius:999px; cursor:pointer;
-    font-family:'Noto Sans TC', sans-serif;
+  .name-modal-overlay.active, .leaderboard-overlay.active{ display:flex; }
+  .name-modal, .leaderboard-modal{
+    background:var(--card-bg); border:3px solid #FFD100; border-radius:14px;
+    padding:24px 20px; width:100%; max-width:320px; text-align:center;
   }
-  .lang-btn.active{ background:var(--brand); color:var(--bg); }
+  .name-modal-title, .leaderboard-title{
+    color:#FFD100; font-weight:900; font-size:16px; margin:0 0 8px;
+  }
+  .name-modal-score{ color:#fff; font-size:14px; margin:0 0 14px; }
+  #nameInput{
+    width:100%; box-sizing:border-box; text-align:center; letter-spacing:4px;
+    font-size:18px; font-weight:900; text-transform:uppercase;
+    padding:10px; border-radius:8px; border:2px solid #00D2BE;
+    background:#0d0d0d; color:#fff; margin-bottom:6px;
+  }
+  .name-modal-hint{ color:#888; font-size:11px; margin:0 0 16px; }
+  .name-modal-actions{ display:flex; gap:10px; }
+  .name-modal-actions button{
+    flex:1; border-radius:8px; padding:10px; font-size:13px; font-weight:900;
+    cursor:pointer; border:none;
+  }
+  .name-cancel-btn{ background:transparent; color:#888; border:2px solid #444 !important; }
+  .name-submit-btn{ background:#FFD100; color:#0d0d0d; }
+  .name-submit-btn:disabled{ opacity:0.5; cursor:not-allowed; }
+
+  .leaderboard-week{ color:#888; font-size:12px; margin:0 0 14px; }
+  .leaderboard-list{
+    list-style:none; margin:0 0 18px; padding:0; text-align:left;
+    max-height:280px; overflow-y:auto;
+  }
+  .leaderboard-list li{
+    display:flex; align-items:center; gap:10px;
+    padding:8px 6px; border-bottom:1px solid #2a2a2a;
+    color:#fff; font-size:14px;
+  }
+  .lb-rank{ width:22px; font-weight:900; color:#00D2BE; }
+  .lb-name{ flex:1; font-weight:700; letter-spacing:1px; }
+  .lb-score{ font-weight:900; color:#FFD100; }
+  .leaderboard-close-btn{
+    background:transparent; color:#888; border:2px solid #444;
+    border-radius:8px; padding:8px 16px; font-size:13px; cursor:pointer; width:100%;
+  }
 </style>
 </head>
 <body>
-
-<div class="lang-switch" id="langSwitch">
-  <button class="lang-btn" data-lang="zh">中文</button>
-  <button class="lang-btn" data-lang="en">EN</button>
-</div>
 
 <!-- 預載好運動物圖（静態 <img> 使離線打包時能將圖片內嵌為 data URI）-->
 <div style="display:none" aria-hidden="true">
@@ -486,7 +523,7 @@
   <img class="deco-crown" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAFgAAABACAYAAACeELDCAAABxUlEQVR4AezYMU4DQQyF4dF2FPRcjxsgcQ4kbsBtoOYW9BSUQRZVpOxzBvtlo82P5IL1zJvJty6iLIfPcVA1Nv5Td4vextcbcQdVy9YX3Pv5AJvfMMAAmwXM8UwwwGYBczwTDLBZwBzPBANsFjDH73KCzWZT8QBPcc0vBnjebGoHwFNc84sBnjeb2pECq986ozd12onFkaHqxJajR2pv9I4W/+OfyFCVRabAWQB9LQCw9il3AS4T6gCAtU+5C3CZUAcArH3K3Tbg8k12GmAHVt8ho+d2jTNUuc+3A7s/wLXnA2x+QwADbBYwxzPBAJsFzPFM8LUDq++Y0TPfvxwfd1RVPYAJrgom+wFWQA09gBsQVQTASqehB3ADoooAWOk09ABuQFQRKfDP08tQpcLP6T1+fw1V52SoNeru0VN7O3opcMcht5wBsPntAwywWcAczwTfHLD5A186ngk2i6fAd6/PQ1X1fm/3D0NVNV/dPXrV/Gx/CpwF0NcCAGufchfgMqEOAFj7lLsAlwl1AMDap9wFuEyoA5aP9zEonwETrAew3P0DLscQsCYA8JpM03OAmyDXYgBek2l6DnAT5FoMwGsyTc9/AQAA//+brXK+AAAABklEQVQDAG7LyDDVm/8VAAAAAElFTkSuQmCC" alt="">
   <div class="title-row">
     <svg class="deco-gem" viewBox="0 0 9 8" shape-rendering="crispEdges" aria-hidden="true"><rect x="3" y="0" width="3" height="1" fill="#ffc3dd"/><rect x="2" y="1" width="5" height="1" fill="#f6418d"/><rect x="1" y="2" width="7" height="1" fill="#f6418d"/><rect x="0" y="3" width="9" height="1" fill="#f6418d"/><rect x="1" y="4" width="7" height="1" fill="#c01f6b"/><rect x="2" y="5" width="5" height="1" fill="#c01f6b"/><rect x="3" y="6" width="3" height="1" fill="#c01f6b"/><rect x="4" y="7" width="1" height="1" fill="#c01f6b"/></svg>
-    <h1 class="pixel" style="font-family:'Work Sans', sans-serif;">本週主播榮譽榜</h1>
+    <h1 class="pixel" style="font-family:'Work Sans', sans-serif; font-size:36px; white-space:nowrap;">本週主播榮譽榜</h1>
     <svg class="deco-gem" viewBox="0 0 9 9" shape-rendering="crispEdges" aria-hidden="true"><rect x="4" y="0" width="1" height="9" fill="#FFD100"/><rect x="0" y="4" width="9" height="1" fill="#FFD100"/><rect x="3" y="1" width="3" height="1" fill="#FFD100"/><rect x="1" y="3" width="1" height="3" fill="#FFD100"/><rect x="7" y="3" width="1" height="3" fill="#FFD100"/><rect x="3" y="7" width="3" height="1" fill="#FFD100"/><rect x="3" y="3" width="3" height="3" fill="#fff3a8"/></svg>
   </div>
   <div class="week-pill">
@@ -507,10 +544,37 @@
   <div class="game-hud">
     <span id="gameScore">分數：0</span>
     <span id="gameBest">最高：0</span>
+    <button class="game-lb-btn" id="gameLbBtn">🏆 排行榜</button>
   </div>
   <canvas id="gameCanvas" width="500" height="300"></canvas>
   <p class="game-hint">按空白鍵／點擊畫面 跳躍，跳起來吃鑽石加分，撞到石頭遊戲結束</p>
+  <div class="game-over-actions" id="gameOverActions">
+    <button class="retry-btn" id="retryBtn">🔄 再次挑戰</button>
+    <button class="record-btn" id="recordBtn">💾 紀錄分數</button>
+  </div>
   <button class="game-close" id="gameCloseBtn">✕ 離開遊戲</button>
+</div>
+
+<div class="name-modal-overlay" id="nameModalOverlay">
+  <div class="name-modal">
+    <p class="name-modal-title">🏆 記錄你的分數！</p>
+    <p class="name-modal-score" id="nameModalScore">分數：0</p>
+    <input type="text" id="nameInput" maxlength="5" placeholder="ABCDE" autocomplete="off">
+    <p class="name-modal-hint">僅限英文字母 A-Z，最多 5 個字元</p>
+    <div class="name-modal-actions">
+      <button class="name-cancel-btn" id="nameCancelBtn">取消</button>
+      <button class="name-submit-btn" id="nameSubmitBtn">送出</button>
+    </div>
+  </div>
+</div>
+
+<div class="leaderboard-overlay" id="leaderboardOverlay">
+  <div class="leaderboard-modal">
+    <p class="leaderboard-title">🏆 本週排行榜</p>
+    <p class="leaderboard-week" id="leaderboardWeek"></p>
+    <ol class="leaderboard-list" id="leaderboardList"><li>載入中...</li></ol>
+    <button class="leaderboard-close-btn" id="leaderboardCloseBtn">✕ 關閉</button>
+  </div>
 </div>
 
 <footer>
@@ -601,7 +665,6 @@ const statValueBuilders = {
 DATA.forEach(d => {
   const build = statValueBuilders[d.stat];
   if (build) d.statValue = build(d);
-  d.awardKey = d.stat;
 });
 
 // ===== Google Sheet 串接 =====
@@ -667,8 +730,7 @@ async function loadCards(){
       id: o.creator_id || '',
       statLabel: o.stat_label || '',
       statValue: o.stat_value || '',
-      avatar: o.avatar_url || '',
-      awardKey: o.award_key || ''
+      avatar: o.avatar_url || ''
     }));
     // 二、三名：讀表格 runner_up_1_id/value（=第2名）、runner_up_2_id/value（=第3名）；未提供則用假資料
     DATA.forEach((d, i) => {
@@ -743,111 +805,6 @@ function animSrc(key){
 }
 function pickAnimal(){ return LUCK_ANIMALS[Math.floor(Math.random()*LUCK_ANIMALS.length)]; }
 
-// ===== 多語系 =====
-// 中文維持原本 AI 生成的創意文案；其他語言用固定、簡單、直譯的版本，
-// 避免台灣時事梗直接翻譯後變得莫名其妙。之後若要擴充語言，
-// 只要在 AWARD_LABELS 跟 UI_TEXT 裡新增對應語言的 key 即可，不需要動 n8n。
-const AWARD_LABELS = {
-  en: {
-    free_content: "Most Free Content",
-    marathon: "Longest Streaming Hours",
-    total_rev: "Highest Total Revenue",
-    command: "Top Command Earnings",
-    chat: "Top DM Earnings",
-    shows: "Most Paid Shows",
-    unlock: "Most Unlocked Content",
-    swag_socialite: "Most Unique DM Chats",
-    rising_star: "Most New Followers"
-  }
-};
-const UI_TEXT = {
-  zh: {
-    title: "本週主播榮譽榜",
-    hint: "點開卡片看獲獎人是誰，記得截圖或分享出去炫耀一下 ✦",
-    footer1: "下週榜單，敬請期待新副本！",
-    footer2: "continued? yes!",
-    share: "📤 點擊分享到社群",
-    secretTitle: "SECRET CARD",
-    secretDesc: "神秘卡片，是什麼呢？<br>好像在暗示你點開它！",
-    secretCardTitle: "本週小語",
-    redraw: "🎲 再抽一次",
-    runnersHead: "緊追在後的是...",
-    gameUnlock: "🎮 隱藏小遊戲已解鎖！點我玩玩看"
-  },
-  en: {
-    title: "Weekly Creator Awards",
-    hint: "Tap a card to reveal the winner — screenshot & share it! ✦",
-    footer1: "New leaderboard next week!",
-    footer2: "continued? yes!",
-    share: "📤 Share",
-    secretTitle: "SECRET CARD",
-    secretDesc: "A mystery card...<br>go on, tap it!",
-    secretCardTitle: "Message of the Week",
-    redraw: "🎲 Draw Again",
-    runnersHead: "Runners-up",
-    gameUnlock: "🎮 Hidden game unlocked! Tap to play"
-  }
-};
-const QUOTES_EN = [
-  "Small consistent efforts add up to big results.",
-  "The hours nobody sees are the ones that count most.",
-  "Rest is part of the process, not the opposite of it.",
-  "Every stream is one more step forward.",
-  "You don't need to sprint every day — steady wins.",
-  "Today's small win is tomorrow's milestone.",
-  "Progress doesn't always look like progress in the moment.",
-  "Showing up consistently is its own kind of talent.",
-  "The quiet weeks build the loud ones.",
-  "You're allowed to take it one stream at a time.",
-  "Growth is rarely a straight line, and that's okay.",
-  "What feels ordinary today might be someone's inspiration tomorrow.",
-  "You don't have to be the loudest to be remembered.",
-  "Every small habit is a vote for who you're becoming.",
-  "Not every week needs a highlight to still matter.",
-  "Keep going — the best part is usually further than it looks."
-];
-
-let currentLang = localStorage.getItem('report_lang') || 'zh';
-
-function t(key){ return (UI_TEXT[currentLang] || UI_TEXT.zh)[key]; }
-
-function awardLabel(item){
-  if (currentLang === 'zh') return item.award || item.nickname;
-  const map = AWARD_LABELS[currentLang] || {};
-  return map[item.awardKey] || item.award || item.nickname;
-}
-
-function applyStaticTexts(){
-  document.querySelector('h1.pixel').textContent = t('title');
-  document.querySelector('.hint').textContent = t('hint');
-  const footerPs = document.querySelectorAll('footer p');
-  if (footerPs[0]) footerPs[0].textContent = t('footer1');
-  if (footerPs[1]) footerPs[1].textContent = t('footer2');
-  const sharePillEl = document.getElementById('sharePill');
-  if (sharePillEl) sharePillEl.textContent = t('share');
-  const gameUnlockBtnEl = document.getElementById('gameUnlockBtn');
-  if (gameUnlockBtnEl) gameUnlockBtnEl.textContent = t('gameUnlock');
-}
-
-function setLang(lang){
-  currentLang = lang;
-  localStorage.setItem('report_lang', lang);
-  document.querySelectorAll('.lang-btn').forEach(b => {
-    b.classList.toggle('active', b.dataset.lang === lang);
-  });
-  applyStaticTexts();
-  buildGrid();
-  if (overlay.classList.contains('active')) {
-    if (isSecretOpen) renderSecret(); else if (currentItem) renderDetail(currentItem);
-  }
-}
-
-document.getElementById('langSwitch').addEventListener('click', (e) => {
-  const btn = e.target.closest('.lang-btn');
-  if (!btn) return;
-  setLang(btn.dataset.lang);
-});
-
 // ===== 建立網格卡片 =====
 const grid = document.getElementById('grid');
 
@@ -860,8 +817,8 @@ function buildGrid(){
     tile.dataset.idx = idx;
     tile.innerHTML = `
       <div class="tile-badge">${item.icon}</div>
-      <p class="tile-title">${awardLabel(item)}</p>
-      <p class="tile-desc">${currentLang === 'zh' ? item.desc : ''}</p>
+      <p class="tile-title">${item.award || item.nickname}</p>
+      <p class="tile-desc">${item.desc}</p>
     `;
     grid.appendChild(tile);
   });
@@ -871,16 +828,11 @@ function buildGrid(){
   secretTile.dataset.idx = 'secret';
   secretTile.innerHTML = `
     <div class="tile-badge">🔒</div>
-    <p class="tile-title">${t('secretTitle')}</p>
-    <p class="tile-desc">${t('secretDesc')}</p>
+    <p class="tile-title">SECRET CARD</p>
+    <p class="tile-desc">神秘卡片，是什麼呢？<br>好像在暗示你點開它！</p>
   `;
   grid.appendChild(secretTile);
 }
-
-document.querySelectorAll('.lang-btn').forEach(b => {
-  b.classList.toggle('active', b.dataset.lang === currentLang);
-});
-applyStaticTexts();
 
 buildGrid();      // 先用內建資料渲染
 loadCards();      // 再抓 Google Sheet 覆蓋
@@ -895,103 +847,33 @@ const viewedTiles = new Set();
 const totalTiles = DATA.length + 1;
 
 function renderDetail(item){
-  shareToken++;   // 卡片內容即將改變，先前準備好的截圖作廢
   detailCard.style.setProperty('--accent', item.accent);
   overlay.style.setProperty('--accent', item.accent);
-  const label = awardLabel(item);
-  const showZhExtras = currentLang === 'zh';
   detailCard.innerHTML = `
     <div class="detail-icon">${item.icon}</div>
-    <p class="detail-title">${label}</p>
+    <p class="detail-title">${item.award || item.nickname}</p>
     <div class="avatar-slot" data-avatar="${item.id}">
       <span class="avatar-label">AVATAR</span>
       <span class="avatar-sub">主播頭貼</span>
     </div>
-    ${showZhExtras && item.award && item.nickname ? `<p class="detail-nickname">${item.nickname}</p>` : ''}
-    ${showZhExtras ? `<p class="detail-desc">${item.desc}</p>` : ''}
+    ${item.award && item.nickname ? `<p class="detail-nickname">${item.nickname}</p>` : ''}
+    <p class="detail-desc">${item.desc}</p>
     <p class="detail-id"><span class="heart">❤</span> @${item.id} <span class="heart">❤</span></p>
-    ${showZhExtras && item.statLabel ? `<p class="detail-stat-label">${item.statLabel}</p>` : ''}
+    ${item.statLabel ? `<p class="detail-stat-label">${item.statLabel}</p>` : ''}
     <p class="detail-stat-value">${item.statValue}</p>
     ${(item.runnersUp && item.runnersUp.length) ? `
       <div class="runners">
-        <p class="runners-head">${t('runnersHead')}</p>
+        <p class="runners-head">緊追在後的是...</p>
         ${item.runnersUp.map(r => `
           <div class="runner-row">
             <span class="runner-rank">${r.rank}</span>
-            <span class="runner-name">${showZhExtras && r.nickname ? r.nickname + (r.id ? `<span class="runner-id">@${r.id}</span>` : '') : (r.id ? '@' + r.id : '')}</span>
+            <span class="runner-name">${r.nickname ? r.nickname + (r.id ? `<span class="runner-id">@${r.id}</span>` : '') : (r.id ? '@' + r.id : '')}</span>
             ${r.value ? `<span class="runner-val">${r.value}</span>` : ''}
           </div>
         `).join('')}
       </div>` : ''}
   `;
   loadAvatar(detailCard.querySelector('.avatar-slot'), item);
-}
-
-// ===== 分享圖卡：提前預先產生截圖，縮短「點擊→跳分享選單」的延遲 =====
-// 手機瀏覽器（含 iOS）對 navigator.share() 有「使用者剛點擊」的時效限制，
-// 如果點擊後才臨時開始截圖（尤其要等頭貼圖片載入），常常會超過這個時效，
-// 導致瀏覽器直接判定不能分享、改走下載備案。所以改成：卡片一展開就在背景
-// 先把截圖準備好，使用者按下分享時直接用現成的圖，不用再等。
-let shareToken = 0;
-let pendingShare = { token: -1, blob: null, name: '' };
-let prepareTimer = null;
-
-function schedulePrepareShare(delay){
-  clearTimeout(prepareTimer);
-  prepareTimer = setTimeout(prepareShareSnapshot, delay ?? 200);
-}
-
-async function prepareShareSnapshot(){
-  if (typeof html2canvas === 'undefined') return;
-  const myToken = shareToken;
-  try {
-    const cardBg = getComputedStyle(detailCard).backgroundColor || '#141414';
-    const canvas = await html2canvas(detailCard, {
-      backgroundColor: cardBg,
-      scale: Math.min(2, window.devicePixelRatio || 1),
-      useCORS: true,
-      allowTaint: false,
-      logging: false
-    });
-    const blob = await new Promise(res => canvas.toBlob(res, 'image/png'));
-    if (myToken !== shareToken || !blob) return; // 期間卡片已切換／重抽，這份截圖作廢
-    const name = isSecretOpen ? '本週小語.png' : `${currentItem.id}_榮譽卡.png`;
-    pendingShare = { token: myToken, blob, name };
-  } catch(e){ /* 預先產生失敗，點擊分享時會退回即時產生 */ }
-}
-
-async function generateShareBlob(){
-  const cardBg = getComputedStyle(detailCard).backgroundColor || '#141414';
-  const canvas = await html2canvas(detailCard, {
-    backgroundColor: cardBg,
-    scale: Math.min(2, window.devicePixelRatio || 1),
-    useCORS: true,
-    allowTaint: false,
-    logging: false
-  });
-  const blob = await new Promise(res => canvas.toBlob(res, 'image/png'));
-  const name = isSecretOpen ? '本週小語.png' : `${currentItem.id}_榮譽卡.png`;
-  return { blob, name };
-}
-
-async function shareOrDownload(blob, name){
-  const file = new File([blob], name, { type: 'image/png' });
-  if (navigator.canShare && navigator.canShare({ files: [file] })) {
-    try {
-      await navigator.share({ files: [file], title: '本週主播榮譽榜' });
-      showToast('分享成功！');
-      return;
-    } catch (err) {
-      if (err && err.name === 'AbortError') return;  // 使用者自行取消，不算失敗
-    }
-  }
-  const url = URL.createObjectURL(blob);
-  const a = document.createElement('a');
-  a.href = url;
-  a.download = name;
-  a.click();
-  setTimeout(() => URL.revokeObjectURL(url), 1000);
-  showToast('圖卡已下載！');
 }
 
 // ===== 頭貼串接示範 =====
@@ -1007,7 +889,7 @@ async function loadAvatar(slot, item){
   if (!slot) return;
   try {
     const url = await fetchAvatarUrl(item);
-    if (!url) { schedulePrepareShare(150); return; }
+    if (!url) return;
     const img = new Image();
     img.crossOrigin = 'anonymous';   // 讓跨網域頭貼也能被截圖（需來源支援 CORS）
     img.alt = item.nickname;
@@ -1015,25 +897,23 @@ async function loadAvatar(slot, item){
       slot.innerHTML = '';
       slot.appendChild(img);
       slot.classList.add('filled');
-      schedulePrepareShare(80);   // 頭貼載入完成，馬上重新準備一次截圖
     };
-    img.onerror = () => { schedulePrepareShare(150); };   // 失敗則保留虛線佔位，仍要準備截圖
+    img.onerror = () => {};   // 失敗則保留虛線佔位
     img.src = url;
-  } catch(e){ schedulePrepareShare(150); }
+  } catch(e){ /* 保留虛線佔位 */ }
 }
 
 function renderSecret(){
-  shareToken++;   // 卡片內容即將改變，先前準備好的截圖作廢
-  const q = currentLang === 'zh' ? pickQuote() : QUOTES_EN[Math.floor(Math.random() * QUOTES_EN.length)];
+  const q = pickQuote();
   const a = pickAnimal();
   detailCard.style.setProperty('--accent', 'var(--white)');
   overlay.style.setProperty('--accent', 'var(--white)');
   detailCard.innerHTML = `
-    ${currentLang === 'zh' ? `<p class="luck-greeting">${a.greeting}</p>` : ''}
+    <p class="luck-greeting">${a.greeting}</p>
     <img class="luck-animal" src="${animSrc(a.key)}" alt="">
-    <p class="detail-title" style="color:var(--white);">${t('secretCardTitle')}</p>
+    <p class="detail-title" style="color:var(--white);">本週小語</p>
     <p class="detail-desc" style="font-size:16px;">${q}</p>
-    <button class="redraw-btn" id="redrawBtn">${t('redraw')}</button>
+    <button class="redraw-btn" id="redrawBtn">🎲 再抽一次</button>
   `;
 }
 
@@ -1163,7 +1043,6 @@ grid.addEventListener('click', (e) => {
       renderDetail(currentItem);
     }
     overlay.classList.add('active');
-    document.getElementById('langSwitch').style.display = 'none';
   };
 
   if (reduce) { openDetail(); return; }
@@ -1190,7 +1069,6 @@ overlay.addEventListener('click', (e) => {
 
 function closeOverlay(){
   overlay.classList.remove('active');
-  document.getElementById('langSwitch').style.display = 'flex';
 }
 
 function showToast(msg){
@@ -1201,16 +1079,6 @@ function showToast(msg){
 }
 
 sharePill.addEventListener('click', async () => {
-  // 優先使用已經在背景準備好的截圖，跳過等待，盡量在使用者點擊的當下直接呼叫分享
-  if (pendingShare.token === shareToken && pendingShare.blob) {
-    const { blob, name } = pendingShare;
-    shareOrDownload(blob, name).catch(() => {
-      showToast('產生圖卡失敗，請再試一次');
-    });
-    return;
-  }
-
-  // 沒有現成截圖（例如手速太快、或預先產生失敗）才退回即時產生
   if (typeof html2canvas === 'undefined') {
     showToast('圖片產生元件未載入，請確認網路後重試');
     return;
@@ -1218,10 +1086,38 @@ sharePill.addEventListener('click', async () => {
   const prev = sharePill.textContent;
   sharePill.textContent = '產生圖卡中…';
   try {
-    const { blob, name } = await generateShareBlob();
+    const cardBg = getComputedStyle(detailCard).backgroundColor || '#141414';
+    const canvas = await html2canvas(detailCard, {
+      backgroundColor: cardBg,
+      scale: Math.min(2, window.devicePixelRatio || 1),
+      useCORS: true,
+      allowTaint: false,
+      logging: false
+    });
+    const blob = await new Promise(res => canvas.toBlob(res, 'image/png'));
     sharePill.textContent = prev;
     if (!blob) { showToast('產生圖卡失敗，請再試一次'); return; }
-    await shareOrDownload(blob, name);
+
+    const name = isSecretOpen ? '本週小語.png' : `${currentItem.id}_榮譽卡.png`;
+    const file = new File([blob], name, { type: 'image/png' });
+
+    if (navigator.canShare && navigator.canShare({ files: [file] })) {
+      try {
+        await navigator.share({ files: [file], title: '本週主播榮譽榜' });
+        showToast('分享成功！');
+        return;
+      } catch (err) {
+        if (err && err.name === 'AbortError') return;  // 使用者自行取消，不算失敗
+      }
+    }
+    // 不支援原生分享 → 下載圖片
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = name;
+    a.click();
+    setTimeout(() => URL.revokeObjectURL(url), 1000);
+    showToast('圖卡已下載！');
   } catch(err) {
     sharePill.textContent = prev;
     showToast('產生圖卡失敗，請再試一次');
@@ -1249,6 +1145,24 @@ const GAME_SPRITES = {
   const gameCloseBtn = document.getElementById('gameCloseBtn');
   const scoreEl = document.getElementById('gameScore');
   const bestEl = document.getElementById('gameBest');
+  const gameOverActions = document.getElementById('gameOverActions');
+  const retryBtn = document.getElementById('retryBtn');
+  const recordBtn = document.getElementById('recordBtn');
+  const gameLbBtn = document.getElementById('gameLbBtn');
+
+  const nameModalOverlay = document.getElementById('nameModalOverlay');
+  const nameModalScore = document.getElementById('nameModalScore');
+  const nameInput = document.getElementById('nameInput');
+  const nameCancelBtn = document.getElementById('nameCancelBtn');
+  const nameSubmitBtn = document.getElementById('nameSubmitBtn');
+
+  const leaderboardOverlay = document.getElementById('leaderboardOverlay');
+  const leaderboardWeek = document.getElementById('leaderboardWeek');
+  const leaderboardList = document.getElementById('leaderboardList');
+  const leaderboardCloseBtn = document.getElementById('leaderboardCloseBtn');
+
+  // 貼上部署 Apps Script 後拿到的網址
+  const SCORE_API_URL = "https://script.google.com/macros/s/AKfycbx4v3PeB8eMOsWQF6vExH_bJmbIc6hz77BW3nwS4FDnhHtykSOcdsUuyYvovrlmCUpV/exec";
 
   const CW = canvas.width, CH = canvas.height;
   const GROUND_Y = CH - 50;
@@ -1285,10 +1199,12 @@ const GAME_SPRITES = {
     animFrame = 0;
     animTimer = 0;
     state = 'playing';
+    gameOverActions.classList.remove('show');
   }
 
   function jump(){
-    if (state === 'idle' || state === 'over') { resetGame(); return; }
+    if (state === 'idle') { resetGame(); return; }
+    if (state === 'over') { return; } // 遊戲結束後改用「再次挑戰」按鈕，不再點擊自動重來
     if (!player.jumping) {
       player.vy = -13;
       player.jumping = true;
@@ -1442,7 +1358,75 @@ const GAME_SPRITES = {
       bestEl.textContent = '最高：' + best;
     }
     drawGameOver();
+    gameOverActions.classList.add('show');
   }
+
+  retryBtn.addEventListener('click', resetGame);
+
+  recordBtn.addEventListener('click', () => {
+    nameModalScore.textContent = '分數：' + score;
+    nameInput.value = '';
+    nameModalOverlay.classList.add('active');
+    nameInput.focus();
+  });
+
+  nameInput.addEventListener('input', () => {
+    nameInput.value = nameInput.value.toUpperCase().replace(/[^A-Z]/g, '').slice(0, 5);
+  });
+
+  nameCancelBtn.addEventListener('click', () => {
+    nameModalOverlay.classList.remove('active');
+  });
+
+  nameSubmitBtn.addEventListener('click', async () => {
+    const name = nameInput.value.trim();
+    if (!name) { nameInput.focus(); return; }
+    nameSubmitBtn.disabled = true;
+    nameSubmitBtn.textContent = '送出中...';
+    try {
+      await fetch(SCORE_API_URL, {
+        method: 'POST',
+        headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+        body: JSON.stringify({ name, score })
+      });
+      nameModalOverlay.classList.remove('active');
+      showToast('分數已記錄！');
+    } catch (e) {
+      showToast('送出失敗，請稍後再試');
+    } finally {
+      nameSubmitBtn.disabled = false;
+      nameSubmitBtn.textContent = '送出';
+    }
+  });
+
+  async function loadLeaderboard(){
+    leaderboardList.innerHTML = '<li>載入中...</li>';
+    try {
+      const res = await fetch(SCORE_API_URL);
+      const data = await res.json();
+      if (!data.ok || !data.scores || !data.scores.length) {
+        leaderboardWeek.textContent = data.week_start ? ('週次：' + data.week_start) : '';
+        leaderboardList.innerHTML = '<li>本週還沒有人上榜，快來挑戰！</li>';
+        return;
+      }
+      leaderboardWeek.textContent = '週次：' + data.week_start;
+      leaderboardList.innerHTML = data.scores.map((s, i) =>
+        '<li><span class="lb-rank">' + (i + 1) + '</span>' +
+        '<span class="lb-name">' + s.name + '</span>' +
+        '<span class="lb-score">' + s.score + '</span></li>'
+      ).join('');
+    } catch (e) {
+      leaderboardList.innerHTML = '<li>載入失敗，請稍後再試</li>';
+    }
+  }
+
+  gameLbBtn.addEventListener('click', () => {
+    leaderboardOverlay.classList.add('active');
+    loadLeaderboard();
+  });
+  leaderboardCloseBtn.addEventListener('click', () => {
+    leaderboardOverlay.classList.remove('active');
+  });
 
   player = { x: 60, y: GROUND_Y - 70, w: 56, h: 70, vy: 0, jumping: false };
   runImgs[0].onload = () => { if (state === 'idle') drawIdleScreen(); };
