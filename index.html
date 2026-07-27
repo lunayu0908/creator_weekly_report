@@ -942,9 +942,8 @@ function updateWeekPill(weekStart){
   const el = document.querySelector('.week-pill .date');
   if (el) el.textContent = `${f(d)}-${f(end)}`;
 }
-
 // ===== 遊戲輪替：主播衝刺跑／獎金獵人 每週自動交換 =====
-const GAME_ROTATION = ['runner', 'whack'];
+const GAME_ROTATION = ['whack', 'runner'];   // 原本 ['runner', 'whack']，順序對調讓 7/20 這週輪到獎金獵人
 const ROTATION_EPOCH_MONDAY = new Date('2026-01-05T00:00:00');
 function clientMonday(d){
   const date = new Date(d);
@@ -962,7 +961,6 @@ function pickActiveGame(weekStartStr){
   return GAME_ROTATION[idx];
 }
 let activeGame = pickActiveGame();
-
 async function loadCards(){
   if (!CARDS_SHEET_URL) return;
   try {
