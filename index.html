@@ -545,12 +545,12 @@
   .lang-toggle-btn{
     position:absolute; top:12px; right:12px;
     background:var(--card-bg); color:var(--brand); border:2px solid var(--brand);
-    border-radius:5px; padding:4px 7px; font-family:'Press Start 2P', cursive; font-size:9px;
+    border-radius:6px; padding:6px 10px; font-family:'Press Start 2P', cursive; font-size:11px;
     line-height:1; cursor:pointer; z-index:2; -webkit-tap-highlight-color:transparent;
   }
   .lang-toggle-btn:active{ transform:scale(0.94); }
   @media (max-width: 480px){
-    .lang-toggle-btn{ top:9px; right:9px; padding:3px 6px; font-size:8px; }
+    .lang-toggle-btn{ top:9px; right:9px; padding:5px 8px; font-size:10px; }
   }
 </style>
 </head>
@@ -756,15 +756,24 @@ function pick(obj, field){
 
 // ===== 獎項英文直譯（依 award_key，暫不依賴 Google Sheet 提供英文欄位）=====
 const AWARD_KEY_EN = {
-  free_content:   { name: 'Free Content Award',     statLabel: "This Week's Free Content" },
-  marathon:       { name: 'Endurance Award',        statLabel: 'Total Stream Hours' },
-  total_rev:      { name: 'Top Revenue Award',      statLabel: 'Total Revenue' },
-  command:        { name: 'Top Command Award',      statLabel: 'Command Diamonds' },
-  chat:           { name: 'Top Chat Revenue Award', statLabel: 'DM Chat Diamonds' },
-  shows:          { name: 'Most Shows Award',       statLabel: 'Shows' },
-  unlock:         { name: 'Most Unlocked Award',    statLabel: 'Paid Content Count' },
-  swag_socialite: { name: 'SWAG Socialite Award',   statLabel: 'Unique DM Users' },
-  rising_star:    { name: 'Rising Star Award',      statLabel: 'New Followers' }
+  free_content:   { name: 'Free Content Award',     statLabel: "This Week's Free Content",
+                    desc: 'Awarded to the creator who shared the most free content this week.' },
+  marathon:       { name: 'Endurance Award',        statLabel: 'Total Stream Hours',
+                    desc: 'Awarded to the creator with the most streaming hours this week.' },
+  total_rev:      { name: 'Top Revenue Award',      statLabel: 'Total Revenue',
+                    desc: 'Awarded to the creator with the highest total revenue this week.' },
+  command:        { name: 'Top Command Award',      statLabel: 'Command Diamonds',
+                    desc: 'Awarded to the creator with the highest command revenue this week.' },
+  chat:           { name: 'Top Chat Revenue Award', statLabel: 'DM Chat Diamonds',
+                    desc: 'Awarded to the creator with the highest DM chat revenue this week.' },
+  shows:          { name: 'Most Shows Award',       statLabel: 'Shows',
+                    desc: 'Awarded to the creator with the most performance shows this week.' },
+  unlock:         { name: 'Most Unlocked Award',    statLabel: 'Paid Content Count',
+                    desc: 'Awarded to the creator whose paid content was unlocked the most this week.' },
+  swag_socialite: { name: 'SWAG Socialite Award',   statLabel: 'Unique DM Users',
+                    desc: 'Awarded to the creator who chatted with the most unique users this week.' },
+  rising_star:    { name: 'Rising Star Award',      statLabel: 'New Followers',
+                    desc: 'Awarded to the creator who gained the most new followers this week.' }
 };
 function pickAward(item){
   if (!item || !item.award) return '';
@@ -783,6 +792,21 @@ function pickStatLabel(item){
     if (k) return k.statLabel;
   }
   return item.statLabel || '';
+}
+function pickDesc(item){
+  if (!item) return '';
+  if (LANG === 'en') {
+    if (item.desc_en) return item.desc_en;
+    // Real Sheet-sourced cards (has a formal `award` title) don't have an English
+    // description yet (that text is freshly AI-written in Chinese every week), so
+    // showing the untranslated Chinese line next to an English title looked mismatched.
+    // Fall back to a fixed English "official definition" of the award instead.
+    if (item.award) {
+      const k = AWARD_KEY_EN[item.stat];
+      if (k && k.desc) return k.desc;
+    }
+  }
+  return item.desc || '';
 }
 
 // ===== 假資料（之後改成讀取 Google Sheet CSV）=====
@@ -1071,7 +1095,7 @@ function buildGrid(){
     tile.innerHTML = `
       <div class="tile-badge">${item.icon}</div>
       <p class="tile-title">${pickAward(item) || pick(item,'nickname')}</p>
-      <p class="tile-desc">${pick(item,'desc')}</p>
+      <p class="tile-desc">${pickDesc(item)}</p>
     `;
     grid.appendChild(tile);
   });
@@ -1114,7 +1138,7 @@ function renderDetail(item){
       <span class="avatar-sub">${t('avatar_sub')}</span>
     </div>
     ${award && nickname ? `<p class="detail-nickname">${nickname}</p>` : ''}
-    <p class="detail-desc">${pick(item,'desc')}</p>
+    <p class="detail-desc">${pickDesc(item)}</p>
     <p class="detail-id"><span class="heart">❤</span> @${item.id} <span class="heart">❤</span></p>
     ${statLabel ? `<p class="detail-stat-label">${statLabel}</p>` : ''}
     <p class="detail-stat-value">${statValue}</p>
@@ -1922,7 +1946,7 @@ function applyLanguage(){
   }
 
   const langBtn = document.getElementById('langToggle');
-  if (langBtn) langBtn.textContent = LANG === 'zh' ? 'EN' : '中';
+  if (langBtn) langBtn.textContent = LANG === 'zh' ? 'EN' : 'ZH';
 }
 
 document.getElementById('langToggle').addEventListener('click', () => {
