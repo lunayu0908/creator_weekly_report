@@ -748,9 +748,8 @@ function updateWeekPill(weekStart){
 }
 
 // ===== 遊戲輪替：主播衝刺跑／獎金獵人 每週自動交換 =====
-// 想調整順序或未來加第三款遊戲，改這個陣列即可，不用手動換檔案
 const GAME_ROTATION = ['runner', 'whack'];
-const ROTATION_EPOCH_MONDAY = new Date('2026-01-05T00:00:00'); // 固定基準週一，純粹用來算輪到第幾週
+const ROTATION_EPOCH_MONDAY = new Date('2026-01-05T00:00:00');
 function clientMonday(d){
   const date = new Date(d);
   const day = date.getDay();
@@ -766,7 +765,7 @@ function pickActiveGame(weekStartStr){
   const idx = ((diffWeeks % GAME_ROTATION.length) + GAME_ROTATION.length) % GAME_ROTATION.length;
   return GAME_ROTATION[idx];
 }
-let activeGame = pickActiveGame(); // 先用本機日期猜測，抓到 Sheet 週次後會用實際週次校正
+let activeGame = pickActiveGame();
 
 async function loadCards(){
   if (!CARDS_SHEET_URL) return;
@@ -777,7 +776,7 @@ async function loadCards(){
     // 只取最新一週
     const weeks = objs.map(o => o.week_start).filter(Boolean).sort();
     const latest = weeks[weeks.length - 1];
-    activeGame = pickActiveGame(latest); // 用實際榜單週次校正本週該輪到哪款遊戲
+    activeGame = pickActiveGame(latest);
     let rows = objs.filter(o => !latest || o.week_start === latest);
     rows.sort((a, b) => (parseFloat(a.rank_order)||0) - (parseFloat(b.rank_order)||0));
     DATA = rows.map(o => ({
@@ -1445,10 +1444,10 @@ const GAME_SPRITES = {
   function rand(min, max){ return Math.floor(Math.random() * (max - min + 1)) + min; }
   function randomType(){
     const r = Math.random();
-    if (r < 0.10) return 'user';   // 👨‍💼 用戶，最稀有、扣最多分
-    if (r < 0.30) return 'staff';  // 👧 小編，扣分
-    if (r < 0.65) return 'coin';   // 🪙 金幣，加分
-    return 'diamond';              // 💎 鑽石，加最多分
+    if (r < 0.10) return 'user';
+    if (r < 0.30) return 'staff';
+    if (r < 0.65) return 'coin';
+    return 'diamond';
   }
   function clearActiveTarget(){
     if (hideTimeout) clearTimeout(hideTimeout);
@@ -1456,8 +1455,14 @@ const GAME_SPRITES = {
       h.classList.remove('pop');
       const t = h.querySelector('.whack-target');
       t.classList.remove('show');
-      t.removeAttribute('src');
     });
+    // 等縮小動畫結束再清 src，避免瞬間出現破圖圖示；若該格已被新目標搶先重新顯示則不動它
+    setTimeout(() => {
+      holes.forEach(h => {
+        const t = h.querySelector('.whack-target');
+        if (!t.classList.contains('show')) t.removeAttribute('src');
+      });
+    }, 150);
     activeHole = null;
   }
   function spawnTarget(){
@@ -1539,7 +1544,7 @@ const GAME_SPRITES = {
       bestEl.textContent = '最高：' + best;
       scoreEl.textContent = '分數：' + score;
       timerEl.textContent = '時間：' + timeLeft;
-      if (!running) startGame(); // 打地鼠不用額外按開始，開場就直接倒數
+      if (!running) startGame();
     },
     onClose(){ pause(); }
   };
@@ -1571,7 +1576,6 @@ const GAME_SPRITES = {
   const leaderboardCloseBtn = document.getElementById('leaderboardCloseBtn');
   const gameLbBtn = document.getElementById('gameLbBtn');
 
-  // 貼上部署 Apps Script 後拿到的網址（兩款遊戲共用同一份 Sheet，用 game 欄位分開計榜）
   const SCORE_API_URL = "https://script.google.com/macros/s/AKfycbx4v3PeB8eMOsWQF6vExH_bJmbIc6hz77BW3nwS4FDnhHtykSOcdsUuyYvovrlmCUpV/exec";
 
   const GAME_META = {
