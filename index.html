@@ -432,6 +432,7 @@
     position:fixed; inset:0; z-index:60; background:rgba(0,0,0,0.88);
     display:none; align-items:center; justify-content:center;
     flex-direction:column; gap:14px; padding:20px;
+    touch-action:none; overscroll-behavior:contain;
   }
   .game-overlay.active{ display:flex; }
   .game-title{ font-size:16px; color:#FFD100; font-weight:900; text-align:center; }
@@ -516,16 +517,19 @@
     position:relative; width:100%; max-width:380px; aspect-ratio:1/1;
     background:linear-gradient(180deg,#1a1a2e 0%,#16161f 70%,#0d0d0d 100%);
     border:3px solid #00D2BE; border-radius:12px; overflow:hidden;
+    touch-action:none;
   }
   .whack-grid{
     position:absolute; inset:0; display:grid;
     grid-template-columns:repeat(3,1fr); grid-template-rows:repeat(3,1fr);
     gap:8px; padding:12px;
+    touch-action:none;
   }
   .whack-hole{
     position:relative; border-radius:50%; border:3px solid #2a2a44;
     background:radial-gradient(circle at 50% 60%, #23233f, #12121f 70%);
     display:flex; align-items:center; justify-content:center; cursor:pointer;
+    touch-action:none;
   }
   .whack-hole.pop{ animation:whackPop .2s ease; }
   @keyframes whackPop{ 0%{transform:scale(1);} 50%{transform:scale(1.25);} 100%{transform:scale(1);} }
@@ -942,8 +946,9 @@ function updateWeekPill(weekStart){
   const el = document.querySelector('.week-pill .date');
   if (el) el.textContent = `${f(d)}-${f(end)}`;
 }
+
 // ===== 遊戲輪替：主播衝刺跑／獎金獵人 每週自動交換 =====
-const GAME_ROTATION = ['whack', 'runner'];   // 原本 ['runner', 'whack']，順序對調讓 7/20 這週輪到獎金獵人
+const GAME_ROTATION = ['runner', 'whack'];
 const ROTATION_EPOCH_MONDAY = new Date('2026-01-05T00:00:00');
 function clientMonday(d){
   const date = new Date(d);
@@ -961,6 +966,7 @@ function pickActiveGame(weekStartStr){
   return GAME_ROTATION[idx];
 }
 let activeGame = pickActiveGame();
+
 async function loadCards(){
   if (!CARDS_SHEET_URL) return;
   try {
@@ -1816,6 +1822,25 @@ const GAME_SPRITES = {
 
   function currentModule(){ return activeGame === 'whack' ? window.WhackGame : window.RunnerGame; }
 
+  // 遊戲彈窗開啟時鎖住底層頁面捲動，避免手機點擊時誤觸發底下卡片滾動導致漏判打擊
+  let _lockedScrollY = 0;
+  function lockBodyScroll(){
+    _lockedScrollY = window.scrollY || window.pageYOffset || 0;
+    document.body.style.position = 'fixed';
+    document.body.style.top = (-_lockedScrollY) + 'px';
+    document.body.style.left = '0';
+    document.body.style.right = '0';
+    document.body.style.width = '100%';
+  }
+  function unlockBodyScroll(){
+    document.body.style.position = '';
+    document.body.style.top = '';
+    document.body.style.left = '';
+    document.body.style.right = '';
+    document.body.style.width = '';
+    window.scrollTo(0, _lockedScrollY);
+  }
+
   gameUnlockBtn.addEventListener('click', () => {
     const meta = getGameMeta(activeGame);
     gameTitleEl.textContent = meta.title;
@@ -1825,11 +1850,13 @@ const GAME_SPRITES = {
     gameTimerEl.style.display = activeGame === 'whack' ? '' : 'none';
     gameOverActions.classList.remove('show');
     gameOverlay.classList.add('active');
+    lockBodyScroll();
     currentModule().onOpen();
   });
   gameCloseBtn.addEventListener('click', () => {
     currentModule().onClose();
     gameOverlay.classList.remove('active');
+    unlockBodyScroll();
   });
   retryBtn.addEventListener('click', () => currentModule().retry());
 
