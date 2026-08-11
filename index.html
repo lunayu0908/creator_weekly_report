@@ -512,6 +512,126 @@
     border-radius:8px; padding:8px 16px; font-size:13px; cursor:pointer; width:100%;
   }
 
+  /* ===== 匿名心情牆（常駐卡片區塊，比照神隊友感謝牆的版面邏輯）===== */
+  .msgwall-section{
+    max-width:460px; margin:30px auto 0; padding:0 16px;
+    position:relative; z-index:1;
+  }
+  .msgwall-section-head{
+    display:flex; align-items:center; gap:8px; margin-bottom:14px;
+  }
+  .msgwall-section-head .dot{
+    width:6px; height:6px; border-radius:50%; background:var(--pink); flex-shrink:0;
+  }
+  .msgwall-section-title{
+    font-size:14px; font-weight:900; color:#ccc; letter-spacing:0.5px;
+  }
+  .msgwall-cta{
+    display:flex; align-items:center; gap:14px; text-align:left;
+    background:rgba(255,209,0,0.07); border:1.5px solid rgba(255,209,0,0.35);
+    border-radius:14px; padding:16px; margin-bottom:18px; cursor:pointer;
+  }
+  .msgwall-cta-icon{
+    width:44px; height:44px; border-radius:10px; background:var(--yellow); color:#0d0d0d;
+    display:flex; align-items:center; justify-content:center; font-size:22px; font-weight:900; flex-shrink:0;
+  }
+  .msgwall-cta-title{ font-size:14px; font-weight:900; color:var(--yellow); margin:0 0 2px; }
+  .msgwall-cta-sub{ font-size:11.5px; color:#999; margin:0; }
+
+  .msgwall-grid{ display:flex; flex-direction:column; gap:12px; }
+  .msgwall-empty, .msgwall-loading{
+    color:#666; font-size:13px; text-align:center; padding:20px 0;
+  }
+  .msgwall-card{
+    background:var(--card-bg); border:1.5px solid rgba(255,255,255,0.08);
+    border-radius:14px; padding:16px; display:flex; flex-direction:column; gap:10px;
+  }
+  .msgwall-card-head{ display:flex; align-items:center; gap:10px; }
+  .msgwall-avatar{
+    width:34px; height:34px; border-radius:50%; flex-shrink:0;
+    display:flex; align-items:center; justify-content:center; font-size:15px;
+  }
+  .msgwall-card-meta{ flex:1; min-width:0; }
+  .msgwall-anon-tag{ font-size:11px; font-weight:700; color:var(--brand); display:block; line-height:1.4; }
+  .msgwall-card-time{ font-size:10.5px; color:#666; }
+  .msgwall-card-text{
+    font-size:13.5px; color:#eee; line-height:1.7;
+    white-space:pre-wrap; word-break:break-word;
+  }
+  .msgwall-card-foot{
+    display:flex; gap:14px; padding-top:8px; border-top:1px solid rgba(255,255,255,0.07);
+  }
+  .msgwall-heart-btn{
+    display:flex; align-items:center; gap:5px; background:none; border:none;
+    color:#888; font-size:12px; cursor:pointer; padding:0; font-family:inherit;
+  }
+  .msgwall-heart-btn.liked{ color:var(--pink); }
+  .msgwall-more-btn{
+    display:block; width:100%;
+    background:none; border:1.5px dashed rgba(255,255,255,0.2);
+    border-radius:10px; padding:10px; margin-top:2px;
+    color:#999; font-size:12.5px; cursor:pointer; font-family:inherit;
+  }
+  .msgwall-more-btn:hover{ border-color:var(--brand); color:var(--brand); }
+
+  /* ===== 送出留言彈窗（純表單，不含列表）===== */
+  .msgwall-overlay{
+    position:fixed; inset:0; z-index:75; background:rgba(0,0,0,0.78);
+    display:none; align-items:center; justify-content:center; padding:20px;
+  }
+  .msgwall-overlay.active{ display:flex; }
+  .msgwall-modal{
+    background:var(--card-bg); border:3px solid var(--brand); border-radius:14px;
+    padding:22px 20px; width:100%; max-width:340px; max-height:82vh; overflow-y:auto;
+    text-align:center; overscroll-behavior:contain;
+  }
+  .msgwall-title{ color:var(--brand); font-weight:900; font-size:16px; margin:0 0 4px; }
+  .msgwall-sub{ color:#888; font-size:11.5px; margin:0 0 14px; }
+  .msgwall-textarea{
+    width:100%; box-sizing:border-box; resize:none; min-height:56px;
+    padding:10px; border-radius:8px; border:2px solid #333; background:#0d0d0d;
+    color:#fff; font-family:'Noto Sans TC',sans-serif; font-size:13px;
+  }
+  .msgwall-textarea:focus{ border-color:var(--brand); outline:none; }
+  .msgwall-counter{ font-size:11px; color:#666; text-align:right; margin:4px 0 10px; }
+  .msgwall-counter.limit{ color:var(--pink); }
+  .msgwall-nickname-input{
+    width:100%; box-sizing:border-box;
+    padding:10px; border-radius:8px; border:2px solid #333; background:#0d0d0d;
+    color:#fff; font-family:'Noto Sans TC',sans-serif; font-size:13px;
+    margin:0 0 12px;
+  }
+  .msgwall-nickname-input::placeholder{ color:#666; }
+  .msgwall-nickname-input:focus{ border-color:var(--brand); outline:none; }
+  .msgwall-submit{
+    width:100%; background:var(--brand); color:#0d0d0d; border:none;
+    border-radius:8px; padding:10px; font-size:13px; font-weight:900; cursor:pointer; margin-bottom:16px;
+  }
+  .msgwall-submit:disabled{ opacity:0.5; cursor:not-allowed; }
+  .msgwall-support{ font-size:11px; color:#888; margin:0 0 14px; line-height:1.6; }
+  .msgwall-support a{ color:var(--brand); }
+  .msgwall-close-btn{
+    background:transparent; color:#888; border:2px solid #444;
+    border-radius:8px; padding:8px 16px; font-size:13px; cursor:pointer; width:100%;
+  }
+  .grid-loading{
+  display:flex; flex-direction:column; align-items:center; justify-content:center;
+  gap:14px; padding:60px 20px; grid-column:1 / -1;
+}
+.grid-loading.hide{ display:none; }
+.grid.grid-pending{ display:none; }
+.grid-loading-sprite{
+  width:64px; height:64px; object-fit:contain; image-rendering:pixelated;
+}
+.grid-loading-text{
+  color:#888; font-size:13px; font-weight:700; letter-spacing:2px;
+  animation:loadingPulse 1.2s ease-in-out infinite;
+}
+@keyframes loadingPulse{
+  0%, 100%{ opacity:0.4; }
+  50%{ opacity:1; }
+}
+
   /* ===== 獎金獵人（打地鼠）彩蛋遊戲，與主播衝刺跑輪替 ===== */
   .whack-stage{
     position:relative; width:100%; max-width:380px; aspect-ratio:1/1;
@@ -556,8 +676,36 @@
   @media (max-width: 480px){
     .lang-toggle-btn{ top:9px; right:9px; padding:5px 8px; font-size:10px; }
   }
+
+  /* ===== 七夕限定佈景主題：套用 body.qixi-theme 時覆蓋主色調＋背景 ===== */
+  body.qixi-theme{
+    --brand:#8FA8FF; --purple:#6B4FBB; --pink:#FF9ED8; --blue:#B7C9FF; --yellow:#FFE9A8;
+    background:
+      radial-gradient(120% 70% at 50% -10%, rgba(143,168,255,0.35) 0%, transparent 55%),
+      radial-gradient(90% 60% at 15% 25%, rgba(255,158,216,0.18) 0%, transparent 60%),
+      radial-gradient(90% 60% at 85% 25%, rgba(107,79,187,0.28) 0%, transparent 60%),
+      linear-gradient(180deg, #0a0a20 0%, #0d0d2a 45%, #06060f 100%);
+    background-attachment:fixed;
+  }
+  body.qixi-theme::before{
+    background-image:
+      radial-gradient(1.5px 1.5px at 12% 10%, rgba(255,255,255,0.9) 1px, transparent 0),
+      radial-gradient(1.5px 1.5px at 78% 18%, rgba(255,255,255,0.8) 1px, transparent 0),
+      radial-gradient(1px 1px at 35% 32%, rgba(255,255,255,0.7) 1px, transparent 0),
+      radial-gradient(1.5px 1.5px at 60% 8%, rgba(255,233,168,0.9) 1px, transparent 0),
+      radial-gradient(1px 1px at 90% 40%, rgba(255,255,255,0.6) 1px, transparent 0),
+      radial-gradient(1px 1px at 20% 55%, rgba(255,255,255,0.6) 1px, transparent 0),
+      radial-gradient(1.5px 1.5px at 50% 65%, rgba(183,201,255,0.85) 1px, transparent 0);
+    background-size:100% 100%;
+  }
+  body.qixi-theme .deco-crown, body.qixi-theme .deco-gem{ display:none; }
+  body.qixi-theme .qixi-deco{ display:inline-block !important; }
+
+  /* ===== 七夕限定小遊戲：鵲橋接星星 ===== */
+  .qixi-hint2{ font-size:12px; color:#888; text-align:center; }
 </style>
 </head>
+
 <body>
 
 <!-- 預載好運動物圖（静態 <img> 使離線打包時能將圖片內嵌為 data URI）-->
@@ -570,9 +718,11 @@
 <header>
   <img class="deco-crown" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAFgAAABACAYAAACeELDCAAABxUlEQVR4AezYMU4DQQyF4dF2FPRcjxsgcQ4kbsBtoOYW9BSUQRZVpOxzBvtlo82P5IL1zJvJty6iLIfPcVA1Nv5Td4vextcbcQdVy9YX3Pv5AJvfMMAAmwXM8UwwwGYBczwTDLBZwBzPBANsFjDH73KCzWZT8QBPcc0vBnjebGoHwFNc84sBnjeb2pECq986ozd12onFkaHqxJajR2pv9I4W/+OfyFCVRabAWQB9LQCw9il3AS4T6gCAtU+5C3CZUAcArH3K3Tbg8k12GmAHVt8ho+d2jTNUuc+3A7s/wLXnA2x+QwADbBYwxzPBAJsFzPFM8LUDq++Y0TPfvxwfd1RVPYAJrgom+wFWQA09gBsQVQTASqehB3ADoooAWOk09ABuQFQRKfDP08tQpcLP6T1+fw1V52SoNeru0VN7O3opcMcht5wBsPntAwywWcAczwTfHLD5A186ngk2i6fAd6/PQ1X1fm/3D0NVNV/dPXrV/Gx/CpwF0NcCAGufchfgMqEOAFj7lLsAlwl1AMDap9wFuEyoA5aP9zEonwETrAew3P0DLscQsCYA8JpM03OAmyDXYgBek2l6DnAT5FoMwGsyTc9/AQAA//+brXK+AAAABklEQVQDAG7LyDDVm/8VAAAAAElFTkSuQmCC" alt="">
   <div class="title-row">
+    <span class="qixi-deco" style="display:none; font-size:22px;">🐦</span>
     <svg class="deco-gem" viewBox="0 0 9 8" shape-rendering="crispEdges" aria-hidden="true"><rect x="3" y="0" width="3" height="1" fill="#ffc3dd"/><rect x="2" y="1" width="5" height="1" fill="#f6418d"/><rect x="1" y="2" width="7" height="1" fill="#f6418d"/><rect x="0" y="3" width="9" height="1" fill="#f6418d"/><rect x="1" y="4" width="7" height="1" fill="#c01f6b"/><rect x="2" y="5" width="5" height="1" fill="#c01f6b"/><rect x="3" y="6" width="3" height="1" fill="#c01f6b"/><rect x="4" y="7" width="1" height="1" fill="#c01f6b"/></svg>
     <h1 class="pixel" id="mainTitle" style="font-family:'Work Sans', sans-serif; font-size:36px; white-space:nowrap;">本週主播榮譽榜</h1>
     <svg class="deco-gem" viewBox="0 0 9 9" shape-rendering="crispEdges" aria-hidden="true"><rect x="4" y="0" width="1" height="9" fill="#FFD100"/><rect x="0" y="4" width="9" height="1" fill="#FFD100"/><rect x="3" y="1" width="3" height="1" fill="#FFD100"/><rect x="1" y="3" width="1" height="3" fill="#FFD100"/><rect x="7" y="3" width="1" height="3" fill="#FFD100"/><rect x="3" y="7" width="3" height="1" fill="#FFD100"/><rect x="3" y="3" width="3" height="3" fill="#fff3a8"/></svg>
+    <span class="qixi-deco" style="display:none; font-size:22px;">🌉</span>
   </div>
   <div class="week-pill">
     <span class="date">2026/06/29-2026/07/06</span>
@@ -582,7 +732,11 @@
 
 <p class="hint" id="mainHint" style="font-size:15.5px;">點開卡片看獲獎人是誰，記得截圖或分享出去炫耀一下 ✦</p>
 
-<div class="grid" id="grid"></div>
+<div class="grid-loading" id="gridLoading">
+  <img class="grid-loading-sprite" id="gridLoadingSprite" src="run_0.png" alt="載入中">
+  <span class="grid-loading-text">載入中...</span>
+</div>
+<div class="grid grid-pending" id="grid"></div>
 
 <div class="game-unlock" id="gameUnlock">
   <button class="game-unlock-btn" id="gameUnlockBtn">🎮 隱藏小遊戲已解鎖！點我玩玩看</button>
@@ -628,6 +782,36 @@
     <p class="leaderboard-week" id="leaderboardWeek"></p>
     <ol class="leaderboard-list" id="leaderboardList"><li>載入中...</li></ol>
     <button class="leaderboard-close-btn" id="leaderboardCloseBtn">✕ 關閉</button>
+  </div>
+</div>
+
+<div class="msgwall-section">
+  <div class="msgwall-section-head"><span class="dot"></span><span class="msgwall-section-title">心情留言牆</span></div>
+
+  <div class="msgwall-cta" id="msgwallCta">
+    <div class="msgwall-cta-icon">+</div>
+    <div>
+      <p class="msgwall-cta-title">送出一則留言</p>
+      <p class="msgwall-cta-sub">點擊寫下你想說的話，完全匿名</p>
+    </div>
+  </div>
+
+  <div class="msgwall-grid" id="msgwallGrid">
+    <p class="msgwall-loading">載入中...</p>
+  </div>
+</div>
+
+<div class="msgwall-overlay" id="msgwallOverlay">
+  <div class="msgwall-modal">
+    <p class="msgwall-title">💬 送出一則留言</p>
+    <p class="msgwall-sub">純聊天、抒發心情的地方，不用擔心被認出來</p>
+
+    <textarea class="msgwall-textarea" id="msgwallInput" maxlength="50" placeholder="想說什麼都可以..."></textarea>
+    <p class="msgwall-counter" id="msgwallCounter">0 / 50</p>
+    <input type="text" class="msgwall-nickname-input" id="msgwallNickname" maxlength="12" placeholder="請填寫你的暱稱（選填）">
+    <button class="msgwall-submit" id="msgwallSubmit">送出</button>
+
+    <button class="msgwall-close-btn" id="msgwallCloseBtn">✕ 關閉</button>
   </div>
 </div>
 
@@ -748,7 +932,7 @@ const I18N = {
     game_meta_whack_title: '✦ Bounty Hunter ✦',
     game_meta_whack_hint: 'Smash diamonds💎 and coins🪙 — avoid staff👧 and users👨‍💼! 30 seconds on the clock, see how high you can score',
     secret_title: 'SECRET CARD'
-  }
+  },
 };
 let LANG = localStorage.getItem('report_lang') || 'zh';
 function t(key){ return (I18N[LANG] && I18N[LANG][key]) || I18N.zh[key] || key; }
@@ -947,7 +1131,36 @@ function updateWeekPill(weekStart){
   if (el) el.textContent = `${f(d)}-${f(end)}`;
 }
 
-// ===== 遊戲輪替：主播衝刺跑／獎金獵人 每週自動交換 =====
+// ===== 節日限定主題（依 week_start 判斷，過了那週自動恢復平常樣式）=====
+// 之後有其他節日（中秋、跨年⋯）要加，直接在這裡多加一組 'YYYY-MM-DD': '主題名稱' 即可
+const SPECIAL_THEMES = {
+  '2026-08-17': 'qixi'   // 七夕（國曆8/19落在這一週）
+};
+
+const QIXI_TEXT = {
+  title: '🐦🌉 七夕鵲橋榜 🌉🐦',
+  hint: '點開卡片看獲獎人是誰，鵲橋佳期記得截圖留念一下 ✦',
+  footer: '銀河兩岸，年年今夜鵲橋會 ✦'
+};
+
+function applySpecialTheme(weekStartStr){
+  const theme = SPECIAL_THEMES[weekStartStr] || null;
+  document.body.classList.toggle('qixi-theme', theme === 'qixi');
+  const titleEl = document.getElementById('mainTitle');
+  const hintEl = document.getElementById('mainHint');
+  const footerEl = document.getElementById('footerHint');
+  if (theme === 'qixi') {
+    if (titleEl) titleEl.textContent = QIXI_TEXT.title;
+    if (hintEl) hintEl.textContent = QIXI_TEXT.hint;
+    if (footerEl) footerEl.textContent = QIXI_TEXT.footer;
+  } else {
+    if (titleEl) titleEl.textContent = t('page_title');
+    if (hintEl) hintEl.textContent = t('main_hint');
+    if (footerEl) footerEl.textContent = t('footer_hint');
+  }
+}
+
+// ===== 遊戲輪替：主播衝刺跑／獎金獵人 每週自動交換（節日限定遊戲優先）=====
 const GAME_ROTATION = ['whack', 'runner'];   // 原本 ['runner', 'whack']，順序對調讓 7/20 這週輪到獎金獵人
 const ROTATION_EPOCH_MONDAY = new Date('2026-01-05T00:00:00');
 function clientMonday(d){
@@ -959,6 +1172,11 @@ function clientMonday(d){
   return date;
 }
 function pickActiveGame(weekStartStr){
+  const key = weekStartStr || (function(){
+    const d = clientMonday(new Date());
+    return d.getFullYear() + '-' + String(d.getMonth()+1).padStart(2,'0') + '-' + String(d.getDate()).padStart(2,'0');
+  })();
+  if (SPECIAL_THEMES[key] === 'qixi') return 'qixi';
   const monday = weekStartStr ? new Date(weekStartStr + 'T00:00:00') : clientMonday(new Date());
   if (isNaN(monday)) return GAME_ROTATION[0];
   const diffWeeks = Math.round((monday - ROTATION_EPOCH_MONDAY) / (7 * 24 * 3600 * 1000));
@@ -966,17 +1184,35 @@ function pickActiveGame(weekStartStr){
   return GAME_ROTATION[idx];
 }
 let activeGame = pickActiveGame();
+applySpecialTheme((function(){
+  const d = clientMonday(new Date());
+  return d.getFullYear() + '-' + String(d.getMonth()+1).padStart(2,'0') + '-' + String(d.getDate()).padStart(2,'0');
+})());
 
+const gridLoadingEl = document.getElementById('gridLoading');
+const gridLoadingSprite = document.getElementById('gridLoadingSprite');
+let gridLoadingFrame = 0;
+let gridLoadingTimer = setInterval(() => {
+  gridLoadingFrame = (gridLoadingFrame + 1) % 5;
+  gridLoadingSprite.src = 'run_' + gridLoadingFrame + '.png';
+}, 120);
+
+function hideGridLoading(){
+  clearInterval(gridLoadingTimer);
+  gridLoadingEl.classList.add('hide');
+  document.getElementById('grid').classList.remove('grid-pending');
+}
 async function loadCards(){
-  if (!CARDS_SHEET_URL) return;
+  if (!CARDS_SHEET_URL) { buildGrid(); hideGridLoading(); return; }
   try {
     const res = await fetch(CARDS_SHEET_URL);
     const objs = parseCSVObjects(await res.text());
-    if (!objs.length) return;
+    if (!objs.length) { buildGrid(); hideGridLoading(); return; }
     // 只取最新一週
     const weeks = objs.map(o => o.week_start).filter(Boolean).sort();
     const latest = weeks[weeks.length - 1];
     activeGame = pickActiveGame(latest);
+    applySpecialTheme(latest);
     let rows = objs.filter(o => !latest || o.week_start === latest);
     rows.sort((a, b) => (parseFloat(a.rank_order)||0) - (parseFloat(b.rank_order)||0));
     DATA = rows.map(o => ({
@@ -1004,7 +1240,11 @@ async function loadCards(){
     });
     updateWeekPill(latest);
     buildGrid();
-  } catch(e){ /* 抓取失敗則保留內建資料 */ }
+    hideGridLoading();
+  } catch(e){
+    buildGrid();
+    hideGridLoading();
+  }
 }
 
 // ===== 心靈小語（Google Sheet，欄位 quote_text；is_active 非 FALSE 才顯示）=====
@@ -1115,8 +1355,7 @@ function buildGrid(){
   grid.appendChild(secretTile);
 }
 
-buildGrid();      // 先用內建資料渲染
-loadCards();      // 再抓 Google Sheet 覆蓋
+loadCards();      // 顯示跑步動畫，資料回來後才畫格子
 
 // ===== 展開詳情卡 =====
 const overlay = document.getElementById('overlay');
@@ -1126,6 +1365,39 @@ let currentItem = null;
 let isSecretOpen = false;
 const viewedTiles = new Set();
 const totalTiles = DATA.length + 1;
+
+// ===== 分享圖片預先渲染 =====
+// Web Share API 規定必須「緊接著使用者點擊」才能呼叫，
+// 如果點分享才開始用html2canvas轉圖，中間的等待時間會讓瀏覽器認定
+// 「這已經不算是剛剛那次點擊了」而拒絕分享、悄悄降級成下載。
+// 解法：卡片一打開就先在背景把圖轉好存著，真正點分享時直接拿現成的用。
+let shareBlobPromise = null;
+
+async function renderShareBlob(){
+  if (typeof html2canvas === 'undefined') return null;
+  try {
+    const cardBg = getComputedStyle(detailCard).backgroundColor || '#141414';
+    const canvas = await html2canvas(detailCard, {
+      backgroundColor: cardBg,
+      scale: Math.min(2, window.devicePixelRatio || 1),
+      useCORS: true,
+      allowTaint: false,
+      logging: false
+    });
+    return await new Promise(res => canvas.toBlob(res, 'image/png'));
+  } catch (e) {
+    return null;
+  }
+}
+
+function prepareShareImage(){
+  // 等目前這一輪畫面真的畫完（含翻牌動畫結束後的內容）才開始轉圖，避免抓到轉場中的畫面
+  requestAnimationFrame(() => {
+    requestAnimationFrame(() => {
+      shareBlobPromise = renderShareBlob();
+    });
+  });
+}
 
 function renderDetail(item){
   detailCard.style.setProperty('--accent', item.accent);
@@ -1328,6 +1600,7 @@ grid.addEventListener('click', (e) => {
       renderDetail(currentItem);
     }
     overlay.classList.add('active');
+    prepareShareImage();
     const lb = document.getElementById('langToggle');
     if (lb) lb.style.display = 'none';
   };
@@ -1346,7 +1619,7 @@ grid.addEventListener('click', (e) => {
 });
 
 detailCard.addEventListener('click', (e) => {
-  if (e.target.id === 'redrawBtn') renderSecret();
+  if (e.target.id === 'redrawBtn') { renderSecret(); prepareShareImage(); }
 });
 
 document.getElementById('closeBtn').addEventListener('click', closeOverlay);
@@ -1373,44 +1646,46 @@ sharePill.addEventListener('click', async () => {
     return;
   }
   const prev = sharePill.textContent;
-  sharePill.textContent = t('share_generating');
-  try {
-    const cardBg = getComputedStyle(detailCard).backgroundColor || '#141414';
-    const canvas = await html2canvas(detailCard, {
-      backgroundColor: cardBg,
-      scale: Math.min(2, window.devicePixelRatio || 1),
-      useCORS: true,
-      allowTaint: false,
-      logging: false
-    });
-    const blob = await new Promise(res => canvas.toBlob(res, 'image/png'));
-    sharePill.textContent = prev;
-    if (!blob) { showToast(t('share_fail')); return; }
 
-    const name = isSecretOpen ? t('share_secret_filename') : `${currentItem.id}${t('share_card_filename_suffix')}`;
-    const file = new File([blob], name, { type: 'image/png' });
-
-    if (navigator.canShare && navigator.canShare({ files: [file] })) {
-      try {
-        await navigator.share({ files: [file], title: t('share_native_title') });
-        showToast(t('share_success'));
-        return;
-      } catch (err) {
-        if (err && err.name === 'AbortError') return;  // 使用者自行取消，不算失敗
-      }
-    }
-    // 不支援原生分享 → 下載圖片
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = name;
-    a.click();
-    setTimeout(() => URL.revokeObjectURL(url), 1000);
-    showToast(t('share_downloaded'));
-  } catch(err) {
-    sharePill.textContent = prev;
-    showToast(t('share_fail'));
+  // 正常情況下卡片打開時就已經在背景轉好圖了，這裡幾乎是立刻resolve；
+  // 萬一還沒轉完（例如手速非常快），才顯示「產生中」的提示文字。
+  let blob;
+  if (shareBlobPromise) {
+    let stillWaiting = true;
+    shareBlobPromise.then(() => { stillWaiting = false; });
+    await Promise.race([shareBlobPromise, new Promise(r => setTimeout(r, 150))]);
+    if (stillWaiting) sharePill.textContent = t('share_generating');
+    blob = await shareBlobPromise;
+  } else {
+    sharePill.textContent = t('share_generating');
+    blob = await renderShareBlob();
   }
+  sharePill.textContent = prev;
+
+  if (!blob) { showToast(t('share_fail')); return; }
+
+  const name = isSecretOpen ? t('share_secret_filename') : `${currentItem.id}${t('share_card_filename_suffix')}`;
+  const file = new File([blob], name, { type: 'image/png' });
+
+  // 這裡是整個流程裡「緊接著使用者點擊」的關鍵一步，前面都已經準備好資料，
+  // 這一步幾乎是同步呼叫，才不會被瀏覽器認定手勢已經過期。
+  if (navigator.canShare && navigator.canShare({ files: [file] })) {
+    try {
+      await navigator.share({ files: [file], title: t('share_native_title') });
+      showToast(t('share_success'));
+      return;
+    } catch (err) {
+      if (err && err.name === 'AbortError') return;  // 使用者自行取消，不算失敗
+    }
+  }
+  // 不支援原生分享 → 下載圖片
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = name;
+  a.click();
+  setTimeout(() => URL.revokeObjectURL(url), 1000);
+  showToast(t('share_downloaded'));
 });
 
 // ===== 隱藏小遊戲：主播衝刺跑 =====
@@ -1781,6 +2056,179 @@ const GAME_SPRITES = {
   };
 })();
 
+// ===== 七夕限定小遊戲：鵲橋接星星（沿用主播衝刺跑的畫布，過了七夕週不會被啟用）=====
+(function(){
+  const canvas = document.getElementById('gameCanvas');
+  const ctx = canvas.getContext('2d');
+  const scoreEl = document.getElementById('gameScore');
+  const bestEl = document.getElementById('gameBest');
+  const timerEl = document.getElementById('gameTimer');
+  const gameOverActions = document.getElementById('gameOverActions');
+
+  const CW = canvas.width, CH = canvas.height;
+  const BRIDGE_Y = CH - 46;
+  const DURATION = 30;
+
+  let best = Number(localStorage.getItem('qixi_best') || 0);
+  let score = 0, timeLeft = DURATION, running = false;
+  let magpieX = CW / 2;
+  let stars = [];
+  let frame = 0, spawnTimer = 0, timerInterval = null;
+  let bgDots = [];
+  for (let i = 0; i < 26; i++) {
+    bgDots.push({ x: Math.random() * CW, y: Math.random() * (BRIDGE_Y - 10), r: Math.random() < 0.2 ? 1.6 : 0.9 });
+  }
+
+  function canvasXFromEvent(e){
+    const rect = canvas.getBoundingClientRect();
+    const clientX = (e.touches && e.touches[0]) ? e.touches[0].clientX : e.clientX;
+    const ratio = CW / rect.width;
+    return Math.max(24, Math.min(CW - 24, (clientX - rect.left) * ratio));
+  }
+  function onPointerMove(e){
+    if (activeGame !== 'qixi' || !running) return;
+    magpieX = canvasXFromEvent(e);
+  }
+  canvas.addEventListener('pointermove', onPointerMove);
+  canvas.addEventListener('touchmove', (e) => { onPointerMove(e); }, { passive: true });
+
+  function spawnStar(){
+    stars.push({ x: 30 + Math.random() * (CW - 60), y: -10, speed: 2 + Math.random() * 1.2 + Math.min(score / 300, 1.5) });
+  }
+
+  function drawBackground(){
+    ctx.clearRect(0, 0, CW, CH);
+    ctx.fillStyle = 'rgba(255,255,255,0.75)';
+    bgDots.forEach(d => {
+      ctx.globalAlpha = 0.4 + 0.4 * Math.abs(Math.sin((frame + d.x) * 0.03));
+      ctx.beginPath();
+      ctx.arc(d.x, d.y, d.r, 0, Math.PI * 2);
+      ctx.fill();
+    });
+    ctx.globalAlpha = 1;
+    // 鵲橋
+    ctx.strokeStyle = 'rgba(255,225,150,0.85)';
+    ctx.lineWidth = 3;
+    ctx.setLineDash([10, 8]);
+    ctx.beginPath();
+    ctx.moveTo(0, BRIDGE_Y + 18);
+    ctx.lineTo(CW, BRIDGE_Y + 18);
+    ctx.stroke();
+    ctx.setLineDash([]);
+  }
+
+  function drawMagpie(){
+    ctx.font = '40px sans-serif';
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    ctx.fillText('🐦', magpieX, BRIDGE_Y);
+  }
+
+  function drawStars(){
+    ctx.font = '26px sans-serif';
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    stars.forEach(s => ctx.fillText('⭐', s.x, s.y));
+  }
+
+  function drawIdleScreen(){
+    drawBackground();
+    drawMagpie();
+    ctx.fillStyle = '#fff';
+    ctx.font = '14px sans-serif';
+    ctx.textAlign = 'center';
+    ctx.fillText('拖曳畫面移動鵲橋，接住掉落的星星', CW / 2, CH / 2 - 40);
+  }
+
+  function tick(){
+    timeLeft--;
+    timerEl.textContent = '時間：' + timeLeft;
+    if (timeLeft <= 0) endGame();
+  }
+
+  function loop(){
+    requestAnimationFrame(loop);
+    if (activeGame !== 'qixi') return;
+    if (!running) { return; }
+
+    frame++;
+    scoreEl.textContent = '分數：' + score;
+
+    spawnTimer--;
+    if (spawnTimer <= 0) {
+      spawnStar();
+      spawnTimer = 42 - Math.min(Math.floor(score / 50), 20);
+    }
+
+    drawBackground();
+
+    for (let i = stars.length - 1; i >= 0; i--) {
+      const s = stars[i];
+      s.y += s.speed;
+      const caught = Math.abs(s.x - magpieX) < 32 && s.y >= BRIDGE_Y - 22 && s.y <= BRIDGE_Y + 14;
+      if (caught) {
+        score += 10;
+        stars.splice(i, 1);
+        playFlipSound('coin_crisp');
+        continue;
+      }
+      if (s.y > CH + 20) { stars.splice(i, 1); continue; }
+    }
+    drawStars();
+    drawMagpie();
+  }
+  requestAnimationFrame(loop);
+
+  function startGame(){
+    score = 0; timeLeft = DURATION; stars = []; frame = 0; spawnTimer = 20;
+    magpieX = CW / 2;
+    scoreEl.textContent = '分數：0';
+    timerEl.textContent = '時間：' + timeLeft;
+    gameOverActions.classList.remove('show');
+    running = true;
+    clearInterval(timerInterval);
+    timerInterval = setInterval(tick, 1000);
+  }
+
+  function endGame(){
+    running = false;
+    clearInterval(timerInterval);
+    if (score > best) {
+      best = score;
+      localStorage.setItem('qixi_best', String(best));
+    }
+    bestEl.textContent = '最高：' + best;
+    drawBackground();
+    ctx.fillStyle = 'rgba(10,10,32,0.6)';
+    ctx.fillRect(0, 0, CW, CH);
+    ctx.fillStyle = '#FFE9A8';
+    ctx.font = 'bold 22px sans-serif';
+    ctx.textAlign = 'center';
+    ctx.fillText('鵲橋佳期結束', CW / 2, CH / 2 - 16);
+    ctx.fillStyle = '#fff';
+    ctx.font = '16px sans-serif';
+    ctx.fillText('本次分數：' + score, CW / 2, CH / 2 + 14);
+    gameOverActions.classList.add('show');
+  }
+
+  function pause(){
+    running = false;
+    clearInterval(timerInterval);
+  }
+
+  window.QixiGame = {
+    getScore(){ return score; },
+    retry(){ startGame(); },
+    onOpen(){
+      bestEl.textContent = '最高：' + best;
+      scoreEl.textContent = '分數：' + score;
+      timerEl.textContent = '時間：' + timeLeft;
+      if (!running) startGame();
+    },
+    onClose(){ pause(); }
+  };
+})();
+
 // ===== 遊戲外框控制器：依 activeGame 決定畫面/分數/紀錄要交給哪個模組 =====
 (function(){
   const gameOverlay = document.getElementById('gameOverlay');
@@ -1810,6 +2258,7 @@ const GAME_SPRITES = {
   const SCORE_API_URL = "https://script.google.com/macros/s/AKfycbx4v3PeB8eMOsWQF6vExH_bJmbIc6hz77BW3nwS4FDnhHtykSOcdsUuyYvovrlmCUpV/exec";
 
   function getGameMeta(key){
+    if (key === 'qixi') return { title: '✦ 鵲橋接星星 ✦', hint: '拖曳畫面移動鵲橋，接住掉落的星星，接不到不扣分，計時三十秒，看你能接多少顆！' };
     return key === 'whack'
       ? { title: t('game_meta_whack_title'), hint: t('game_meta_whack_hint') }
       : { title: t('game_meta_runner_title'), hint: t('game_meta_runner_hint') };
@@ -1820,7 +2269,10 @@ const GAME_SPRITES = {
     gameHintEl.textContent = meta.hint;
   };
 
-  function currentModule(){ return activeGame === 'whack' ? window.WhackGame : window.RunnerGame; }
+  function currentModule(){
+    if (activeGame === 'qixi') return window.QixiGame;
+    return activeGame === 'whack' ? window.WhackGame : window.RunnerGame;
+  }
 
   // 遊戲彈窗開啟時鎖住底層頁面捲動，避免手機點擊時誤觸發底下卡片滾動導致漏判打擊
   let _lockedScrollY = 0;
@@ -1845,9 +2297,9 @@ const GAME_SPRITES = {
     const meta = getGameMeta(activeGame);
     gameTitleEl.textContent = meta.title;
     gameHintEl.textContent = meta.hint;
-    canvasEl.style.display = activeGame === 'runner' ? '' : 'none';
+    canvasEl.style.display = (activeGame === 'runner' || activeGame === 'qixi') ? '' : 'none';
     whackStageEl.style.display = activeGame === 'whack' ? '' : 'none';
-    gameTimerEl.style.display = activeGame === 'whack' ? '' : 'none';
+    gameTimerEl.style.display = (activeGame === 'whack' || activeGame === 'qixi') ? '' : 'none';
     gameOverActions.classList.remove('show');
     gameOverlay.classList.add('active');
     lockBodyScroll();
@@ -1927,6 +2379,158 @@ const GAME_SPRITES = {
   });
 })();
 
+// ===== 匿名心情牆 =====
+(function(){
+  const msgwallCta = document.getElementById('msgwallCta');
+  const msgwallOverlay = document.getElementById('msgwallOverlay');
+  const msgwallCloseBtn = document.getElementById('msgwallCloseBtn');
+  const msgwallInput = document.getElementById('msgwallInput');
+  const msgwallNickname = document.getElementById('msgwallNickname');
+  const msgwallCounter = document.getElementById('msgwallCounter');
+  const msgwallSubmit = document.getElementById('msgwallSubmit');
+  const msgwallGrid = document.getElementById('msgwallGrid');
+
+  // 沿用跟排行榜同一個Apps Script網址，後端用 type 參數區分是分數還是留言
+  const MSG_API_URL = "https://script.google.com/macros/s/AKfycbx4v3PeB8eMOsWQF6vExH_bJmbIc6hz77BW3nwS4FDnhHtykSOcdsUuyYvovrlmCUpV/exec";
+
+  // 卡片裝飾用（跟身份無關，純視覺輪替），沿用頁面既有品牌色
+  const AVATAR_STYLES = [
+    { bg: 'var(--brand)', icon: '💭' },
+    { bg: 'var(--purple)', icon: '🌙' },
+    { bg: 'var(--pink)', icon: '✨' },
+    { bg: 'var(--yellow)', icon: '💫' },
+    { bg: 'var(--blue)', icon: '🌸' },
+  ];
+
+  // 比照Google匿名使用者的命名方式（匿名兔子、匿名熊貓...），用留言內容當種子
+  // 讓同一則留言每次顯示都是同一個動物名稱，不會重新整理就換掉
+  const ANIMAL_NAMES = [
+    '兔子','熊貓','狐狸','貓咪','企鵝','貓頭鷹','刺蝟','水獺','浣熊','樹懶',
+    '松鼠','柴犬','羊駝','海豹','章魚','水母','螃蟹','蝴蝶','螢火蟲','小鹿'
+  ];
+  function pickAnimalName(seedStr){
+    let seed = 0;
+    for (let i = 0; i < seedStr.length; i++) { seed = (seed * 31 + seedStr.charCodeAt(i)) >>> 0; }
+    return '匿名' + ANIMAL_NAMES[seed % ANIMAL_NAMES.length];
+  }
+
+  function escapeHtml(str){
+    return str.replace(/[&<>"']/g, ch => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[ch]));
+  }
+
+  function renderCard(m, i){
+    const style = AVATAR_STYLES[i % AVATAR_STYLES.length];
+    const nickname = (m.nickname || '').trim();
+    const displayName = nickname ? escapeHtml(nickname) : pickAnimalName(m.text + '|' + (m.time || ''));
+    return `<div class="msgwall-card">
+      <div class="msgwall-card-head">
+        <div class="msgwall-avatar" style="background:${style.bg};">${style.icon}</div>
+        <div class="msgwall-card-meta">
+          <span class="msgwall-anon-tag">${displayName}</span>
+          <span class="msgwall-card-time">${escapeHtml(m.time || '')}</span>
+        </div>
+      </div>
+      <p class="msgwall-card-text">${escapeHtml(m.text)}</p>
+      <div class="msgwall-card-foot">
+        <button class="msgwall-heart-btn" data-idx="${i}">🤍 <span>${m.hearts || 0}</span></button>
+      </div>
+    </div>`;
+  }
+
+  const PAGE_SIZE = 5;
+  let allMessages = [];
+  let visibleCount = PAGE_SIZE;
+
+  async function loadMessages(){
+    msgwallGrid.innerHTML = '<p class="msgwall-loading">載入中...</p>';
+    try {
+      const res = await fetch(MSG_API_URL + '?type=messages');
+      const data = await res.json();
+      allMessages = (data.ok && data.messages) ? data.messages : [];
+      visibleCount = PAGE_SIZE;
+      renderVisibleMessages();
+    } catch(e) {
+      msgwallGrid.innerHTML = '<p class="msgwall-empty">載入失敗，稍後再試一次</p>';
+    }
+  }
+
+  function renderVisibleMessages(){
+    if (!allMessages.length) {
+      msgwallGrid.innerHTML = '<p class="msgwall-empty">還沒有人留言，第一則可以是你！</p>';
+      return;
+    }
+
+    const shown = allMessages.slice(0, visibleCount);
+    let html = shown.map(renderCard).join('');
+
+    if (visibleCount < allMessages.length) {
+      html += `<button class="msgwall-more-btn" id="msgwallMoreBtn">展開更多留言（還有 ${allMessages.length - visibleCount} 則）</button>`;
+    }
+    msgwallGrid.innerHTML = html;
+
+    // 愛心目前僅前端視覺互動（尚未接後端計數，之後要做「真的能累加」再串API）
+    msgwallGrid.querySelectorAll('.msgwall-heart-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        if (btn.classList.contains('liked')) return;
+        btn.classList.add('liked');
+        const countEl = btn.querySelector('span');
+        countEl.textContent = parseInt(countEl.textContent || '0') + 1;
+        btn.firstChild.textContent = '❤️ ';
+      });
+    });
+
+    const moreBtn = document.getElementById('msgwallMoreBtn');
+    if (moreBtn) {
+      moreBtn.addEventListener('click', () => {
+        visibleCount = allMessages.length; // 一次展開剩下全部
+        renderVisibleMessages();
+      });
+    }
+  }
+
+  msgwallCta.addEventListener('click', () => {
+    msgwallOverlay.classList.add('active');
+    msgwallInput.value = '';
+    msgwallNickname.value = '';
+    msgwallCounter.textContent = '0 / 50';
+    msgwallCounter.classList.remove('limit');
+  });
+  msgwallCloseBtn.addEventListener('click', () => {
+    msgwallOverlay.classList.remove('active');
+  });
+
+  msgwallInput.addEventListener('input', () => {
+    const len = msgwallInput.value.length;
+    msgwallCounter.textContent = len + ' / 50';
+    msgwallCounter.classList.toggle('limit', len >= 50);
+  });
+
+  msgwallSubmit.addEventListener('click', async () => {
+    const text = msgwallInput.value.trim();
+    if (!text) { msgwallInput.focus(); return; }
+    const nickname = msgwallNickname.value.trim();
+    msgwallSubmit.disabled = true;
+    msgwallSubmit.textContent = '送出中...';
+    try {
+      await fetch(MSG_API_URL, {
+        method: 'POST',
+        headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+        body: JSON.stringify({ type: 'message', text: text, nickname: nickname })
+      });
+      msgwallOverlay.classList.remove('active');
+      showToast('留言已送出！');
+      loadMessages();
+    } catch(e) {
+      showToast('送出失敗，請稍後再試');
+    } finally {
+      msgwallSubmit.disabled = false;
+      msgwallSubmit.textContent = '送出';
+    }
+  });
+
+  loadMessages();
+})();
+
 // ===== 語言切換套用 =====
 function applyLanguage(){
   document.documentElement.lang = LANG === 'en' ? 'en' : 'zh-Hant';
@@ -1968,10 +2572,21 @@ function applyLanguage(){
   buildGrid();
   if (overlay.classList.contains('active')) {
     if (isSecretOpen) renderSecret(); else if (currentItem) renderDetail(currentItem);
+    prepareShareImage();
   }
 
   const langBtn = document.getElementById('langToggle');
   if (langBtn) langBtn.textContent = LANG === 'zh' ? 'EN' : 'ZH';
+
+  // 節日限定主題優先於一般語言文字，避免切換語言時把七夕文案蓋掉
+  if (document.body.classList.contains('qixi-theme')) {
+    const titleEl = document.getElementById('mainTitle');
+    const hintEl = document.getElementById('mainHint');
+    const footerEl = document.getElementById('footerHint');
+    if (titleEl) titleEl.textContent = QIXI_TEXT.title;
+    if (hintEl) hintEl.textContent = QIXI_TEXT.hint;
+    if (footerEl) footerEl.textContent = QIXI_TEXT.footer;
+  }
 }
 
 document.getElementById('langToggle').addEventListener('click', () => {
