@@ -684,6 +684,7 @@
       radial-gradient(120% 70% at 50% -10%, rgba(143,168,255,0.35) 0%, transparent 55%),
       radial-gradient(90% 60% at 15% 25%, rgba(255,158,216,0.18) 0%, transparent 60%),
       radial-gradient(90% 60% at 85% 25%, rgba(107,79,187,0.28) 0%, transparent 60%),
+      url('qixi_bg.png') center top / cover no-repeat,
       linear-gradient(180deg, #0a0a20 0%, #0d0d2a 45%, #06060f 100%);
     background-attachment:fixed;
   }
@@ -701,12 +702,51 @@
   body.qixi-theme .deco-crown, body.qixi-theme .deco-gem{ display:none; }
   body.qixi-theme .qixi-deco{ display:inline-block !important; }
 
+  /* ===== 流星劃過效果：只在七夕主題顯示 ===== */
+  .meteor-shower{ position:fixed; inset:0; z-index:0; pointer-events:none; overflow:hidden; display:none; }
+  body.qixi-theme .meteor-shower{ display:block; }
+  .meteor{
+    position:absolute; top:-6%; width:2px; height:2px;
+    background:#fff; border-radius:50%; opacity:0;
+    box-shadow:0 0 8px 1px rgba(255,255,255,0.9);
+    animation:meteorFall linear infinite;
+  }
+  .meteor::before{
+    content:''; position:absolute; top:50%; left:50%;
+    width:110px; height:1.5px;
+    background:linear-gradient(90deg, rgba(255,255,255,0.85), rgba(255,255,255,0));
+    transform:translate(-100%, -50%) rotate(35deg);
+    transform-origin:right center;
+  }
+  @keyframes meteorFall{
+    0%{ transform:translate(0,0); opacity:0; }
+    6%{ opacity:1; }
+    65%{ opacity:1; }
+    100%{ transform:translate(-260px, 340px); opacity:0; }
+  }
+  .meteor:nth-child(1){ left:12%; animation-delay:0.5s; animation-duration:6.5s; }
+  .meteor:nth-child(2){ left:48%; animation-delay:3.2s; animation-duration:7.8s; }
+  .meteor:nth-child(3){ left:72%; animation-delay:5.6s; animation-duration:5.4s; }
+  .meteor:nth-child(4){ left:30%; animation-delay:8.1s; animation-duration:7s; }
+  .meteor:nth-child(5){ left:85%; animation-delay:1.8s; animation-duration:6s; }
+  @media (prefers-reduced-motion: reduce){
+    .meteor{ animation:none; opacity:0; }
+  }
+
   /* ===== 七夕限定小遊戲：鵲橋接星星 ===== */
   .qixi-hint2{ font-size:12px; color:#888; text-align:center; }
 </style>
 </head>
 
 <body>
+
+<div class="meteor-shower" aria-hidden="true">
+  <div class="meteor"></div>
+  <div class="meteor"></div>
+  <div class="meteor"></div>
+  <div class="meteor"></div>
+  <div class="meteor"></div>
+</div>
 
 <!-- 預載好運動物圖（静態 <img> 使離線打包時能將圖片內嵌為 data URI）-->
 <div style="display:none" aria-hidden="true">
@@ -718,11 +758,11 @@
 <header>
   <img class="deco-crown" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAFgAAABACAYAAACeELDCAAABxUlEQVR4AezYMU4DQQyF4dF2FPRcjxsgcQ4kbsBtoOYW9BSUQRZVpOxzBvtlo82P5IL1zJvJty6iLIfPcVA1Nv5Td4vextcbcQdVy9YX3Pv5AJvfMMAAmwXM8UwwwGYBczwTDLBZwBzPBANsFjDH73KCzWZT8QBPcc0vBnjebGoHwFNc84sBnjeb2pECq986ozd12onFkaHqxJajR2pv9I4W/+OfyFCVRabAWQB9LQCw9il3AS4T6gCAtU+5C3CZUAcArH3K3Tbg8k12GmAHVt8ho+d2jTNUuc+3A7s/wLXnA2x+QwADbBYwxzPBAJsFzPFM8LUDq++Y0TPfvxwfd1RVPYAJrgom+wFWQA09gBsQVQTASqehB3ADoooAWOk09ABuQFQRKfDP08tQpcLP6T1+fw1V52SoNeru0VN7O3opcMcht5wBsPntAwywWcAczwTfHLD5A186ngk2i6fAd6/PQ1X1fm/3D0NVNV/dPXrV/Gx/CpwF0NcCAGufchfgMqEOAFj7lLsAlwl1AMDap9wFuEyoA5aP9zEonwETrAew3P0DLscQsCYA8JpM03OAmyDXYgBek2l6DnAT5FoMwGsyTc9/AQAA//+brXK+AAAABklEQVQDAG7LyDDVm/8VAAAAAElFTkSuQmCC" alt="">
   <div class="title-row">
-    <span class="qixi-deco" style="display:none; font-size:22px;">🐦</span>
+    <img class="qixi-deco" src="qixi_deco_left.png" alt="" style="display:none; width:44px; height:44px; object-fit:contain;">
     <svg class="deco-gem" viewBox="0 0 9 8" shape-rendering="crispEdges" aria-hidden="true"><rect x="3" y="0" width="3" height="1" fill="#ffc3dd"/><rect x="2" y="1" width="5" height="1" fill="#f6418d"/><rect x="1" y="2" width="7" height="1" fill="#f6418d"/><rect x="0" y="3" width="9" height="1" fill="#f6418d"/><rect x="1" y="4" width="7" height="1" fill="#c01f6b"/><rect x="2" y="5" width="5" height="1" fill="#c01f6b"/><rect x="3" y="6" width="3" height="1" fill="#c01f6b"/><rect x="4" y="7" width="1" height="1" fill="#c01f6b"/></svg>
     <h1 class="pixel" id="mainTitle" style="font-family:'Work Sans', sans-serif; font-size:36px; white-space:nowrap;">本週主播榮譽榜</h1>
     <svg class="deco-gem" viewBox="0 0 9 9" shape-rendering="crispEdges" aria-hidden="true"><rect x="4" y="0" width="1" height="9" fill="#FFD100"/><rect x="0" y="4" width="9" height="1" fill="#FFD100"/><rect x="3" y="1" width="3" height="1" fill="#FFD100"/><rect x="1" y="3" width="1" height="3" fill="#FFD100"/><rect x="7" y="3" width="1" height="3" fill="#FFD100"/><rect x="3" y="7" width="3" height="1" fill="#FFD100"/><rect x="3" y="3" width="3" height="3" fill="#fff3a8"/></svg>
-    <span class="qixi-deco" style="display:none; font-size:22px;">🌉</span>
+    <img class="qixi-deco" src="qixi_deco_right.png" alt="" style="display:none; width:44px; height:44px; object-fit:contain;">
   </div>
   <div class="week-pill">
     <span class="date">2026/06/29-2026/07/06</span>
@@ -1137,6 +1177,9 @@ const SPECIAL_THEMES = {
   '2026-08-17': 'qixi'   // 七夕（國曆8/19落在這一週）
 };
 
+// ⚠️⚠️⚠️ 這是「預覽測試專用」開關，只存在於這份檔案，正式檔不會有這個變數 ⚠️⚠️⚠️
+const FORCE_QIXI_PREVIEW = true;
+
 const QIXI_TEXT = {
   title: '🐦🌉 七夕鵲橋榜 🌉🐦',
   hint: '點開卡片看獲獎人是誰，鵲橋佳期記得截圖留念一下 ✦',
@@ -1144,7 +1187,7 @@ const QIXI_TEXT = {
 };
 
 function applySpecialTheme(weekStartStr){
-  const theme = SPECIAL_THEMES[weekStartStr] || null;
+  const theme = FORCE_QIXI_PREVIEW ? 'qixi' : (SPECIAL_THEMES[weekStartStr] || null);
   document.body.classList.toggle('qixi-theme', theme === 'qixi');
   const titleEl = document.getElementById('mainTitle');
   const hintEl = document.getElementById('mainHint');
@@ -1172,6 +1215,7 @@ function clientMonday(d){
   return date;
 }
 function pickActiveGame(weekStartStr){
+  if (FORCE_QIXI_PREVIEW) return 'qixi';
   const key = weekStartStr || (function(){
     const d = clientMonday(new Date());
     return d.getFullYear() + '-' + String(d.getMonth()+1).padStart(2,'0') + '-' + String(d.getDate()).padStart(2,'0');
@@ -2069,6 +2113,10 @@ const GAME_SPRITES = {
   const BRIDGE_Y = CH - 46;
   const DURATION = 30;
 
+  const magpieImg = new Image();
+  magpieImg.src = 'qixi_magpie.png';
+  const MAGPIE_W = 64, MAGPIE_H = 48;
+
   let best = Number(localStorage.getItem('qixi_best') || 0);
   let score = 0, timeLeft = DURATION, running = false;
   let magpieX = CW / 2;
@@ -2118,17 +2166,21 @@ const GAME_SPRITES = {
   }
 
   function drawMagpie(){
-    ctx.font = '40px sans-serif';
-    ctx.textAlign = 'center';
-    ctx.textBaseline = 'middle';
-    ctx.fillText('🐦', magpieX, BRIDGE_Y);
+    if (magpieImg.complete && magpieImg.naturalWidth > 0) {
+      ctx.drawImage(magpieImg, magpieX - MAGPIE_W / 2, BRIDGE_Y - MAGPIE_H / 2, MAGPIE_W, MAGPIE_H);
+    } else {
+      ctx.font = '40px sans-serif';
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'middle';
+      ctx.fillText('🐦', magpieX, BRIDGE_Y);
+    }
   }
 
   function drawStars(){
     ctx.font = '26px sans-serif';
     ctx.textAlign = 'center';
     ctx.textBaseline = 'middle';
-    stars.forEach(s => ctx.fillText('⭐', s.x, s.y));
+    stars.forEach(s => ctx.fillText('💖', s.x, s.y));
   }
 
   function drawIdleScreen(){
@@ -2137,7 +2189,7 @@ const GAME_SPRITES = {
     ctx.fillStyle = '#fff';
     ctx.font = '14px sans-serif';
     ctx.textAlign = 'center';
-    ctx.fillText('拖曳畫面移動鵲橋，接住掉落的星星', CW / 2, CH / 2 - 40);
+    ctx.fillText('拖曳畫面移動鵲橋，接住掉落的愛心', CW / 2, CH / 2 - 40);
   }
 
   function tick(){
@@ -2258,7 +2310,7 @@ const GAME_SPRITES = {
   const SCORE_API_URL = "https://script.google.com/macros/s/AKfycbx4v3PeB8eMOsWQF6vExH_bJmbIc6hz77BW3nwS4FDnhHtykSOcdsUuyYvovrlmCUpV/exec";
 
   function getGameMeta(key){
-    if (key === 'qixi') return { title: '✦ 鵲橋接星星 ✦', hint: '拖曳畫面移動鵲橋，接住掉落的星星，接不到不扣分，計時三十秒，看你能接多少顆！' };
+    if (key === 'qixi') return { title: '✦ 鵲橋傳情 ✦', hint: '拖曳畫面移動鵲橋，接住掉落的愛心，接不到不扣分，計時三十秒，看你能接多少顆！' };
     return key === 'whack'
       ? { title: t('game_meta_whack_title'), hint: t('game_meta_whack_hint') }
       : { title: t('game_meta_runner_title'), hint: t('game_meta_runner_hint') };
