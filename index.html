@@ -538,6 +538,13 @@
   .msgwall-cta-title{ font-size:14px; font-weight:900; color:var(--yellow); margin:0 0 2px; }
   .msgwall-cta-sub{ font-size:11.5px; color:#999; margin:0; }
 
+  /* 七夕主題：留言卡片改桃紅色 */
+  body.qixi-theme .msgwall-cta{
+    background:rgba(255,107,157,0.1); border-color:rgba(255,107,157,0.45);
+  }
+  body.qixi-theme .msgwall-cta-icon{ background:#FF6B9D; color:#fff; }
+  body.qixi-theme .msgwall-cta-title{ color:#FF6B9D; }
+
   .msgwall-grid{ display:flex; flex-direction:column; gap:12px; }
   .msgwall-empty, .msgwall-loading{
     color:#666; font-size:13px; text-align:center; padding:20px 0;
@@ -684,9 +691,10 @@
       radial-gradient(120% 70% at 50% -10%, rgba(143,168,255,0.35) 0%, transparent 55%),
       radial-gradient(90% 60% at 15% 25%, rgba(255,158,216,0.18) 0%, transparent 60%),
       radial-gradient(90% 60% at 85% 25%, rgba(107,79,187,0.28) 0%, transparent 60%),
-      url('qixi_bg.png') center top / cover no-repeat,
+      linear-gradient(rgba(6,6,16,0.55), rgba(6,6,16,0.55)),
+      url('qixi_bg.png') top center / 100% auto no-repeat,
       linear-gradient(180deg, #0a0a20 0%, #0d0d2a 45%, #06060f 100%);
-    background-attachment:fixed;
+    background-attachment:scroll;
   }
   body.qixi-theme::before{
     background-image:
@@ -826,13 +834,13 @@
 </div>
 
 <div class="msgwall-section">
-  <div class="msgwall-section-head"><span class="dot"></span><span class="msgwall-section-title">心情留言牆</span></div>
+  <div class="msgwall-section-head"><span class="dot"></span><span class="msgwall-section-title" id="msgwallSectionTitle">心情留言牆</span></div>
 
   <div class="msgwall-cta" id="msgwallCta">
     <div class="msgwall-cta-icon">+</div>
     <div>
-      <p class="msgwall-cta-title">送出一則留言</p>
-      <p class="msgwall-cta-sub">點擊寫下你想說的話，完全匿名</p>
+      <p class="msgwall-cta-title" id="msgwallCtaTitle">送出一則留言</p>
+      <p class="msgwall-cta-sub" id="msgwallCtaSub">點擊寫下你想說的話，完全匿名</p>
     </div>
   </div>
 
@@ -843,7 +851,7 @@
 
 <div class="msgwall-overlay" id="msgwallOverlay">
   <div class="msgwall-modal">
-    <p class="msgwall-title">💬 送出一則留言</p>
+    <p class="msgwall-title" id="msgwallModalTitle">💬 送出一則留言</p>
     <p class="msgwall-sub">純聊天、抒發心情的地方，不用擔心被認出來</p>
 
     <textarea class="msgwall-textarea" id="msgwallInput" maxlength="50" placeholder="想說什麼都可以..."></textarea>
@@ -1182,7 +1190,17 @@ const FORCE_QIXI_PREVIEW = true;
 const QIXI_TEXT = {
   title: '🐦🌉 七夕鵲橋榜 🌉🐦',
   hint: '點開卡片看獲獎人是誰，鵲橋佳期記得截圖留念一下 ✦',
-  footer: '銀河兩岸，年年今夜鵲橋會 ✦'
+  footer: '銀河兩岸，年年今夜鵲橋會 ✦',
+  msgwallSectionTitle: '七夕告白牆',
+  msgwallCtaTitle: '送出一則告白',
+  msgwallCtaSub: '點擊留下你對某人的真誠告白',
+  msgwallModalTitle: '💬 送出一則告白'
+};
+const DEFAULT_TEXT = {
+  msgwallSectionTitle: '心情留言牆',
+  msgwallCtaTitle: '送出一則留言',
+  msgwallCtaSub: '點擊寫下你想說的話，完全匿名',
+  msgwallModalTitle: '💬 送出一則留言'
 };
 
 function applySpecialTheme(weekStartStr){
@@ -1191,14 +1209,26 @@ function applySpecialTheme(weekStartStr){
   const titleEl = document.getElementById('mainTitle');
   const hintEl = document.getElementById('mainHint');
   const footerEl = document.getElementById('footerHint');
+  const msgSectionEl = document.getElementById('msgwallSectionTitle');
+  const msgCtaTitleEl = document.getElementById('msgwallCtaTitle');
+  const msgCtaSubEl = document.getElementById('msgwallCtaSub');
+  const msgModalTitleEl = document.getElementById('msgwallModalTitle');
   if (theme === 'qixi') {
     if (titleEl) titleEl.textContent = QIXI_TEXT.title;
     if (hintEl) hintEl.textContent = QIXI_TEXT.hint;
     if (footerEl) footerEl.textContent = QIXI_TEXT.footer;
+    if (msgSectionEl) msgSectionEl.textContent = QIXI_TEXT.msgwallSectionTitle;
+    if (msgCtaTitleEl) msgCtaTitleEl.textContent = QIXI_TEXT.msgwallCtaTitle;
+    if (msgCtaSubEl) msgCtaSubEl.textContent = QIXI_TEXT.msgwallCtaSub;
+    if (msgModalTitleEl) msgModalTitleEl.textContent = QIXI_TEXT.msgwallModalTitle;
   } else {
     if (titleEl) titleEl.textContent = t('page_title');
     if (hintEl) hintEl.textContent = t('main_hint');
     if (footerEl) footerEl.textContent = t('footer_hint');
+    if (msgSectionEl) msgSectionEl.textContent = DEFAULT_TEXT.msgwallSectionTitle;
+    if (msgCtaTitleEl) msgCtaTitleEl.textContent = DEFAULT_TEXT.msgwallCtaTitle;
+    if (msgCtaSubEl) msgCtaSubEl.textContent = DEFAULT_TEXT.msgwallCtaSub;
+    if (msgModalTitleEl) msgModalTitleEl.textContent = DEFAULT_TEXT.msgwallModalTitle;
   }
 }
 
