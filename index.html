@@ -404,6 +404,11 @@
     font-size:16.5px; line-height:2; color:#fff; white-space:pre-line;
     margin:0 0 14px; font-family:'Noto Sans TC', serif; letter-spacing:0.5px;
   }
+  .fortune-result{
+    opacity:0; transform:translateY(8px);
+    transition:opacity 0.6s ease, transform 0.6s ease;
+  }
+  .fortune-result.show{ opacity:1; transform:translateY(0); }
 
   .share-pill{
     width:100%;
@@ -1526,6 +1531,7 @@ async function loadAvatar(slot, item){
   } catch(e){ /* 保留虛線佔位 */ }
 }
 
+let fortuneRevealTimer = null;
 function renderSecret(){
   const f = pickFortune();
   detailCard.style.setProperty('--accent', 'var(--white)');
@@ -1534,10 +1540,12 @@ function renderSecret(){
     <div class="fortune-tube-wrap">
       <img class="fortune-tube-img" id="fortuneTubeImg" src="qixi_tube.png" alt="籤筒">
     </div>
-    <p class="detail-title fortune-tier" style="color:var(--white);">${f.tier}</p>
-    <p class="fortune-poem">${f.poem}</p>
-    <p class="detail-desc" style="font-size:15px;">${f.meaning}</p>
-    <button class="redraw-btn" id="redrawBtn">🎋 再抽一次</button>
+    <div class="fortune-result" id="fortuneResult">
+      <p class="detail-title fortune-tier" style="color:var(--white);">${f.tier}</p>
+      <p class="fortune-poem">${f.poem}</p>
+      <p class="detail-desc" style="font-size:15px;">${f.meaning}</p>
+      <button class="redraw-btn" id="redrawBtn">🎋 再抽一次</button>
+    </div>
   `;
   // 重新觸發搖籤動畫（先移除class強制reflow，再加回去才會重播）
   const tubeImg = document.getElementById('fortuneTubeImg');
@@ -1545,6 +1553,12 @@ function renderSecret(){
     tubeImg.classList.remove('shake');
     void tubeImg.offsetWidth;
     tubeImg.classList.add('shake');
+  }
+  // 籤筒搖完後，籤詩才淡入顯示
+  const resultEl = document.getElementById('fortuneResult');
+  clearTimeout(fortuneRevealTimer);
+  if (resultEl) {
+    fortuneRevealTimer = setTimeout(() => { resultEl.classList.add('show'); }, 700);
   }
 }
 
