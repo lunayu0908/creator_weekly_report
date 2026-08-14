@@ -381,6 +381,30 @@
     filter:drop-shadow(0 4px 8px rgba(0,0,0,0.4));
   }
 
+  /* ===== 七夕限定：戀愛運勢抽籤（搖籤筒動畫） ===== */
+  .fortune-tube-wrap{ display:flex; justify-content:center; margin-bottom:14px; }
+  .fortune-tube-img{
+    width:110px; height:auto;
+    transform-origin:50% 88%;
+    filter:drop-shadow(0 4px 8px rgba(0,0,0,0.4));
+  }
+  .fortune-tube-img.shake{ animation:tubeShake 0.7s ease-in-out; }
+  @keyframes tubeShake{
+    0%{ transform:rotate(0deg) translateY(0); }
+    12%{ transform:rotate(-14deg) translateY(-2px); }
+    26%{ transform:rotate(12deg) translateY(0); }
+    40%{ transform:rotate(-10deg) translateY(-2px); }
+    54%{ transform:rotate(8deg) translateY(0); }
+    68%{ transform:rotate(-5deg); }
+    82%{ transform:rotate(3deg); }
+    100%{ transform:rotate(0deg); }
+  }
+  .fortune-tier{ font-size:20px; letter-spacing:2px; }
+  .fortune-poem{
+    font-size:16.5px; line-height:2; color:#fff; white-space:pre-line;
+    margin:0 0 14px; font-family:'Noto Sans TC', serif; letter-spacing:0.5px;
+  }
+
   .share-pill{
     width:100%;
     background:transparent;
@@ -1179,16 +1203,11 @@ function updateWeekPill(weekStart){
   if (el) el.textContent = `${f(d)}-${f(end)}`;
 }
 
-// ===== 節日限定主題（依 week_start 判斷，過了那週自動恢復平常樣式）=====
-// 之後有其他節日（中秋、跨年⋯）要加，直接在這裡多加一組 'YYYY-MM-DD': '主題名稱' 即可
-const SPECIAL_THEMES = {
-  '2026-08-17': 'qixi'   // 七夕（國曆8/19落在這一週）
-};
-
-const FORCE_QIXI_PREVIEW = true;
+// ===== 七夕限定主題（這份是七夕專用版本，永遠套用，不做日期判斷）=====
+document.body.classList.add('qixi-theme');
 
 const QIXI_TEXT = {
-  title: '🐦🌉 七夕鵲橋榜 🌉🐦',
+  title: '七夕鵲橋榜',
   hint: '點開卡片看獲獎人是誰，鵲橋佳期記得截圖留念一下 ✦',
   footer: '銀河兩岸，年年今夜鵲橋會 ✦',
   msgwallSectionTitle: '七夕告白牆',
@@ -1196,16 +1215,8 @@ const QIXI_TEXT = {
   msgwallCtaSub: '點擊留下你對某人的真誠告白',
   msgwallModalTitle: '💬 送出一則告白'
 };
-const DEFAULT_TEXT = {
-  msgwallSectionTitle: '心情留言牆',
-  msgwallCtaTitle: '送出一則留言',
-  msgwallCtaSub: '點擊寫下你想說的話，完全匿名',
-  msgwallModalTitle: '💬 送出一則留言'
-};
 
-function applySpecialTheme(weekStartStr){
-  const theme = FORCE_QIXI_PREVIEW ? 'qixi' : (SPECIAL_THEMES[weekStartStr] || null);
-  document.body.classList.toggle('qixi-theme', theme === 'qixi');
+function applyQixiText(){
   const titleEl = document.getElementById('mainTitle');
   const hintEl = document.getElementById('mainHint');
   const footerEl = document.getElementById('footerHint');
@@ -1213,54 +1224,17 @@ function applySpecialTheme(weekStartStr){
   const msgCtaTitleEl = document.getElementById('msgwallCtaTitle');
   const msgCtaSubEl = document.getElementById('msgwallCtaSub');
   const msgModalTitleEl = document.getElementById('msgwallModalTitle');
-  if (theme === 'qixi') {
-    if (titleEl) titleEl.textContent = QIXI_TEXT.title;
-    if (hintEl) hintEl.textContent = QIXI_TEXT.hint;
-    if (footerEl) footerEl.textContent = QIXI_TEXT.footer;
-    if (msgSectionEl) msgSectionEl.textContent = QIXI_TEXT.msgwallSectionTitle;
-    if (msgCtaTitleEl) msgCtaTitleEl.textContent = QIXI_TEXT.msgwallCtaTitle;
-    if (msgCtaSubEl) msgCtaSubEl.textContent = QIXI_TEXT.msgwallCtaSub;
-    if (msgModalTitleEl) msgModalTitleEl.textContent = QIXI_TEXT.msgwallModalTitle;
-  } else {
-    if (titleEl) titleEl.textContent = t('page_title');
-    if (hintEl) hintEl.textContent = t('main_hint');
-    if (footerEl) footerEl.textContent = t('footer_hint');
-    if (msgSectionEl) msgSectionEl.textContent = DEFAULT_TEXT.msgwallSectionTitle;
-    if (msgCtaTitleEl) msgCtaTitleEl.textContent = DEFAULT_TEXT.msgwallCtaTitle;
-    if (msgCtaSubEl) msgCtaSubEl.textContent = DEFAULT_TEXT.msgwallCtaSub;
-    if (msgModalTitleEl) msgModalTitleEl.textContent = DEFAULT_TEXT.msgwallModalTitle;
-  }
+  if (titleEl) titleEl.textContent = QIXI_TEXT.title;
+  if (hintEl) hintEl.textContent = QIXI_TEXT.hint;
+  if (footerEl) footerEl.textContent = QIXI_TEXT.footer;
+  if (msgSectionEl) msgSectionEl.textContent = QIXI_TEXT.msgwallSectionTitle;
+  if (msgCtaTitleEl) msgCtaTitleEl.textContent = QIXI_TEXT.msgwallCtaTitle;
+  if (msgCtaSubEl) msgCtaSubEl.textContent = QIXI_TEXT.msgwallCtaSub;
+  if (msgModalTitleEl) msgModalTitleEl.textContent = QIXI_TEXT.msgwallModalTitle;
 }
+applyQixiText();
 
-// ===== 遊戲輪替：主播衝刺跑／獎金獵人 每週自動交換（節日限定遊戲優先）=====
-const GAME_ROTATION = ['whack', 'runner'];   // 原本 ['runner', 'whack']，順序對調讓 7/20 這週輪到獎金獵人
-const ROTATION_EPOCH_MONDAY = new Date('2026-01-05T00:00:00');
-function clientMonday(d){
-  const date = new Date(d);
-  const day = date.getDay();
-  const diff = (day === 0 ? -6 : 1) - day;
-  date.setDate(date.getDate() + diff);
-  date.setHours(0, 0, 0, 0);
-  return date;
-}
-function pickActiveGame(weekStartStr){
-  if (FORCE_QIXI_PREVIEW) return 'qixi';
-  const key = weekStartStr || (function(){
-    const d = clientMonday(new Date());
-    return d.getFullYear() + '-' + String(d.getMonth()+1).padStart(2,'0') + '-' + String(d.getDate()).padStart(2,'0');
-  })();
-  if (SPECIAL_THEMES[key] === 'qixi') return 'qixi';
-  const monday = weekStartStr ? new Date(weekStartStr + 'T00:00:00') : clientMonday(new Date());
-  if (isNaN(monday)) return GAME_ROTATION[0];
-  const diffWeeks = Math.round((monday - ROTATION_EPOCH_MONDAY) / (7 * 24 * 3600 * 1000));
-  const idx = ((diffWeeks % GAME_ROTATION.length) + GAME_ROTATION.length) % GAME_ROTATION.length;
-  return GAME_ROTATION[idx];
-}
-let activeGame = pickActiveGame();
-applySpecialTheme((function(){
-  const d = clientMonday(new Date());
-  return d.getFullYear() + '-' + String(d.getMonth()+1).padStart(2,'0') + '-' + String(d.getDate()).padStart(2,'0');
-})());
+let activeGame = 'qixi';
 
 const gridLoadingEl = document.getElementById('gridLoading');
 const gridLoadingSprite = document.getElementById('gridLoadingSprite');
@@ -1284,8 +1258,7 @@ async function loadCards(){
     // 只取最新一週
     const weeks = objs.map(o => o.week_start).filter(Boolean).sort();
     const latest = weeks[weeks.length - 1];
-    activeGame = pickActiveGame(latest);
-    applySpecialTheme(latest);
+    // activeGame 固定為 qixi，這版不需要每次資料回來時重新判斷
     let rows = objs.filter(o => !latest || o.week_start === latest);
     rows.sort((a, b) => (parseFloat(a.rank_order)||0) - (parseFloat(b.rank_order)||0));
     DATA = rows.map(o => ({
@@ -1387,17 +1360,37 @@ async function loadQuotes(){
 loadQuotes();
 
 // ===== 好運小動物（隨機顯示於第八張卡）=====
-const LUCK_ANIMALS = [
-  { key:'dog',     greeting:'您已被好運狗狗造訪', greeting_en:'A lucky doggo has visited you' },
-  { key:'cat',     greeting:'您已被好運貓貓造訪', greeting_en:'A lucky kitty has visited you' },
-  { key:'hamster', greeting:'您已被好運鼠鼠造訪', greeting_en:'A lucky hamster has visited you' }
+// ===== 七夕限定：戀愛運勢抽籤（取代好運小動物）=====
+const QIXI_FORTUNES = [
+  { tier:'上上籤', poem:'花開並蒂兩情長，月老牽紅繫鴛鴦。\n莫道姻緣天外遠，柳暗花明在眼旁。', meaning:'好事將近，心儀之人近在咫尺，主動一點就能修成正果。' },
+  { tier:'上籤',   poem:'鵲橋橫渡銀河闊，星光點點照歸途。\n有情人終須相見，莫因小事心生疑。', meaning:'感情穩定向好，偶有小摩擦不必太在意，坦誠溝通即可化解。' },
+  { tier:'中上籤', poem:'一江春水向東流，情絲萬縷繫心頭。\n遲遲未定非無意，靜待花開自有時。', meaning:'緣分尚在醞釀，急不得，耐心等待會有轉機。' },
+  { tier:'中籤',   poem:'雲淡風輕心自安，不必強求似神仙。\n順其自然緣自到，何必朝朝盼歸帆。', meaning:'目前感情平淡是正常現象，順其自然發展，不需過度焦慮。' },
+  { tier:'上籤',   poem:'紅豆生南國，春來發幾枝。\n君心若似我心久，何愁佳期不可期。', meaning:'兩情相悅，只要真心不變，好日子指日可待。' },
+  { tier:'中平籤', poem:'路遙知馬力，日久見人心。\n莫將表面當真意，細水長流方見金。', meaning:'現在還看不清對方真心，時間會給你答案，別急著下定論。' },
+  { tier:'上上籤', poem:'月老紅繩繫兩端，姻緣一線自天牽。\n今朝喜鵲枝頭報，佳偶天成在眼前。', meaning:'好姻緣近在眼前，把握當下的緣分，勇敢表達心意。' },
+  { tier:'中籤',   poem:'花開花落自有時，莫怨東風來得遲。\n心急吃不了熱豆腐，緣分自有安排時。', meaning:'欲速則不達，感情需要時間慢慢培養，別操之過急。' },
+  { tier:'下籤',   poem:'鏡花水月終是空，莫把幻影當真情。\n睜眼看清眼前事，莫被虛言誤此生。', meaning:'提醒你看清對方真面目，別被表面言語迷惑，多觀察實際行動。' },
+  { tier:'上籤',   poem:'星橋鵲駕渡銀河，一年一會情更多。\n莫嫌相聚時光短，細水長流勝似火。', meaning:'感情細水長流最珍貴，不必羨慕別人轟轟烈烈，你的節奏就很好。' },
+  { tier:'中上籤', poem:'柳絲搖曳訴衷腸，欲說還休意未詳。\n不如坦率一句話，勝過千迴百轉腸。', meaning:'與其猜測對方心意，不如直接表達，坦白往往比曖昧更有效。' },
+  { tier:'上籤',   poem:'兩心相印如鏡照，無需言語自然知。\n莫因小事傷和氣，一笑泯卻萬般癡。', meaning:'你們默契很好，遇到小摩擦，一笑置之即可化解。' },
+  { tier:'中籤',   poem:'浮雲遮月終須散，霧散雲開見月明。\n眼前迷惘皆暫景，靜待雲開見真情。', meaning:'目前感情狀況有些混沌不明，耐心等待，事情終會明朗。' },
+  { tier:'下下籤', poem:'鏡破難圓緣已盡，莫再苦留舊時人。\n放下執念心自輕，來日方長遇新春。', meaning:'這段緣分可能已到盡頭，與其苦苦挽留，不如放手迎接新的可能。' },
+  { tier:'上籤',   poem:'七夕鵲橋年年會，真心到底不畏遲。\n縱使相隔千萬里，情深自有相逢時。', meaning:'距離不是問題，只要真心，異地或忙碌都能等到重逢的一天。' },
+  { tier:'中平籤', poem:'心猿意馬難自定，一日三變是常情。\n莫因猶豫失良機，當斷則斷心自明。', meaning:'你可能還在猶豫不決，提醒自己該做決定的時候別再拖延。' },
+  { tier:'上上籤', poem:'天作之合非偶然，前世姻緣今世牽。\n莫負眼前有情人，攜手同心到白頭。', meaning:'這是一段很值得珍惜的緣分，好好把握，未來可期。' },
+  { tier:'中籤',   poem:'桃花雖美易凋零，真情細水最綿長。\n莫貪一時新鮮意，長久之情勝短狂。', meaning:'提醒你分辨新鮮感與真感情的差別，選擇能長久經營的關係。' },
+  { tier:'下籤',   poem:'鏡裡觀花空自嘆，水中撈月一場空。\n莫把單思當雙意，及早清醒少傷神。', meaning:'可能是單相思的處境，建議認清現實，別讓自己陷太深受傷。' },
+  { tier:'上籤',   poem:'今宵鵲橋星漢渡，有情終成眷屬時。\n莫問前路多少難，心誠所至金石開。', meaning:'只要心意堅定，再多困難都能克服，好結果值得期待。' }
 ];
-// 從預載的静態 <img> 讀 src（離線時已是內嵌 data URI）
-function animSrc(key){
-  const el = document.getElementById('pre-' + key);
-  return el ? el.src : (key + '.png');
+let currentFortuneIdx = -1;
+function pickFortune(){
+  let idx;
+  do { idx = Math.floor(Math.random() * QIXI_FORTUNES.length); }
+  while (idx === currentFortuneIdx && QIXI_FORTUNES.length > 1);
+  currentFortuneIdx = idx;
+  return QIXI_FORTUNES[idx];
 }
-function pickAnimal(){ return LUCK_ANIMALS[Math.floor(Math.random()*LUCK_ANIMALS.length)]; }
 
 // ===== 建立網格卡片 =====
 const grid = document.getElementById('grid');
@@ -1534,17 +1527,25 @@ async function loadAvatar(slot, item){
 }
 
 function renderSecret(){
-  const q = pickQuote();
-  const a = pickAnimal();
+  const f = pickFortune();
   detailCard.style.setProperty('--accent', 'var(--white)');
   overlay.style.setProperty('--accent', 'var(--white)');
   detailCard.innerHTML = `
-    <p class="luck-greeting">${pick(a,'greeting')}</p>
-    <img class="luck-animal" src="${animSrc(a.key)}" alt="">
-    <p class="detail-title" style="color:var(--white);">${t('weekly_quote_title')}</p>
-    <p class="detail-desc" style="font-size:16px;">${q}</p>
-    <button class="redraw-btn" id="redrawBtn">${t('redraw_btn')}</button>
+    <div class="fortune-tube-wrap">
+      <img class="fortune-tube-img" id="fortuneTubeImg" src="qixi_tube.png" alt="籤筒">
+    </div>
+    <p class="detail-title fortune-tier" style="color:var(--white);">${f.tier}</p>
+    <p class="fortune-poem">${f.poem}</p>
+    <p class="detail-desc" style="font-size:15px;">${f.meaning}</p>
+    <button class="redraw-btn" id="redrawBtn">🎋 再抽一次</button>
   `;
+  // 重新觸發搖籤動畫（先移除class強制reflow，再加回去才會重播）
+  const tubeImg = document.getElementById('fortuneTubeImg');
+  if (tubeImg) {
+    tubeImg.classList.remove('shake');
+    void tubeImg.offsetWidth;
+    tubeImg.classList.add('shake');
+  }
 }
 
 let flipping = false;
