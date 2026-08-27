@@ -273,7 +273,7 @@
     background:var(--card-bg);
     border:3px solid var(--accent, var(--brand));
     border-radius:16px;
-    padding:32px 26px 30px;
+    padding:34px 26px 30px;
     text-align:center;
     overflow:hidden;
     isolation:isolate;
@@ -282,41 +282,58 @@
       inset 0 0 0 5px color-mix(in srgb, var(--accent, var(--brand)) 12%, transparent),
       inset 0 0 26px color-mix(in srgb, var(--accent, var(--brand)) 12%, transparent);
   }
-  /* 質感背景：淡淡星塵光點 + 格線紋理，取代原本純平面色塊 */
+  /* 內層雙線框，加強「證書/收藏卡」的層次感 */
+  .detail-card::after{
+    content:"";
+    position:absolute; inset:9px; z-index:1;
+    border:1px solid color-mix(in srgb, var(--accent, var(--brand)) 55%, transparent);
+    border-radius:11px;
+    pointer-events:none;
+  }
+  /* 質感背景：星塵光點 + 格線紋理，取代原本純平面色塊 */
   .detail-card::before{
     content:"";
     position:absolute; inset:0; z-index:-1;
     background-image:
-      radial-gradient(1.4px 1.4px at 12% 18%, rgba(255,255,255,0.45) 1px, transparent 0),
-      radial-gradient(1px 1px at 82% 12%, rgba(255,255,255,0.32) 1px, transparent 0),
-      radial-gradient(1.2px 1.2px at 30% 75%, rgba(255,255,255,0.4) 1px, transparent 0),
-      radial-gradient(1px 1px at 90% 60%, rgba(255,255,255,0.28) 1px, transparent 0),
-      radial-gradient(1.3px 1.3px at 62% 90%, rgba(255,255,255,0.35) 1px, transparent 0),
-      radial-gradient(1px 1px at 6% 55%, rgba(255,255,255,0.25) 1px, transparent 0),
-      linear-gradient(rgba(255,255,255,0.02) 1px, transparent 1px),
-      linear-gradient(90deg, rgba(255,255,255,0.02) 1px, transparent 1px);
-    background-size:auto, auto, auto, auto, auto, auto, 24px 24px, 24px 24px;
+      radial-gradient(1.8px 1.8px at 12% 18%, rgba(255,255,255,0.75) 1px, transparent 0),
+      radial-gradient(1.4px 1.4px at 82% 12%, rgba(255,255,255,0.6) 1px, transparent 0),
+      radial-gradient(1.6px 1.6px at 30% 75%, rgba(255,255,255,0.68) 1px, transparent 0),
+      radial-gradient(1.4px 1.4px at 90% 60%, rgba(255,255,255,0.55) 1px, transparent 0),
+      radial-gradient(1.8px 1.8px at 62% 90%, rgba(255,255,255,0.65) 1px, transparent 0),
+      radial-gradient(1.4px 1.4px at 6% 55%, rgba(255,255,255,0.5) 1px, transparent 0),
+      radial-gradient(1.2px 1.2px at 45% 35%, rgba(255,255,255,0.45) 1px, transparent 0),
+      radial-gradient(1.2px 1.2px at 70% 40%, rgba(255,255,255,0.4) 1px, transparent 0),
+      radial-gradient(1.2px 1.2px at 20% 92%, rgba(255,255,255,0.4) 1px, transparent 0),
+      radial-gradient(2px 2px at 95% 88%, color-mix(in srgb, var(--accent, var(--brand)) 80%, white) 1px, transparent 0),
+      linear-gradient(color-mix(in srgb, var(--accent, var(--brand)) 8%, transparent) 1px, transparent 1px),
+      linear-gradient(90deg, color-mix(in srgb, var(--accent, var(--brand)) 8%, transparent) 1px, transparent 1px);
+    background-size:auto, auto, auto, auto, auto, auto, auto, auto, auto, auto, 20px 20px, 20px 20px;
   }
-  /* 裝飾性四角鉚釘邊框 */
+  /* 裝飾性四角邊框：加大、雙層、帶刻度延伸線 */
   .detail-corner{
-    position:absolute; width:14px; height:14px; z-index:2;
-    border:2.5px solid var(--accent, var(--brand));
+    position:absolute; width:22px; height:22px; z-index:2;
+    border:3px solid var(--accent, var(--brand));
     background:var(--card-bg);
   }
+  .detail-corner::before{
+    content:""; position:absolute; inset:4px;
+    border:1.5px solid var(--accent, var(--brand));
+    opacity:0.6;
+  }
   .detail-corner::after{
-    content:""; position:absolute; inset:3px;
+    content:""; position:absolute; inset:7px;
     background:var(--accent, var(--brand));
   }
-  .detail-corner.tl{ top:-3px; left:-3px; border-right:none; border-bottom:none; border-radius:6px 0 0 0; }
-  .detail-corner.tr{ top:-3px; right:-3px; border-left:none; border-bottom:none; border-radius:0 6px 0 0; }
-  .detail-corner.bl{ bottom:-3px; left:-3px; border-right:none; border-top:none; border-radius:0 0 0 6px; }
-  .detail-corner.br{ bottom:-3px; right:-3px; border-left:none; border-top:none; border-radius:0 0 6px 0; }
+  .detail-corner.tl{ top:-3px; left:-3px; border-right:none; border-bottom:none; border-radius:8px 0 0 0; }
+  .detail-corner.tr{ top:-3px; right:-3px; border-left:none; border-bottom:none; border-radius:0 8px 0 0; }
+  .detail-corner.bl{ bottom:-3px; left:-3px; border-right:none; border-top:none; border-radius:0 0 0 8px; }
+  .detail-corner.br{ bottom:-3px; right:-3px; border-left:none; border-top:none; border-radius:0 0 8px 0; }
 
   .card-logo{
     display:flex; align-items:center; justify-content:center;
     opacity:0.8; margin-top:16px;
   }
-  .card-logo img{ height:16px; width:auto; }
+  .card-logo img{ height:30px; width:auto; }
 
   .detail-icon{
     width:56px; height:56px;
@@ -344,8 +361,26 @@
     border-style:solid; background:none;
     box-shadow:
       0 0 0 4px var(--card-bg),
-      0 0 0 6px var(--accent, var(--brand)),
-      0 0 18px 2px color-mix(in srgb, var(--accent, var(--brand)) 60%, transparent);
+      0 0 0 7px var(--accent, var(--brand)),
+      0 0 30px 6px color-mix(in srgb, var(--accent, var(--brand)) 85%, transparent),
+      0 0 55px 14px color-mix(in srgb, var(--accent, var(--brand)) 45%, transparent);
+    animation:avatarGlow 2.6s ease-in-out infinite;
+  }
+  @keyframes avatarGlow{
+    0%,100%{
+      box-shadow:
+        0 0 0 4px var(--card-bg),
+        0 0 0 7px var(--accent, var(--brand)),
+        0 0 30px 6px color-mix(in srgb, var(--accent, var(--brand)) 85%, transparent),
+        0 0 55px 14px color-mix(in srgb, var(--accent, var(--brand)) 45%, transparent);
+    }
+    50%{
+      box-shadow:
+        0 0 0 4px var(--card-bg),
+        0 0 0 7px var(--accent, var(--brand)),
+        0 0 38px 9px color-mix(in srgb, var(--accent, var(--brand)) 95%, transparent),
+        0 0 65px 18px color-mix(in srgb, var(--accent, var(--brand)) 55%, transparent);
+    }
   }
   .avatar-slot .avatar-label{
     font-family:'Press Start 2P', cursive; font-size:8px; letter-spacing:1px;
