@@ -1485,9 +1485,11 @@ function updateWeekPill(weekStart){
 // ===== 節日限定主題（依 week_start 判斷，過了那週自動恢復平常樣式）=====
 // 之後有其他節日（中秋、跨年⋯）要加，直接在這裡多加一組 'YYYY-MM-DD': '主題名稱' 即可
 const SPECIAL_THEMES = {
-  '2026-08-17': 'qixi',       // 七夕（國曆8/19落在這一週）
-  '2026-09-21': 'midautumn'   // 中秋（國曆9/25落在這一週）
+  '2026-08-17': 'qixi'   // 七夕（國曆8/19落在這一週）
 };
+
+// 中秋是手動開關，不綁日期：現在就是啟用中，活動結束把這行改成 null 換回平常樣式即可
+const FORCE_THEME = 'midautumn';
 
 const QIXI_TEXT = {
   title: '🐦🌉 七夕鵲橋榜 🌉🐦',
@@ -1528,7 +1530,7 @@ function spawnLanterns(){
 }
 
 function applySpecialTheme(weekStartStr){
-  const theme = SPECIAL_THEMES[weekStartStr] || null;
+  const theme = FORCE_THEME || SPECIAL_THEMES[weekStartStr] || null;
   document.body.classList.toggle('qixi-theme', theme === 'qixi');
   document.body.classList.toggle('midautumn-theme', theme === 'midautumn');
   if (theme === 'midautumn') spawnLanterns();
