@@ -1131,8 +1131,7 @@
   <div class="msgwall-modal">
     <p class="msgwall-title">🏮 點亮許願燈</p>
     <p class="msgwall-sub">許個願，讓河燈帶著祝福飄向夜空</p>
-    <input type="text" class="msgwall-nickname-input" id="wishlanternName" maxlength="12" placeholder="你的名字或暱稱（選填）">
-    <input type="text" class="msgwall-nickname-input" id="wishlanternBlessee" maxlength="16" placeholder="想祝福的對象（例如：媽媽、自己、好朋友）" style="margin-top:8px;">
+    <input type="text" class="msgwall-nickname-input" id="wishlanternBlessee" maxlength="16" placeholder="想祝福的對象（例如：媽媽、自己、好朋友）">
     <button class="msgwall-submit" id="wishlanternSubmit">點亮河燈</button>
     <button class="msgwall-close-btn" id="wishlanternCloseBtn">✕ 關閉</button>
   </div>
@@ -3326,15 +3325,14 @@ const GAME_SPRITES = {
   const cta = document.getElementById('wishlanternCta');
   const overlay = document.getElementById('wishlanternOverlay');
   const closeBtn = document.getElementById('wishlanternCloseBtn');
-  const nameInput = document.getElementById('wishlanternName');
   const blesseeInput = document.getElementById('wishlanternBlessee');
   const submitBtn = document.getElementById('wishlanternSubmit');
   const field = document.getElementById('lanternField');
   if (!cta || !overlay || !field) return;
 
   // 沿用跟留言牆同一支 Apps Script，後端用 type 參數區分是留言還是許願燈
-  // 後端需要新增 type=wishes（GET，回傳 {ok:true, wishes:[{name, blessee}]}）
-  // 跟 type=wish（POST，把 {name, blessee} 寫進表單）這兩個分支，見說明訊息附上的範例
+  // 後端需要新增 type=wishes（GET，回傳 {ok:true, wishes:[{blessee}]}）
+  // 跟 type=wish（POST，把 {blessee} 寫進表單，並套用跟留言牆一樣的擋詞規則）
   const WISH_API_URL = "https://script.google.com/macros/s/AKfycbx4v3PeB8eMOsWQF6vExH_bJmbIc6hz77BW3nwS4FDnhHtykSOcdsUuyYvovrlmCUpV/exec";
 
   function escapeHtmlLocal(str){
@@ -3369,23 +3367,26 @@ const GAME_SPRITES = {
 
   cta.addEventListener('click', () => {
     overlay.classList.add('active');
-    nameInput.value = '';
     blesseeInput.value = '';
   });
   closeBtn.addEventListener('click', () => overlay.classList.remove('active'));
 
   submitBtn.addEventListener('click', async () => {
-    const name = nameInput.value.trim();
     const blessee = blesseeInput.value.trim();
     if (!blessee) { blesseeInput.focus(); return; }
     submitBtn.disabled = true;
     submitBtn.textContent = '點燈中...';
     try {
-      await fetch(WISH_API_URL, {
+      const res = await fetch(WISH_API_URL, {
         method: 'POST',
         headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-        body: JSON.stringify({ type: 'wish', name: name, blessee: blessee })
+        body: JSON.stringify({ type: 'wish', blessee: blessee })
       });
+      const data = await res.json();
+      if (!data.ok) {
+        showToast('這個名稱不能使用，換一個試試');
+        return;
+      }
       overlay.classList.remove('active');
       showToast('河燈已點亮！');
       addLantern(blessee); // 立即在畫面上看到自己剛點的燈，不用等重新整理
