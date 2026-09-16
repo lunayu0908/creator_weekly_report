@@ -981,6 +981,17 @@
   body.midautumn-theme .deco-crown, body.midautumn-theme .deco-gem{ display:none; }
   body.midautumn-theme .tile{ filter:saturate(0.7); }  /* 卡片飽和度降低約30%，跟背景照片色調更接近 */
 
+  /* ===== 許願燈橫幅：外觀沿用留言牆的 CTA 樣式，只在中秋主題顯示 ===== */
+  .wishlantern-section{
+    display:none;
+    max-width:460px; margin:30px auto 0; padding:0 16px;
+    position:relative; z-index:1;
+  }
+  body.midautumn-theme .wishlantern-section{ display:block; }
+  .wishlantern-section .msgwall-cta{ margin-bottom:0; }
+  .wishlantern-section .msgwall-cta-icon{ background:#ffb347; color:#3a1e00; }
+  .wishlantern-section .msgwall-cta-title{ color:#ffd98c; }
+
   /* 河燈容器：固定滿版，只在中秋主題顯示 */
   .lantern-field{ position:fixed; inset:0; z-index:0; pointer-events:none; overflow:hidden; display:none; }
   body.midautumn-theme .lantern-field{ display:block; }
@@ -1102,6 +1113,28 @@
     <p class="leaderboard-week" id="leaderboardWeek"></p>
     <ol class="leaderboard-list" id="leaderboardList"><li>載入中...</li></ol>
     <button class="leaderboard-close-btn" id="leaderboardCloseBtn">✕ 關閉</button>
+  </div>
+</div>
+
+<div class="wishlantern-section" id="wishlanternSection">
+  <div class="msgwall-section-head"><span class="dot"></span><span class="msgwall-section-title">許願燈</span></div>
+  <div class="msgwall-cta" id="wishlanternCta">
+    <div class="msgwall-cta-icon">🏮</div>
+    <div>
+      <p class="msgwall-cta-title">點亮一盞許願燈</p>
+      <p class="msgwall-cta-sub">寫下名字，留下你想祝福的對象</p>
+    </div>
+  </div>
+</div>
+
+<div class="msgwall-overlay" id="wishlanternOverlay">
+  <div class="msgwall-modal">
+    <p class="msgwall-title">🏮 點亮許願燈</p>
+    <p class="msgwall-sub">許個願，讓河燈帶著祝福飄向夜空</p>
+    <input type="text" class="msgwall-nickname-input" id="wishlanternName" maxlength="12" placeholder="你的名字或暱稱（選填）">
+    <input type="text" class="msgwall-nickname-input" id="wishlanternBlessee" maxlength="16" placeholder="想祝福的對象（例如：媽媽、自己、好朋友）" style="margin-top:8px;">
+    <button class="msgwall-submit" id="wishlanternSubmit">點亮河燈</button>
+    <button class="msgwall-close-btn" id="wishlanternCloseBtn">✕ 關閉</button>
   </div>
 </div>
 
@@ -1508,33 +1541,13 @@ const DEFAULT_TEXT = {
   msgwallModalTitle: '💬 送出一則留言'
 };
 
-// ===== 中秋限定：河燈飄浮（固定滿版，只跑一次）=====
-const MIDAUTUMN_LANTERN_WISHES = ['@團圓','@平安順遂','@好運旺旺來','@許願中','@闔家歡樂','@月圓人團圓','@想念阿嬤','@回家吃飯'];
-let lanternsSpawned = false;
-function spawnLanterns(){
-  if (lanternsSpawned) return;
-  const field = document.getElementById('lanternField');
-  if (!field) return;
-  MIDAUTUMN_LANTERN_WISHES.forEach(name => {
-    const el = document.createElement('div');
-    el.className = 'lantern';
-    el.style.top = (Math.random() * 85) + '%';
-    el.style.left = (Math.random() * 82) + '%';
-    el.style.animationDelay = (Math.random() * 16) + 's';
-    el.style.animationDuration = (16 + Math.random() * 10) + 's';
-    el.style.setProperty('--dx', (120 + Math.random() * 160) + 'px');
-    el.style.setProperty('--dy', (80 + Math.random() * 120) + 'px');
-    el.innerHTML = `<img src="midautumn_lantern.png" alt=""><span class="lantern-name">${name}</span>`;
-    field.appendChild(el);
-  });
-  lanternsSpawned = true;
-}
+// ===== 中秋限定：河燈預設祝福詞（後端還沒有真實許願資料時的備用內容）=====
+const MIDAUTUMN_LANTERN_WISHES = ['團圓','平安順遂','好運旺旺來','許願中','闔家歡樂','月圓人團圓','想念阿嬤','回家吃飯'];
 
 function applySpecialTheme(weekStartStr){
   const theme = FORCE_THEME || SPECIAL_THEMES[weekStartStr] || null;
   document.body.classList.toggle('qixi-theme', theme === 'qixi');
   document.body.classList.toggle('midautumn-theme', theme === 'midautumn');
-  if (theme === 'midautumn') spawnLanterns();
   const titleEl = document.getElementById('mainTitle');
   const hintEl = document.getElementById('mainHint');
   const footerEl = document.getElementById('footerHint');
@@ -1753,8 +1766,8 @@ function buildGrid(){
     mooncakeTile.dataset.idx = 'mooncake';
     mooncakeTile.innerHTML = `
       <div class="tile-badge">🥮</div>
-      <p class="tile-title">月餅祈願</p>
-      <p class="tile-desc">點開看看月餅裡藏著什麼</p>
+      <p class="tile-title">這裡有一顆月餅</p>
+      <p class="tile-desc">點開看看月餅裡藏了什麼？</p>
     `;
     grid.appendChild(mooncakeTile);
   } else {
@@ -3306,6 +3319,85 @@ const GAME_SPRITES = {
   });
 
   loadMessages();
+})();
+
+// ===== 許願燈：送出祝福 + 在河燈飄浮層上顯示 =====
+(function(){
+  const cta = document.getElementById('wishlanternCta');
+  const overlay = document.getElementById('wishlanternOverlay');
+  const closeBtn = document.getElementById('wishlanternCloseBtn');
+  const nameInput = document.getElementById('wishlanternName');
+  const blesseeInput = document.getElementById('wishlanternBlessee');
+  const submitBtn = document.getElementById('wishlanternSubmit');
+  const field = document.getElementById('lanternField');
+  if (!cta || !overlay || !field) return;
+
+  // 沿用跟留言牆同一支 Apps Script，後端用 type 參數區分是留言還是許願燈
+  // 後端需要新增 type=wishes（GET，回傳 {ok:true, wishes:[{name, blessee}]}）
+  // 跟 type=wish（POST，把 {name, blessee} 寫進表單）這兩個分支，見說明訊息附上的範例
+  const WISH_API_URL = "https://script.google.com/macros/s/AKfycbx4v3PeB8eMOsWQF6vExH_bJmbIc6hz77BW3nwS4FDnhHtykSOcdsUuyYvovrlmCUpV/exec";
+
+  function escapeHtmlLocal(str){
+    return String(str ?? '').replace(/[&<>"']/g, ch => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[ch]));
+  }
+
+  function addLantern(blessee){
+    const el = document.createElement('div');
+    el.className = 'lantern';
+    el.style.top = (Math.random() * 85) + '%';
+    el.style.left = (Math.random() * 82) + '%';
+    el.style.animationDelay = (Math.random() * 6) + 's';
+    el.style.animationDuration = (16 + Math.random() * 10) + 's';
+    el.style.setProperty('--dx', (120 + Math.random() * 160) + 'px');
+    el.style.setProperty('--dy', (80 + Math.random() * 120) + 'px');
+    el.innerHTML = `<img src="midautumn_lantern.png" alt=""><span class="lantern-name">@${escapeHtmlLocal(blessee)}</span>`;
+    field.appendChild(el);
+  }
+
+  async function loadWishes(){
+    let list = [];
+    try {
+      const res = await fetch(WISH_API_URL + '?type=wishes');
+      const data = await res.json();
+      if (data.ok && Array.isArray(data.wishes)) {
+        list = data.wishes.map(w => (w.blessee || '').trim()).filter(Boolean);
+      }
+    } catch(e) { /* 後端還沒接好時，安靜地退回預設祝福詞 */ }
+    if (!list.length) list = MIDAUTUMN_LANTERN_WISHES.slice();
+    list.forEach(addLantern);
+  }
+
+  cta.addEventListener('click', () => {
+    overlay.classList.add('active');
+    nameInput.value = '';
+    blesseeInput.value = '';
+  });
+  closeBtn.addEventListener('click', () => overlay.classList.remove('active'));
+
+  submitBtn.addEventListener('click', async () => {
+    const name = nameInput.value.trim();
+    const blessee = blesseeInput.value.trim();
+    if (!blessee) { blesseeInput.focus(); return; }
+    submitBtn.disabled = true;
+    submitBtn.textContent = '點燈中...';
+    try {
+      await fetch(WISH_API_URL, {
+        method: 'POST',
+        headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+        body: JSON.stringify({ type: 'wish', name: name, blessee: blessee })
+      });
+      overlay.classList.remove('active');
+      showToast('河燈已點亮！');
+      addLantern(blessee); // 立即在畫面上看到自己剛點的燈，不用等重新整理
+    } catch(e) {
+      showToast('點燈失敗，請稍後再試');
+    } finally {
+      submitBtn.disabled = false;
+      submitBtn.textContent = '點亮河燈';
+    }
+  });
+
+  loadWishes();
 })();
 
 // ===== 語言切換套用 =====
