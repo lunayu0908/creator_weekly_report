@@ -992,6 +992,15 @@
   .wishlantern-section .msgwall-cta-icon{ background:#ffb347; color:#3a1e00; }
   .wishlantern-section .msgwall-cta-title{ color:#ffd98c; }
 
+  /* ===== 中秋活動回顧榜單彈窗：沿用既有 .leaderboard-list 樣式，額外補頭像圓框 ===== */
+  .lb-avatar{
+    flex:0 0 28px; width:28px; height:28px; border-radius:50%;
+    object-fit:cover; background:rgba(255,255,255,0.1);
+  }
+  .lb-name-col{ flex:1; min-width:0; }
+  .lb-name-col .lb-name{ display:block; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+  .lb-sub{ font-size:10.5px; color:#888; margin-top:2px; }
+
   /* 河燈容器：固定滿版，只在中秋主題顯示 */
   .lantern-field{ position:fixed; inset:0; z-index:0; pointer-events:none; overflow:hidden; display:none; }
   body.midautumn-theme .lantern-field{ display:block; }
@@ -1118,22 +1127,21 @@
 
 <div class="wishlantern-section" id="wishlanternSection">
   <div class="msgwall-section-head"><span class="dot"></span><span class="msgwall-section-title">許願燈</span></div>
-  <div class="msgwall-cta" id="wishlanternCta">
-    <div class="msgwall-cta-icon">🏮</div>
+  <div class="msgwall-cta" id="campaignLbCta">
+    <div class="msgwall-cta-icon">🏆</div>
     <div>
-      <p class="msgwall-cta-title">點亮一盞許願燈</p>
-      <p class="msgwall-cta-sub">寫下名字，留下你想祝福的對象</p>
+      <p class="msgwall-cta-title">中秋活動回顧榜單</p>
+      <p class="msgwall-cta-sub">看看「中秋節系列」禮物活動的排行結果</p>
     </div>
   </div>
 </div>
 
-<div class="msgwall-overlay" id="wishlanternOverlay">
-  <div class="msgwall-modal">
-    <p class="msgwall-title">🏮 點亮許願燈</p>
-    <p class="msgwall-sub">許個願，讓河燈帶著祝福飄向夜空</p>
-    <input type="text" class="msgwall-nickname-input" id="wishlanternBlessee" maxlength="16" placeholder="想祝福的對象（例如：媽媽、自己、好朋友）">
-    <button class="msgwall-submit" id="wishlanternSubmit">點亮河燈</button>
-    <button class="msgwall-close-btn" id="wishlanternCloseBtn">✕ 關閉</button>
+<div class="leaderboard-overlay" id="campaignLbOverlay">
+  <div class="leaderboard-modal">
+    <p class="leaderboard-title">🌕 中秋活動回顧榜單</p>
+    <p class="leaderboard-week">依「中秋節系列」禮物累積鑽石數排名，前十名享排名獎勵；收滿一套整組禮物再加碼回饋，最高可疊加至10%</p>
+    <ol class="leaderboard-list" id="campaignLbList"><li>載入中...</li></ol>
+    <button class="leaderboard-close-btn" id="campaignLbCloseBtn">✕ 關閉</button>
   </div>
 </div>
 
@@ -1542,6 +1550,40 @@ const DEFAULT_TEXT = {
 
 // ===== 中秋限定：河燈預設祝福詞（後端還沒有真實許願資料時的備用內容）=====
 const MIDAUTUMN_LANTERN_WISHES = ['團圓','平安順遂','好運旺旺來','許願中','闔家歡樂','月圓人團圓','想念阿嬤','回家吃飯'];
+
+// ===== 中秋限定：月餅裡的無釐頭小知識，點開後隨機出現一句 =====
+const MOONCAKE_MESSAGES = [
+  '吃一顆月餅的熱量，大概要慢跑 2 小時才能消耗完——但沒關係，反正月亮也是圓的，你也可以是圓的',
+  '如果你站上月球，體重會變成地球的 1/6，代表你現在少吃的那塊月餅，在月球上根本不痛不癢',
+  '月餅界公認最危險的動作：把蛋黃酥誤認成月餅一口咬下去，然後陷入「這不是月餅但也不錯」的哲學思考',
+  '中秋節烤肉用掉的錫箔紙，如果全台灣攤開來，據說可以繞地球好幾圈——月餅還在你手上，錫箔紙已經環遊世界了',
+  '玉兔搗藥搗了幾千年都沒換班，你這禮拜開播的時數搞不好比玉兔還認真',
+  '嫦娥奔月的時候沒有導航，你直播的時候至少還有留言區告訴你方向',
+  '廣寒宮沒有 Wifi，所以嫦娥到現在還不知道你這禮拜上榜了',
+  '月亮每年以 3.8 公分的速度遠離地球——跟你手滑划掉的那個粉絲一樣，回不來了',
+  '科學家說滿月會讓人比較睡不著，但你這週的開播時數證明了，你根本不需要科學理由熬夜',
+  '月餅切八份最容易吵架，切九份最容易眾生平等——中秋節最難的數學題，不是奧數是切月餅',
+  '今天最大的驚喜不是月餅裡的蛋黃，是打開月餅盒發現自己上榜了',
+  '月亮每個月都會圓一次，你的榜單也是——只是你比較準時',
+  '吃一顆廣式月餅的熱量，大概等於追完 3 集半小時韓劇消耗的腦力，但完全不會消耗',
+  '你今晚多吃的那半顆月餅，要騎腳踏車 40 分鐘才能扯平——但月亮很圓，這筆帳先欠著',
+  '一顆蛋黃酥的含糖量，大概是一杯全糖珍奶的 1.5 倍，中秋節的甜蜜是有科學根據的',
+  '如果把今晚全台灣吃下肚的月餅疊起來，高度據說可以蓋出兩座 101——可惜你的胃只能裝一顆的份量',
+  '月球上一天等於地球的 27.3 天，換算下來你只要在月球排一次班，等於在地球連上快一個月的班',
+  '滿月的亮度大概是太陽的 40 萬分之一，但你這幾天熬夜看月亮的專注力，感覺比太陽還亮',
+  '中秋節烤肉都會說「今年少烤一點」，結果全部烤光光——這條沒有科學根據，但每年準確率 100%',
+  '中秋節連假三天，全台便利商店賣出的月餅疊起來，據說可以繞 101 大樓一整圈',
+  '月餅盒裡最容易被忽略的隱藏關卡：那包乾燥劑，每年都有人因為包裝像糖果差點誤會',
+  '柚子皮拿來做帽子戴的人數，保守估計比真的吃完一整顆柚子的人還多'
+];
+let lastMooncakeMsgIdx = -1;
+function pickMooncakeMessage(){
+  let idx;
+  do { idx = Math.floor(Math.random() * MOONCAKE_MESSAGES.length); }
+  while (idx === lastMooncakeMsgIdx && MOONCAKE_MESSAGES.length > 1);
+  lastMooncakeMsgIdx = idx;
+  return MOONCAKE_MESSAGES[idx];
+}
 
 function applySpecialTheme(weekStartStr){
   const theme = FORCE_THEME || SPECIAL_THEMES[weekStartStr] || null;
@@ -2171,9 +2213,7 @@ function renderMooncake(){
       <img class="mooncake-img split" src="mooncake_split.png" alt="">
     </div>
     <p class="mooncake-hint">點一下月餅，看看裡面藏著什麼</p>
-    <div class="mooncake-result">
-      <!-- TODO：中秋祈願文案待補，想好內容後填在這裡 -->
-    </div>
+    <div class="mooncake-result"></div>
     <div class="card-logo"><img src="swag-logo.png" alt="SWAG"></div>
   `;
 }
@@ -2349,7 +2389,7 @@ grid.addEventListener('click', (e) => {
 });
 
 detailCard.addEventListener('click', (e) => {
-  // 中秋：點月餅裂開，之後在 mooncake-result 放祈願內容
+  // 中秋：點月餅裂開，隨機出現一句無釐頭小知識
   const mooncakeStage = e.target.closest('.mooncake-stage');
   if (mooncakeStage && !mooncakeStage.classList.contains('cracked')) {
     mooncakeStage.classList.add('cracked');
@@ -2357,7 +2397,10 @@ detailCard.addEventListener('click', (e) => {
     const hint = detailCard.querySelector('.mooncake-hint');
     if (hint) hint.style.opacity = '0';
     const result = detailCard.querySelector('.mooncake-result');
-    if (result) setTimeout(() => result.classList.add('show'), 500);
+    if (result) {
+      result.textContent = pickMooncakeMessage();
+      setTimeout(() => result.classList.add('show'), 500);
+    }
     return;
   }
 
@@ -3320,19 +3363,12 @@ const GAME_SPRITES = {
   loadMessages();
 })();
 
-// ===== 許願燈：送出祝福 + 在河燈飄浮層上顯示 =====
+// ===== 河燈飄浮：從許願紀錄抓資料顯示，已不開放新增（點燈輸入已移除）=====
 (function(){
-  const cta = document.getElementById('wishlanternCta');
-  const overlay = document.getElementById('wishlanternOverlay');
-  const closeBtn = document.getElementById('wishlanternCloseBtn');
-  const blesseeInput = document.getElementById('wishlanternBlessee');
-  const submitBtn = document.getElementById('wishlanternSubmit');
   const field = document.getElementById('lanternField');
-  if (!cta || !overlay || !field) return;
+  if (!field) return;
 
-  // 沿用跟留言牆同一支 Apps Script，後端用 type 參數區分是留言還是許願燈
-  // 後端需要新增 type=wishes（GET，回傳 {ok:true, wishes:[{blessee}]}）
-  // 跟 type=wish（POST，把 {blessee} 寫進表單，並套用跟留言牆一樣的擋詞規則）
+  // 沿用留言牆同一支 Apps Script，type=wishes 讀取先前已收集的許願紀錄
   const WISH_API_URL = "https://script.google.com/macros/s/AKfycbx4v3PeB8eMOsWQF6vExH_bJmbIc6hz77BW3nwS4FDnhHtykSOcdsUuyYvovrlmCUpV/exec";
 
   function escapeHtmlLocal(str){
@@ -3353,52 +3389,81 @@ const GAME_SPRITES = {
   }
 
   async function loadWishes(){
-    let list = [];
+    const MIN_LANTERNS = 8;   // 畫面至少要有幾盞燈在飄，數量不夠用吉祥話補
+    const MAX_LANTERNS = 20;  // 真實許願太多時的上限，避免畫面太滿
+
+    let realWishes = [];
     try {
       const res = await fetch(WISH_API_URL + '?type=wishes');
       const data = await res.json();
       if (data.ok && Array.isArray(data.wishes)) {
-        list = data.wishes.map(w => (w.blessee || '').trim()).filter(Boolean);
+        realWishes = data.wishes.map(w => (w.blessee || '').trim()).filter(Boolean);
       }
     } catch(e) { /* 後端還沒接好時，安靜地退回預設祝福詞 */ }
-    if (!list.length) list = MIDAUTUMN_LANTERN_WISHES.slice();
+
+    let list = realWishes.slice(0, MAX_LANTERNS); // 真實許願優先，超過上限就先不顯示多的
+    if (list.length < MIN_LANTERNS) {
+      const fillers = MIDAUTUMN_LANTERN_WISHES.filter(w => !list.includes(w));
+      list = list.concat(fillers.slice(0, MIN_LANTERNS - list.length));
+    }
     list.forEach(addLantern);
+  }
+
+  loadWishes();
+})();
+
+// ===== 中秋活動回顧榜單：原本點燈按鈕的位置，改成排行榜按鈕+彈窗 =====
+(function(){
+  const cta = document.getElementById('campaignLbCta');
+  const overlay = document.getElementById('campaignLbOverlay');
+  const closeBtn = document.getElementById('campaignLbCloseBtn');
+  const list = document.getElementById('campaignLbList');
+  if (!cta || !overlay || !list) return;
+
+  const CAMPAIGN_API_URL = 'https://talent-campaign-api-618647159770.asia-east1.run.app/api/campaigns/sep26_mid_autumn';
+  const CAMPAIGN_TOP_N = 10;
+  let loaded = false;
+
+  function escapeHtmlCampaign(str){
+    return String(str ?? '').replace(/[&<>"']/g, ch => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[ch]));
+  }
+
+  async function loadCampaignLb(){
+    list.innerHTML = '<li>載入中...</li>';
+    try {
+      const res = await fetch(CAMPAIGN_API_URL);
+      const json = await res.json();
+      const rows = (json.data || []).slice().sort((a, b) => (a.rank || 0) - (b.rank || 0)).slice(0, CAMPAIGN_TOP_N);
+      if (!rows.length) { list.innerHTML = '<li>目前還沒有資料</li>'; return; }
+
+      list.innerHTML = rows.map(r => {
+        const name = escapeHtmlCampaign(r.username || r.creator_name || '');
+        const avatarUrl = `https://public.swag.live/users/${encodeURIComponent(r.creator_id)}/picture.jpg?size=200x200&format=jpg`;
+        const rankReward = r.rank_reward_diamonds ? `排名獎勵 ${formatDiamond(r.rank_reward_diamonds)}` : '';
+        const collectReward = r.collect_reward_diamonds ? `收藏加碼 ${formatDiamond(r.collect_reward_diamonds)}` : '';
+        const sub = [rankReward, collectReward].filter(Boolean).join('・');
+        return `
+          <li>
+            <span class="lb-rank">${r.rank}</span>
+            <img class="lb-avatar" src="${avatarUrl}" alt="" onerror="this.style.visibility='hidden'">
+            <div class="lb-name-col">
+              <span class="lb-name">${name}</span>
+              ${sub ? `<div class="lb-sub">${sub}</div>` : ''}
+            </div>
+            <span class="lb-score">${formatDiamond(r.total_reward_diamonds)}</span>
+          </li>
+        `;
+      }).join('');
+    } catch (e) {
+      list.innerHTML = '<li>載入失敗，稍後再試</li>';
+    }
   }
 
   cta.addEventListener('click', () => {
     overlay.classList.add('active');
-    blesseeInput.value = '';
+    if (!loaded) { loaded = true; loadCampaignLb(); }
   });
   closeBtn.addEventListener('click', () => overlay.classList.remove('active'));
-
-  submitBtn.addEventListener('click', async () => {
-    const blessee = blesseeInput.value.trim();
-    if (!blessee) { blesseeInput.focus(); return; }
-    submitBtn.disabled = true;
-    submitBtn.textContent = '點燈中...';
-    try {
-      const res = await fetch(WISH_API_URL, {
-        method: 'POST',
-        headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-        body: JSON.stringify({ type: 'wish', blessee: blessee })
-      });
-      const data = await res.json();
-      if (!data.ok) {
-        showToast('這個名稱不能使用，換一個試試');
-        return;
-      }
-      overlay.classList.remove('active');
-      showToast('河燈已點亮！');
-      addLantern(blessee); // 立即在畫面上看到自己剛點的燈，不用等重新整理
-    } catch(e) {
-      showToast('點燈失敗，請稍後再試');
-    } finally {
-      submitBtn.disabled = false;
-      submitBtn.textContent = '點亮河燈';
-    }
-  });
-
-  loadWishes();
 })();
 
 // ===== 語言切換套用 =====
