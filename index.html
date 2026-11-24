@@ -1345,17 +1345,18 @@
   .xmas-snowman{ position:relative; width:96px; height:120px; cursor:pointer; background:none; border:none; padding:0;
     /* ↓ 雪人的帽子、鼻子位置：拿到正式素材後可以只調這幾個數字 */
     --hat-top:-9%; --hat-w:62%; --hat-left:51%;
-    --nose-top:28%; --nose-left:42%; --nose-w:17%; }
+    --nose-top:32%; --nose-left:43%; --nose-w:13%; --nose-rot:15deg; }
   .xmas-snowman .sm-body{ position:absolute; inset:0; width:100%; height:100%; object-fit:contain; }
   .xmas-snowman .sm-body.xmas-fb{ font-size:86px; align-items:flex-end; }
   .xmas-snowman .sm-hat{ position:absolute; left:var(--hat-left, 50%); top:var(--hat-top); width:var(--hat-w); transform:translateX(-50%); }
-  .xmas-snowman .sm-nose{ position:absolute; left:var(--nose-left); top:var(--nose-top); width:var(--nose-w); }
+  .xmas-snowman .sm-nose{ position:absolute; left:var(--nose-left); top:var(--nose-top); width:var(--nose-w);
+    transform:rotate(var(--nose-rot, 0deg)); transform-origin:50% 65%; }
   .xmas-snowman .sm-hat.xmas-fb{ width:auto; font-size:34px; }
   .xmas-snowman .sm-nose.xmas-fb{ width:auto; font-size:18px; }
   .xmas-snowman .sm-hat.bounce{ animation:xmasHat .7s cubic-bezier(.3,1.6,.5,1); }
   @keyframes xmasHat{ 0%{ transform:translateX(-50%) translateY(0); } 40%{ transform:translateX(-50%) translateY(-34px) rotate(-14deg); } 100%{ transform:translateX(-50%) translateY(0); } }
   .xmas-snowman .sm-nose.drop{ animation:xmasNose .9s cubic-bezier(.4,0,.6,1) forwards; }
-  @keyframes xmasNose{ 0%{ transform:translateY(0) rotate(0); } 55%{ transform:translateY(78px) rotate(90deg); }
+  @keyframes xmasNose{ 0%{ transform:translateY(0) rotate(var(--nose-rot, 0deg)); } 55%{ transform:translateY(78px) rotate(90deg); }
     72%{ transform:translateY(62px) rotate(100deg); } 100%{ transform:translateY(78px) rotate(110deg); } }
 
   .xmas-gift{ display:none; position:relative; width:64px; height:64px; cursor:pointer; background:none; border:none; padding:0; }
