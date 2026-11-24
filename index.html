@@ -413,6 +413,11 @@
     margin:0 0 20px; border-radius:0px;
   }
   .detail-id .heart{ color:var(--accent, var(--brand)); }
+  .profile-link{
+    color:inherit; text-decoration:none; cursor:pointer;
+    border-bottom:1px dashed currentColor; opacity:0.95;
+  }
+  .profile-link:active{ opacity:0.6; }
   .detail-stat-label{
     font-size:15px; color:#EDEDED; margin:0 0 6px;
   }
@@ -968,74 +973,463 @@
   /* ===== 七夕限定小遊戲：鵲橋接星星 ===== */
   .qixi-hint2{ font-size:12px; color:#888; text-align:center; }
 
-  /* ===== 中秋限定佈景：固定滿版背景圖，捲動時不動（用 position:fixed，不用 background-attachment，手機才會真的固定）===== */
-  .midautumn-bg{
-    position:fixed; inset:0; z-index:0; pointer-events:none; display:none;
+  /* ===== 頁首隨機小語（每次重新整理換一句）===== */
+  .header-tip{
+    max-width:420px; margin:-2px auto 14px; padding:0 22px;
+    text-align:center; font-size:13px; line-height:1.7;
+    color:rgba(255,255,255,0.62);
+    opacity:0; transform:translateY(4px);
+    transition:opacity .8s ease, transform .8s ease;
+    min-height:1.7em;
+  }
+  .header-tip.show{ opacity:1; transform:translateY(0); }
+  .header-tip::before{ content:"✦ "; color:var(--brand); }
+  .header-tip::after{ content:" ✦"; color:var(--brand); }
+  @media (prefers-reduced-motion: reduce){
+    .header-tip{ transition:none; transform:none; }
+  }
+
+  /* ===== 今日推薦主播（拉霸機）===== */
+  .gacha-section{ max-width:460px; margin:30px auto 0; padding:0 16px; position:relative; z-index:1; }
+  .gacha-section .msgwall-section-head .dot{ background:var(--yellow); }
+
+  /* 機台 */
+  .slot{ display:flex; align-items:center; }
+  .slot-body{
+    flex:1; min-width:0;
+    background:linear-gradient(180deg, #2a1f05 0%, #151515 70%);
+    border:3px solid var(--yellow); border-radius:18px; padding:10px 12px 10px;
+    box-shadow:0 0 0 3px #3a2c00, 0 0 22px rgba(255,209,0,0.22), inset 0 0 18px rgba(255,209,0,0.12);
+  }
+  .slot-lights{
+    height:8px; margin:0 6px 8px; border-radius:4px;
+    background:radial-gradient(circle, #FFD100 2.5px, transparent 3px) 0 50% / 16px 8px repeat-x;
+    animation:slotLights 0.9s steps(2) infinite;
+  }
+  .slot.spinning .slot-lights{ animation-duration:0.25s; }
+  @keyframes slotLights{ 0%{ opacity:1; } 50%{ opacity:0.35; } 100%{ opacity:1; } }
+  .slot-window{
+    display:grid; grid-template-columns:repeat(3, 1fr); gap:8px;
+    background:#0d0d0d; border:2px solid #3a3a3a; border-radius:10px; padding:8px;
+  }
+  .slot-reel{
+    height:64px; border-radius:8px; overflow:hidden;
+    display:flex; align-items:center; justify-content:center; font-size:34px;
+    background:linear-gradient(180deg, #ffffff 0%, #f1f1f1 50%, #d9d9d9 100%);
+    box-shadow:inset 0 7px 9px rgba(0,0,0,0.35), inset 0 -7px 9px rgba(0,0,0,0.35);
+  }
+  .slot-sym{ display:inline-block; line-height:1; }
+  .slot-reel.spinning .slot-sym{ animation:reelBlur 0.08s linear infinite; filter:blur(1.4px); }
+  .slot-reel.stopped .slot-sym{ animation:reelStop 0.35s ease-out; }
+  @keyframes reelBlur{ from{ transform:translateY(-35%); } to{ transform:translateY(35%); } }
+  @keyframes reelStop{ 0%{ transform:translateY(-45%); } 60%{ transform:translateY(10%); } 100%{ transform:translateY(0); } }
+  .slot-hint{ margin:8px 0 0; font-size:11.5px; color:#cfcfcf; text-align:center; min-height:1.2em; }
+
+  /* 拉桿 */
+  .slot-lever{
+    position:relative; flex:0 0 40px; width:40px; height:150px; margin-left:-3px;
+    background:none; border:none; padding:0; cursor:pointer; perspective:260px;
+  }
+  .lever-base{
+    position:absolute; left:0; bottom:36px; width:22px; height:40px;
+    background:linear-gradient(90deg, #5c5c5c, #b5b5b5, #5c5c5c); border-radius:3px 10px 10px 3px;
+  }
+  .lever-arm{
+    position:absolute; left:15px; bottom:56px; width:8px; height:84px;
+    background:linear-gradient(90deg, #8f8f8f, #f2f2f2, #8f8f8f); border-radius:4px;
+    transform-origin:50% 100%;
+  }
+  .lever-knob{
+    position:absolute; top:-20px; left:50%; transform:translateX(-50%);
+    width:28px; height:28px; border-radius:50%;
+    background:radial-gradient(circle at 35% 35%, #ff9cc1, #f6418d 55%, #9c1a52);
+    box-shadow:0 2px 6px rgba(0,0,0,0.5);
+  }
+  .slot-lever:not(:disabled) .lever-knob{ animation:knobGlow 1.6s ease-in-out infinite; }
+  @keyframes knobGlow{ 0%,100%{ box-shadow:0 2px 6px rgba(0,0,0,0.5); } 50%{ box-shadow:0 0 14px 4px rgba(246,65,141,0.65); } }
+  .slot-lever.pulling .lever-arm{ animation:leverPull 0.6s ease-in-out; }
+  @keyframes leverPull{ 0%{ transform:rotateX(0deg); } 45%{ transform:rotateX(150deg); } 100%{ transform:rotateX(0deg); } }
+  .slot-lever:disabled{ cursor:default; opacity:0.4; }
+
+  /* 抽出的卡片 */
+  .gacha-tray{ margin-top:14px; }
+  .gacha-empty{
+    text-align:center; color:#8a8a8a; font-size:12.5px; line-height:1.6;
+    padding:22px 12px; border:2px dashed #333; border-radius:12px;
+  }
+  .gacha-cards{ display:grid; grid-template-columns:repeat(3, 1fr); gap:10px; }
+  .gacha-card{
+    perspective:700px; aspect-ratio:3 / 4.3; width:100%;
+    background:none; border:none; padding:0; cursor:pointer; color:inherit; font:inherit;
+  }
+  .gacha-card.pop{ animation:cardPop 0.5s cubic-bezier(.2,1.4,.4,1) both; animation-delay:calc(var(--i) * 130ms); }
+  @keyframes cardPop{ from{ transform:translateY(-30px) scale(0.6); opacity:0; } to{ transform:none; opacity:1; } }
+  .gacha-inner{ position:relative; width:100%; height:100%; transition:transform 0.6s cubic-bezier(.2,.8,.2,1); transform-style:preserve-3d; }
+  .gacha-card.flipped .gacha-inner{ transform:rotateY(180deg); }
+  .gacha-face{
+    position:absolute; inset:0; border-radius:12px;
+    backface-visibility:hidden; -webkit-backface-visibility:hidden;
+    display:flex; flex-direction:column; align-items:center; justify-content:center; gap:8px; padding:10px 6px;
+  }
+  .gacha-back{
+    background:repeating-linear-gradient(45deg, rgba(255,209,0,0.12) 0 8px, transparent 8px 16px), #1a1a1a;
+    border:2px dashed rgba(255,209,0,0.55); color:var(--yellow);
+  }
+  .gacha-back .q{ font-size:34px; font-weight:900; }
+  .gacha-front{ transform:rotateY(180deg); background:var(--card-bg); border:2px solid rgba(255,255,255,0.14); }
+  .gacha-tap{ font-size:10.5px; color:#9a9a9a; }
+  .gacha-phrase{
+    font-size:11px; font-weight:900; line-height:1.35; color:#0d0d0d; background:var(--chip);
+    padding:3px 7px; border-radius:8px; min-height:calc(2.7em + 6px);
+    display:flex; align-items:center; justify-content:center; text-align:center;
+  }
+  .gacha-avatar{
+    width:62px; height:62px; border-radius:50%; overflow:hidden; flex-shrink:0;
+    border:2px solid var(--yellow); background:#222; display:flex; align-items:center; justify-content:center;
+  }
+  .gacha-avatar img, .gacha-modal-avatar img{ width:100%; height:100%; object-fit:cover; }
+  .gacha-avatar-ph{ font-size:28px; }
+
+  /* 放大的卡片 */
+  .gacha-modal{
+    position:fixed; inset:0; z-index:3000; display:none;
+    align-items:center; justify-content:center; padding:24px;
+  }
+  .gacha-modal.active{ display:flex; }
+  .gacha-modal-backdrop{ position:absolute; inset:0; background:rgba(0,0,0,0.78); }
+  .gacha-modal-card{
+    position:relative; width:min(300px, 86vw); text-decoration:none; color:#fff;
+    background:linear-gradient(170deg, #1d1a10, #151515 65%);
+    border:3px solid var(--yellow); border-radius:18px; padding:26px 20px 22px;
+    display:flex; flex-direction:column; align-items:center; gap:14px;
+    box-shadow:0 0 30px rgba(255,209,0,0.3);
+    animation:modalZoom 0.35s cubic-bezier(.2,1.3,.4,1);
+  }
+  @keyframes modalZoom{ from{ transform:scale(0.55); opacity:0; } to{ transform:scale(1); opacity:1; } }
+  .gacha-modal-card .gacha-phrase{ font-size:13px; min-height:0; padding:5px 12px; }
+  .gacha-modal-avatar{
+    width:140px; height:140px; border-radius:50%; overflow:hidden;
+    border:3px solid var(--yellow); background:#222; display:flex; align-items:center; justify-content:center;
+    box-shadow:0 0 22px rgba(255,209,0,0.45);
+  }
+  .gacha-modal-avatar .gacha-avatar-ph{ font-size:56px; }
+  .gacha-modal-id{ font-size:20px; font-weight:900; word-break:break-all; text-align:center; }
+  .gacha-modal-go{ background:var(--yellow); color:#0d0d0d; font-weight:900; font-size:14px; padding:10px 18px; border-radius:10px; }
+  .gacha-modal-close{
+    position:absolute; top:calc(env(safe-area-inset-top, 0px) + 14px); right:14px;
+    width:40px; height:40px; border-radius:10px; border:2px solid #fff; background:rgba(0,0,0,0.5);
+    color:#fff; font-size:18px; cursor:pointer;
+  }
+  @media (prefers-reduced-motion: reduce){
+    .gacha-inner{ transition:none; }
+    .gacha-card.pop, .gacha-modal-card, .slot-lever.pulling .lever-arm, .slot-lights{ animation:none; }
+  }
+
+  /* ===== 主播疊疊樂（三消）===== */
+  .stack-stage{
+    position:relative; width:100%; max-width:380px;
+    background:linear-gradient(180deg,#14233a 0%,#16161f 70%,#0d0d0d 100%);
+    border:3px solid #60c4e8; border-radius:12px; overflow:hidden; padding:10px 10px 12px;
+    touch-action:manipulation;
+  }
+  .stack-board{ position:relative; width:100%; aspect-ratio:1/1; }
+  .stack-tile{
+    position:absolute; padding:2px; background:none; border:none; cursor:pointer;
+    transition:transform .15s ease, opacity .15s ease;
+  }
+  .stack-tile span{
+    display:flex; align-items:center; justify-content:center; width:100%; height:100%;
+    background:#fffdf5; border:2px solid #c9b98a; border-bottom-width:5px; border-radius:9px;
+    font-size:clamp(20px, 6.5vw, 28px); box-shadow:0 2px 4px rgba(0,0,0,0.45);
+  }
+  .stack-tile.blocked{ cursor:default; }
+  .stack-tile.blocked span{ filter:brightness(0.45) saturate(0.5); }
+  .stack-tile.picked{ transform:scale(0.6); opacity:0; pointer-events:none; }
+  .stack-tray{
+    display:grid; grid-template-columns:repeat(7,1fr); gap:4px; margin-top:10px;
+    background:#3b2a12; border:3px solid #8a6a2e; border-radius:10px; padding:5px;
+  }
+  .stack-slot{
+    aspect-ratio:1/1; border-radius:7px; background:rgba(0,0,0,0.35);
+    display:flex; align-items:center; justify-content:center; font-size:clamp(16px, 5vw, 22px);
+  }
+  .stack-slot.filled{ background:#fffdf5; }
+  .stack-slot.clearing{ animation:stackClear .22s ease forwards; }
+  @keyframes stackClear{ to{ transform:scale(1.3); opacity:0; } }
+  .stack-stage .whack-msg{ z-index:5; }
+
+  /* =====================================================================
+     ❄ 冬季限定佈景主題（body.winter-theme）
+     莫蘭迪藍色系：低飽和、帶灰調；開關見 JS 的 FORCE_THEME
+     ===================================================================== */
+  body.winter-theme{
+    --bg:#111821;          /* 夜幕深藍 */
+    --card-bg:#17212B;     /* 卡片底：石板藍黑 */
+    --brand:#8DB5B0;       /* 主色：霧藍綠 */
+    --white:#EEF3F7;       /* 雪白（微藍） */
+    --yellow:#CFDDE8;      /* 原金色 → 霜白藍（按鈕、亮點） */
+    --purple:#8F98BF;      /* 原紫 → 霧紫藍 */
+    --pink:#A9C5D6;        /* 原粉 → 粉霧藍 */
+    --red:#6F8EAB;         /* 原紅 → 鋼灰藍 */
+    --blue:#7EA6BC;        /* 原藍 → 灰湖藍 */
+    --ink:#16222E;         /* 淺色按鈕上的深字 */
+    background:var(--bg);
+    background-attachment:scroll;
+  }
+  /* 天空背景改用 fixed 元素（iOS Safari 不支援 background-attachment:fixed） */
+  .winter-sky, .winter-scene, #winterSnow{ display:none; }
+  body.winter-theme .winter-sky{
+    display:block; position:fixed; inset:0; z-index:-1; pointer-events:none;
     background:
-      linear-gradient(rgba(5,10,20,0.32), rgba(5,10,20,0.48)),
-      url('midautumn_bg.png') center 22% / cover no-repeat;
+      radial-gradient(120% 60% at 50% -8%, rgba(141,181,176,0.30) 0%, transparent 58%),
+      radial-gradient(70% 45% at 10% 28%, rgba(143,152,191,0.20) 0%, transparent 62%),
+      radial-gradient(70% 45% at 90% 32%, rgba(126,166,188,0.20) 0%, transparent 62%),
+      linear-gradient(180deg, #1D2B3A 0%, #15202B 45%, #0F161E 100%);
   }
-  body.midautumn-theme{ background:transparent; }      /* 讓固定背景圖透出來，蓋掉原本的漸層底色 */
-  body.midautumn-theme .midautumn-bg{ display:block; }
-  body.midautumn-theme::after{ display:none; }          /* 舞台聚光燈跟夜景照片會打架，中秋週先關掉 */
-  body.midautumn-theme .deco-crown, body.midautumn-theme .deco-gem{ display:none; }
-  body.midautumn-theme .tile{ filter:saturate(0.7); }  /* 卡片飽和度降低約30%，跟背景照片色調更接近 */
-
-  /* ===== 許願燈橫幅：外觀沿用留言牆的 CTA 樣式，只在中秋主題顯示 ===== */
-  .wishlantern-section{
-    display:none;
-    max-width:460px; margin:30px auto 0; padding:0 16px;
-    position:relative; z-index:1;
+  body.winter-theme .winter-scene{
+    display:block; position:fixed; left:0; right:0; bottom:0; z-index:-1;
+    width:100%; height:26vh; max-height:220px; pointer-events:none;
+    opacity:.55;
+    /* 整張雪景依高度縮放、左右無縫重複：寬螢幕不會把山頂裁掉 */
+    background:url("data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20viewBox%3D%220%200%20120%2034%22%20shape-rendering%3D%22crispEdges%22%3E%3Crect%20x%3D%220%22%20y%3D%2211%22%20width%3D%221%22%20height%3D%2223%22%20fill%3D%22%2322324A%22/%3E%3Crect%20x%3D%220%22%20y%3D%2211%22%20width%3D%221%22%20height%3D%222%22%20fill%3D%22%238FA6BC%22/%3E%3Crect%20x%3D%221%22%20y%3D%2210%22%20width%3D%221%22%20height%3D%2224%22%20fill%3D%22%2322324A%22/%3E%3Crect%20x%3D%221%22%20y%3D%2210%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%238FA6BC%22/%3E%3Crect%20x%3D%222%22%20y%3D%229%22%20width%3D%221%22%20height%3D%2225%22%20fill%3D%22%2322324A%22/%3E%3Crect%20x%3D%222%22%20y%3D%229%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%238FA6BC%22/%3E%3Crect%20x%3D%223%22%20y%3D%228%22%20width%3D%221%22%20height%3D%2226%22%20fill%3D%22%2322324A%22/%3E%3Crect%20x%3D%223%22%20y%3D%228%22%20width%3D%221%22%20height%3D%222%22%20fill%3D%22%238FA6BC%22/%3E%3Crect%20x%3D%224%22%20y%3D%228%22%20width%3D%221%22%20height%3D%2226%22%20fill%3D%22%2322324A%22/%3E%3Crect%20x%3D%224%22%20y%3D%228%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%238FA6BC%22/%3E%3Crect%20x%3D%225%22%20y%3D%228%22%20width%3D%221%22%20height%3D%2226%22%20fill%3D%22%2322324A%22/%3E%3Crect%20x%3D%225%22%20y%3D%228%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%238FA6BC%22/%3E%3Crect%20x%3D%226%22%20y%3D%228%22%20width%3D%221%22%20height%3D%2226%22%20fill%3D%22%2322324A%22/%3E%3Crect%20x%3D%226%22%20y%3D%228%22%20width%3D%221%22%20height%3D%222%22%20fill%3D%22%238FA6BC%22/%3E%3Crect%20x%3D%227%22%20y%3D%228%22%20width%3D%221%22%20height%3D%2226%22%20fill%3D%22%2322324A%22/%3E%3Crect%20x%3D%227%22%20y%3D%228%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%238FA6BC%22/%3E%3Crect%20x%3D%228%22%20y%3D%229%22%20width%3D%221%22%20height%3D%2225%22%20fill%3D%22%2322324A%22/%3E%3Crect%20x%3D%228%22%20y%3D%229%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%238FA6BC%22/%3E%3Crect%20x%3D%229%22%20y%3D%229%22%20width%3D%221%22%20height%3D%2225%22%20fill%3D%22%2322324A%22/%3E%3Crect%20x%3D%229%22%20y%3D%229%22%20width%3D%221%22%20height%3D%222%22%20fill%3D%22%238FA6BC%22/%3E%3Crect%20x%3D%2210%22%20y%3D%2210%22%20width%3D%221%22%20height%3D%2224%22%20fill%3D%22%2322324A%22/%3E%3Crect%20x%3D%2210%22%20y%3D%2210%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%238FA6BC%22/%3E%3Crect%20x%3D%2211%22%20y%3D%2210%22%20width%3D%221%22%20height%3D%2224%22%20fill%3D%22%2322324A%22/%3E%3Crect%20x%3D%2211%22%20y%3D%2210%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%238FA6BC%22/%3E%3Crect%20x%3D%2212%22%20y%3D%2211%22%20width%3D%221%22%20height%3D%2223%22%20fill%3D%22%2322324A%22/%3E%3Crect%20x%3D%2212%22%20y%3D%2211%22%20width%3D%221%22%20height%3D%222%22%20fill%3D%22%238FA6BC%22/%3E%3Crect%20x%3D%2213%22%20y%3D%2211%22%20width%3D%221%22%20height%3D%2223%22%20fill%3D%22%2322324A%22/%3E%3Crect%20x%3D%2213%22%20y%3D%2211%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%238FA6BC%22/%3E%3Crect%20x%3D%2214%22%20y%3D%2211%22%20width%3D%221%22%20height%3D%2223%22%20fill%3D%22%2322324A%22/%3E%3Crect%20x%3D%2214%22%20y%3D%2211%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%238FA6BC%22/%3E%3Crect%20x%3D%2215%22%20y%3D%2211%22%20width%3D%221%22%20height%3D%2223%22%20fill%3D%22%2322324A%22/%3E%3Crect%20x%3D%2215%22%20y%3D%2211%22%20width%3D%221%22%20height%3D%222%22%20fill%3D%22%238FA6BC%22/%3E%3Crect%20x%3D%2216%22%20y%3D%2211%22%20width%3D%221%22%20height%3D%2223%22%20fill%3D%22%2322324A%22/%3E%3Crect%20x%3D%2216%22%20y%3D%2211%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%238FA6BC%22/%3E%3Crect%20x%3D%2217%22%20y%3D%2210%22%20width%3D%221%22%20height%3D%2224%22%20fill%3D%22%2322324A%22/%3E%3Crect%20x%3D%2217%22%20y%3D%2210%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%238FA6BC%22/%3E%3Crect%20x%3D%2218%22%20y%3D%2210%22%20width%3D%221%22%20height%3D%2224%22%20fill%3D%22%2322324A%22/%3E%3Crect%20x%3D%2218%22%20y%3D%2210%22%20width%3D%221%22%20height%3D%222%22%20fill%3D%22%238FA6BC%22/%3E%3Crect%20x%3D%2219%22%20y%3D%229%22%20width%3D%221%22%20height%3D%2225%22%20fill%3D%22%2322324A%22/%3E%3Crect%20x%3D%2219%22%20y%3D%229%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%238FA6BC%22/%3E%3Crect%20x%3D%2220%22%20y%3D%228%22%20width%3D%221%22%20height%3D%2226%22%20fill%3D%22%2322324A%22/%3E%3Crect%20x%3D%2220%22%20y%3D%228%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%238FA6BC%22/%3E%3Crect%20x%3D%2221%22%20y%3D%228%22%20width%3D%221%22%20height%3D%2226%22%20fill%3D%22%2322324A%22/%3E%3Crect%20x%3D%2221%22%20y%3D%228%22%20width%3D%221%22%20height%3D%222%22%20fill%3D%22%238FA6BC%22/%3E%3Crect%20x%3D%2222%22%20y%3D%227%22%20width%3D%221%22%20height%3D%2227%22%20fill%3D%22%2322324A%22/%3E%3Crect%20x%3D%2222%22%20y%3D%227%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%238FA6BC%22/%3E%3Crect%20x%3D%2223%22%20y%3D%227%22%20width%3D%221%22%20height%3D%2227%22%20fill%3D%22%2322324A%22/%3E%3Crect%20x%3D%2223%22%20y%3D%227%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%238FA6BC%22/%3E%3Crect%20x%3D%2224%22%20y%3D%227%22%20width%3D%221%22%20height%3D%2227%22%20fill%3D%22%2322324A%22/%3E%3Crect%20x%3D%2224%22%20y%3D%227%22%20width%3D%221%22%20height%3D%222%22%20fill%3D%22%238FA6BC%22/%3E%3Crect%20x%3D%2225%22%20y%3D%227%22%20width%3D%221%22%20height%3D%2227%22%20fill%3D%22%2322324A%22/%3E%3Crect%20x%3D%2225%22%20y%3D%227%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%238FA6BC%22/%3E%3Crect%20x%3D%2226%22%20y%3D%228%22%20width%3D%221%22%20height%3D%2226%22%20fill%3D%22%2322324A%22/%3E%3Crect%20x%3D%2226%22%20y%3D%228%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%238FA6BC%22/%3E%3Crect%20x%3D%2227%22%20y%3D%228%22%20width%3D%221%22%20height%3D%2226%22%20fill%3D%22%2322324A%22/%3E%3Crect%20x%3D%2227%22%20y%3D%228%22%20width%3D%221%22%20height%3D%222%22%20fill%3D%22%238FA6BC%22/%3E%3Crect%20x%3D%2228%22%20y%3D%229%22%20width%3D%221%22%20height%3D%2225%22%20fill%3D%22%2322324A%22/%3E%3Crect%20x%3D%2228%22%20y%3D%229%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%238FA6BC%22/%3E%3Crect%20x%3D%2229%22%20y%3D%2210%22%20width%3D%221%22%20height%3D%2224%22%20fill%3D%22%2322324A%22/%3E%3Crect%20x%3D%2229%22%20y%3D%2210%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%238FA6BC%22/%3E%3Crect%20x%3D%2230%22%20y%3D%2212%22%20width%3D%221%22%20height%3D%2222%22%20fill%3D%22%2322324A%22/%3E%3Crect%20x%3D%2230%22%20y%3D%2212%22%20width%3D%221%22%20height%3D%222%22%20fill%3D%22%238FA6BC%22/%3E%3Crect%20x%3D%2231%22%20y%3D%2213%22%20width%3D%221%22%20height%3D%2221%22%20fill%3D%22%2322324A%22/%3E%3Crect%20x%3D%2231%22%20y%3D%2213%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%238FA6BC%22/%3E%3Crect%20x%3D%2232%22%20y%3D%2215%22%20width%3D%221%22%20height%3D%2219%22%20fill%3D%22%2322324A%22/%3E%3Crect%20x%3D%2232%22%20y%3D%2215%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%238FA6BC%22/%3E%3Crect%20x%3D%2233%22%20y%3D%2216%22%20width%3D%221%22%20height%3D%2218%22%20fill%3D%22%2322324A%22/%3E%3Crect%20x%3D%2233%22%20y%3D%2216%22%20width%3D%221%22%20height%3D%222%22%20fill%3D%22%238FA6BC%22/%3E%3Crect%20x%3D%2234%22%20y%3D%2218%22%20width%3D%221%22%20height%3D%2216%22%20fill%3D%22%2322324A%22/%3E%3Crect%20x%3D%2234%22%20y%3D%2218%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%238FA6BC%22/%3E%3Crect%20x%3D%2235%22%20y%3D%2219%22%20width%3D%221%22%20height%3D%2215%22%20fill%3D%22%2322324A%22/%3E%3Crect%20x%3D%2235%22%20y%3D%2219%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%238FA6BC%22/%3E%3Crect%20x%3D%2236%22%20y%3D%2220%22%20width%3D%221%22%20height%3D%2214%22%20fill%3D%22%2322324A%22/%3E%3Crect%20x%3D%2236%22%20y%3D%2220%22%20width%3D%221%22%20height%3D%222%22%20fill%3D%22%238FA6BC%22/%3E%3Crect%20x%3D%2237%22%20y%3D%2221%22%20width%3D%221%22%20height%3D%2213%22%20fill%3D%22%2322324A%22/%3E%3Crect%20x%3D%2237%22%20y%3D%2221%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%238FA6BC%22/%3E%3Crect%20x%3D%2238%22%20y%3D%2221%22%20width%3D%221%22%20height%3D%2213%22%20fill%3D%22%2322324A%22/%3E%3Crect%20x%3D%2238%22%20y%3D%2221%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%238FA6BC%22/%3E%3Crect%20x%3D%2239%22%20y%3D%2222%22%20width%3D%221%22%20height%3D%2212%22%20fill%3D%22%2322324A%22/%3E%3Crect%20x%3D%2239%22%20y%3D%2222%22%20width%3D%221%22%20height%3D%222%22%20fill%3D%22%238FA6BC%22/%3E%3Crect%20x%3D%2240%22%20y%3D%2222%22%20width%3D%221%22%20height%3D%2212%22%20fill%3D%22%2322324A%22/%3E%3Crect%20x%3D%2240%22%20y%3D%2222%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%238FA6BC%22/%3E%3Crect%20x%3D%2241%22%20y%3D%2222%22%20width%3D%221%22%20height%3D%2212%22%20fill%3D%22%2322324A%22/%3E%3Crect%20x%3D%2241%22%20y%3D%2222%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%238FA6BC%22/%3E%3Crect%20x%3D%2242%22%20y%3D%2221%22%20width%3D%221%22%20height%3D%2213%22%20fill%3D%22%2322324A%22/%3E%3Crect%20x%3D%2242%22%20y%3D%2221%22%20width%3D%221%22%20height%3D%222%22%20fill%3D%22%238FA6BC%22/%3E%3Crect%20x%3D%2243%22%20y%3D%2220%22%20width%3D%221%22%20height%3D%2214%22%20fill%3D%22%2322324A%22/%3E%3Crect%20x%3D%2243%22%20y%3D%2220%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%238FA6BC%22/%3E%3Crect%20x%3D%2244%22%20y%3D%2220%22%20width%3D%221%22%20height%3D%2214%22%20fill%3D%22%2322324A%22/%3E%3Crect%20x%3D%2244%22%20y%3D%2220%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%238FA6BC%22/%3E%3Crect%20x%3D%2245%22%20y%3D%2219%22%20width%3D%221%22%20height%3D%2215%22%20fill%3D%22%2322324A%22/%3E%3Crect%20x%3D%2245%22%20y%3D%2219%22%20width%3D%221%22%20height%3D%222%22%20fill%3D%22%238FA6BC%22/%3E%3Crect%20x%3D%2246%22%20y%3D%2218%22%20width%3D%221%22%20height%3D%2216%22%20fill%3D%22%2322324A%22/%3E%3Crect%20x%3D%2246%22%20y%3D%2218%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%238FA6BC%22/%3E%3Crect%20x%3D%2247%22%20y%3D%2217%22%20width%3D%221%22%20height%3D%2217%22%20fill%3D%22%2322324A%22/%3E%3Crect%20x%3D%2247%22%20y%3D%2217%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%238FA6BC%22/%3E%3Crect%20x%3D%2248%22%20y%3D%2216%22%20width%3D%221%22%20height%3D%2218%22%20fill%3D%22%2322324A%22/%3E%3Crect%20x%3D%2248%22%20y%3D%2216%22%20width%3D%221%22%20height%3D%222%22%20fill%3D%22%238FA6BC%22/%3E%3Crect%20x%3D%2249%22%20y%3D%2216%22%20width%3D%221%22%20height%3D%2218%22%20fill%3D%22%2322324A%22/%3E%3Crect%20x%3D%2249%22%20y%3D%2216%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%238FA6BC%22/%3E%3Crect%20x%3D%2250%22%20y%3D%2215%22%20width%3D%221%22%20height%3D%2219%22%20fill%3D%22%2322324A%22/%3E%3Crect%20x%3D%2250%22%20y%3D%2215%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%238FA6BC%22/%3E%3Crect%20x%3D%2251%22%20y%3D%2215%22%20width%3D%221%22%20height%3D%2219%22%20fill%3D%22%2322324A%22/%3E%3Crect%20x%3D%2251%22%20y%3D%2215%22%20width%3D%221%22%20height%3D%222%22%20fill%3D%22%238FA6BC%22/%3E%3Crect%20x%3D%2252%22%20y%3D%2215%22%20width%3D%221%22%20height%3D%2219%22%20fill%3D%22%2322324A%22/%3E%3Crect%20x%3D%2252%22%20y%3D%2215%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%238FA6BC%22/%3E%3Crect%20x%3D%2253%22%20y%3D%2215%22%20width%3D%221%22%20height%3D%2219%22%20fill%3D%22%2322324A%22/%3E%3Crect%20x%3D%2253%22%20y%3D%2215%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%238FA6BC%22/%3E%3Crect%20x%3D%2254%22%20y%3D%2215%22%20width%3D%221%22%20height%3D%2219%22%20fill%3D%22%2322324A%22/%3E%3Crect%20x%3D%2254%22%20y%3D%2215%22%20width%3D%221%22%20height%3D%222%22%20fill%3D%22%238FA6BC%22/%3E%3Crect%20x%3D%2255%22%20y%3D%2215%22%20width%3D%221%22%20height%3D%2219%22%20fill%3D%22%2322324A%22/%3E%3Crect%20x%3D%2255%22%20y%3D%2215%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%238FA6BC%22/%3E%3Crect%20x%3D%2256%22%20y%3D%2216%22%20width%3D%221%22%20height%3D%2218%22%20fill%3D%22%2322324A%22/%3E%3Crect%20x%3D%2256%22%20y%3D%2216%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%238FA6BC%22/%3E%3Crect%20x%3D%2257%22%20y%3D%2216%22%20width%3D%221%22%20height%3D%2218%22%20fill%3D%22%2322324A%22/%3E%3Crect%20x%3D%2257%22%20y%3D%2216%22%20width%3D%221%22%20height%3D%222%22%20fill%3D%22%238FA6BC%22/%3E%3Crect%20x%3D%2258%22%20y%3D%2216%22%20width%3D%221%22%20height%3D%2218%22%20fill%3D%22%2322324A%22/%3E%3Crect%20x%3D%2258%22%20y%3D%2216%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%238FA6BC%22/%3E%3Crect%20x%3D%2259%22%20y%3D%2216%22%20width%3D%221%22%20height%3D%2218%22%20fill%3D%22%2322324A%22/%3E%3Crect%20x%3D%2259%22%20y%3D%2216%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%238FA6BC%22/%3E%3Crect%20x%3D%2260%22%20y%3D%2216%22%20width%3D%221%22%20height%3D%2218%22%20fill%3D%22%2322324A%22/%3E%3Crect%20x%3D%2260%22%20y%3D%2216%22%20width%3D%221%22%20height%3D%222%22%20fill%3D%22%238FA6BC%22/%3E%3Crect%20x%3D%2261%22%20y%3D%2216%22%20width%3D%221%22%20height%3D%2218%22%20fill%3D%22%2322324A%22/%3E%3Crect%20x%3D%2261%22%20y%3D%2216%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%238FA6BC%22/%3E%3Crect%20x%3D%2262%22%20y%3D%2216%22%20width%3D%221%22%20height%3D%2218%22%20fill%3D%22%2322324A%22/%3E%3Crect%20x%3D%2262%22%20y%3D%2216%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%238FA6BC%22/%3E%3Crect%20x%3D%2263%22%20y%3D%2215%22%20width%3D%221%22%20height%3D%2219%22%20fill%3D%22%2322324A%22/%3E%3Crect%20x%3D%2263%22%20y%3D%2215%22%20width%3D%221%22%20height%3D%222%22%20fill%3D%22%238FA6BC%22/%3E%3Crect%20x%3D%2264%22%20y%3D%2214%22%20width%3D%221%22%20height%3D%2220%22%20fill%3D%22%2322324A%22/%3E%3Crect%20x%3D%2264%22%20y%3D%2214%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%238FA6BC%22/%3E%3Crect%20x%3D%2265%22%20y%3D%2213%22%20width%3D%221%22%20height%3D%2221%22%20fill%3D%22%2322324A%22/%3E%3Crect%20x%3D%2265%22%20y%3D%2213%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%238FA6BC%22/%3E%3Crect%20x%3D%2266%22%20y%3D%2212%22%20width%3D%221%22%20height%3D%2222%22%20fill%3D%22%2322324A%22/%3E%3Crect%20x%3D%2266%22%20y%3D%2212%22%20width%3D%221%22%20height%3D%222%22%20fill%3D%22%238FA6BC%22/%3E%3Crect%20x%3D%2267%22%20y%3D%2211%22%20width%3D%221%22%20height%3D%2223%22%20fill%3D%22%2322324A%22/%3E%3Crect%20x%3D%2267%22%20y%3D%2211%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%238FA6BC%22/%3E%3Crect%20x%3D%2268%22%20y%3D%229%22%20width%3D%221%22%20height%3D%2225%22%20fill%3D%22%2322324A%22/%3E%3Crect%20x%3D%2268%22%20y%3D%229%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%238FA6BC%22/%3E%3Crect%20x%3D%2269%22%20y%3D%228%22%20width%3D%221%22%20height%3D%2226%22%20fill%3D%22%2322324A%22/%3E%3Crect%20x%3D%2269%22%20y%3D%228%22%20width%3D%221%22%20height%3D%222%22%20fill%3D%22%238FA6BC%22/%3E%3Crect%20x%3D%2270%22%20y%3D%227%22%20width%3D%221%22%20height%3D%2227%22%20fill%3D%22%2322324A%22/%3E%3Crect%20x%3D%2270%22%20y%3D%227%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%238FA6BC%22/%3E%3Crect%20x%3D%2271%22%20y%3D%226%22%20width%3D%221%22%20height%3D%2228%22%20fill%3D%22%2322324A%22/%3E%3Crect%20x%3D%2271%22%20y%3D%226%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%238FA6BC%22/%3E%3Crect%20x%3D%2272%22%20y%3D%225%22%20width%3D%221%22%20height%3D%2229%22%20fill%3D%22%2322324A%22/%3E%3Crect%20x%3D%2272%22%20y%3D%225%22%20width%3D%221%22%20height%3D%222%22%20fill%3D%22%238FA6BC%22/%3E%3Crect%20x%3D%2273%22%20y%3D%224%22%20width%3D%221%22%20height%3D%2230%22%20fill%3D%22%2322324A%22/%3E%3Crect%20x%3D%2273%22%20y%3D%224%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%238FA6BC%22/%3E%3Crect%20x%3D%2274%22%20y%3D%224%22%20width%3D%221%22%20height%3D%2230%22%20fill%3D%22%2322324A%22/%3E%3Crect%20x%3D%2274%22%20y%3D%224%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%238FA6BC%22/%3E%3Crect%20x%3D%2275%22%20y%3D%224%22%20width%3D%221%22%20height%3D%2230%22%20fill%3D%22%2322324A%22/%3E%3Crect%20x%3D%2275%22%20y%3D%224%22%20width%3D%221%22%20height%3D%222%22%20fill%3D%22%238FA6BC%22/%3E%3Crect%20x%3D%2276%22%20y%3D%224%22%20width%3D%221%22%20height%3D%2230%22%20fill%3D%22%2322324A%22/%3E%3Crect%20x%3D%2276%22%20y%3D%224%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%238FA6BC%22/%3E%3Crect%20x%3D%2277%22%20y%3D%225%22%20width%3D%221%22%20height%3D%2229%22%20fill%3D%22%2322324A%22/%3E%3Crect%20x%3D%2277%22%20y%3D%225%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%238FA6BC%22/%3E%3Crect%20x%3D%2278%22%20y%3D%226%22%20width%3D%221%22%20height%3D%2228%22%20fill%3D%22%2322324A%22/%3E%3Crect%20x%3D%2278%22%20y%3D%226%22%20width%3D%221%22%20height%3D%222%22%20fill%3D%22%238FA6BC%22/%3E%3Crect%20x%3D%2279%22%20y%3D%227%22%20width%3D%221%22%20height%3D%2227%22%20fill%3D%22%2322324A%22/%3E%3Crect%20x%3D%2279%22%20y%3D%227%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%238FA6BC%22/%3E%3Crect%20x%3D%2280%22%20y%3D%228%22%20width%3D%221%22%20height%3D%2226%22%20fill%3D%22%2322324A%22/%3E%3Crect%20x%3D%2280%22%20y%3D%228%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%238FA6BC%22/%3E%3Crect%20x%3D%2281%22%20y%3D%229%22%20width%3D%221%22%20height%3D%2225%22%20fill%3D%22%2322324A%22/%3E%3Crect%20x%3D%2281%22%20y%3D%229%22%20width%3D%221%22%20height%3D%222%22%20fill%3D%22%238FA6BC%22/%3E%3Crect%20x%3D%2282%22%20y%3D%2211%22%20width%3D%221%22%20height%3D%2223%22%20fill%3D%22%2322324A%22/%3E%3Crect%20x%3D%2282%22%20y%3D%2211%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%238FA6BC%22/%3E%3Crect%20x%3D%2283%22%20y%3D%2212%22%20width%3D%221%22%20height%3D%2222%22%20fill%3D%22%2322324A%22/%3E%3Crect%20x%3D%2283%22%20y%3D%2212%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%238FA6BC%22/%3E%3Crect%20x%3D%2284%22%20y%3D%2213%22%20width%3D%221%22%20height%3D%2221%22%20fill%3D%22%2322324A%22/%3E%3Crect%20x%3D%2284%22%20y%3D%2213%22%20width%3D%221%22%20height%3D%222%22%20fill%3D%22%238FA6BC%22/%3E%3Crect%20x%3D%2285%22%20y%3D%2214%22%20width%3D%221%22%20height%3D%2220%22%20fill%3D%22%2322324A%22/%3E%3Crect%20x%3D%2285%22%20y%3D%2214%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%238FA6BC%22/%3E%3Crect%20x%3D%2286%22%20y%3D%2215%22%20width%3D%221%22%20height%3D%2219%22%20fill%3D%22%2322324A%22/%3E%3Crect%20x%3D%2286%22%20y%3D%2215%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%238FA6BC%22/%3E%3Crect%20x%3D%2287%22%20y%3D%2215%22%20width%3D%221%22%20height%3D%2219%22%20fill%3D%22%2322324A%22/%3E%3Crect%20x%3D%2287%22%20y%3D%2215%22%20width%3D%221%22%20height%3D%222%22%20fill%3D%22%238FA6BC%22/%3E%3Crect%20x%3D%2288%22%20y%3D%2215%22%20width%3D%221%22%20height%3D%2219%22%20fill%3D%22%2322324A%22/%3E%3Crect%20x%3D%2288%22%20y%3D%2215%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%238FA6BC%22/%3E%3Crect%20x%3D%2289%22%20y%3D%2215%22%20width%3D%221%22%20height%3D%2219%22%20fill%3D%22%2322324A%22/%3E%3Crect%20x%3D%2289%22%20y%3D%2215%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%238FA6BC%22/%3E%3Crect%20x%3D%2290%22%20y%3D%2215%22%20width%3D%221%22%20height%3D%2219%22%20fill%3D%22%2322324A%22/%3E%3Crect%20x%3D%2290%22%20y%3D%2215%22%20width%3D%221%22%20height%3D%222%22%20fill%3D%22%238FA6BC%22/%3E%3Crect%20x%3D%2291%22%20y%3D%2215%22%20width%3D%221%22%20height%3D%2219%22%20fill%3D%22%2322324A%22/%3E%3Crect%20x%3D%2291%22%20y%3D%2215%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%238FA6BC%22/%3E%3Crect%20x%3D%2292%22%20y%3D%2215%22%20width%3D%221%22%20height%3D%2219%22%20fill%3D%22%2322324A%22/%3E%3Crect%20x%3D%2292%22%20y%3D%2215%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%238FA6BC%22/%3E%3Crect%20x%3D%2293%22%20y%3D%2215%22%20width%3D%221%22%20height%3D%2219%22%20fill%3D%22%2322324A%22/%3E%3Crect%20x%3D%2293%22%20y%3D%2215%22%20width%3D%221%22%20height%3D%222%22%20fill%3D%22%238FA6BC%22/%3E%3Crect%20x%3D%2294%22%20y%3D%2214%22%20width%3D%221%22%20height%3D%2220%22%20fill%3D%22%2322324A%22/%3E%3Crect%20x%3D%2294%22%20y%3D%2214%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%238FA6BC%22/%3E%3Crect%20x%3D%2295%22%20y%3D%2214%22%20width%3D%221%22%20height%3D%2220%22%20fill%3D%22%2322324A%22/%3E%3Crect%20x%3D%2295%22%20y%3D%2214%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%238FA6BC%22/%3E%3Crect%20x%3D%2296%22%20y%3D%2214%22%20width%3D%221%22%20height%3D%2220%22%20fill%3D%22%2322324A%22/%3E%3Crect%20x%3D%2296%22%20y%3D%2214%22%20width%3D%221%22%20height%3D%222%22%20fill%3D%22%238FA6BC%22/%3E%3Crect%20x%3D%2297%22%20y%3D%2214%22%20width%3D%221%22%20height%3D%2220%22%20fill%3D%22%2322324A%22/%3E%3Crect%20x%3D%2297%22%20y%3D%2214%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%238FA6BC%22/%3E%3Crect%20x%3D%2298%22%20y%3D%2214%22%20width%3D%221%22%20height%3D%2220%22%20fill%3D%22%2322324A%22/%3E%3Crect%20x%3D%2298%22%20y%3D%2214%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%238FA6BC%22/%3E%3Crect%20x%3D%2299%22%20y%3D%2215%22%20width%3D%221%22%20height%3D%2219%22%20fill%3D%22%2322324A%22/%3E%3Crect%20x%3D%2299%22%20y%3D%2215%22%20width%3D%221%22%20height%3D%222%22%20fill%3D%22%238FA6BC%22/%3E%3Crect%20x%3D%22100%22%20y%3D%2216%22%20width%3D%221%22%20height%3D%2218%22%20fill%3D%22%2322324A%22/%3E%3Crect%20x%3D%22100%22%20y%3D%2216%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%238FA6BC%22/%3E%3Crect%20x%3D%22101%22%20y%3D%2216%22%20width%3D%221%22%20height%3D%2218%22%20fill%3D%22%2322324A%22/%3E%3Crect%20x%3D%22101%22%20y%3D%2216%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%238FA6BC%22/%3E%3Crect%20x%3D%22102%22%20y%3D%2217%22%20width%3D%221%22%20height%3D%2217%22%20fill%3D%22%2322324A%22/%3E%3Crect%20x%3D%22102%22%20y%3D%2217%22%20width%3D%221%22%20height%3D%222%22%20fill%3D%22%238FA6BC%22/%3E%3Crect%20x%3D%22103%22%20y%3D%2218%22%20width%3D%221%22%20height%3D%2216%22%20fill%3D%22%2322324A%22/%3E%3Crect%20x%3D%22103%22%20y%3D%2218%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%238FA6BC%22/%3E%3Crect%20x%3D%22104%22%20y%3D%2219%22%20width%3D%221%22%20height%3D%2215%22%20fill%3D%22%2322324A%22/%3E%3Crect%20x%3D%22104%22%20y%3D%2219%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%238FA6BC%22/%3E%3Crect%20x%3D%22105%22%20y%3D%2220%22%20width%3D%221%22%20height%3D%2214%22%20fill%3D%22%2322324A%22/%3E%3Crect%20x%3D%22105%22%20y%3D%2220%22%20width%3D%221%22%20height%3D%222%22%20fill%3D%22%238FA6BC%22/%3E%3Crect%20x%3D%22106%22%20y%3D%2221%22%20width%3D%221%22%20height%3D%2213%22%20fill%3D%22%2322324A%22/%3E%3Crect%20x%3D%22106%22%20y%3D%2221%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%238FA6BC%22/%3E%3Crect%20x%3D%22107%22%20y%3D%2222%22%20width%3D%221%22%20height%3D%2212%22%20fill%3D%22%2322324A%22/%3E%3Crect%20x%3D%22107%22%20y%3D%2222%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%238FA6BC%22/%3E%3Crect%20x%3D%22108%22%20y%3D%2222%22%20width%3D%221%22%20height%3D%2212%22%20fill%3D%22%2322324A%22/%3E%3Crect%20x%3D%22108%22%20y%3D%2222%22%20width%3D%221%22%20height%3D%222%22%20fill%3D%22%238FA6BC%22/%3E%3Crect%20x%3D%22109%22%20y%3D%2222%22%20width%3D%221%22%20height%3D%2212%22%20fill%3D%22%2322324A%22/%3E%3Crect%20x%3D%22109%22%20y%3D%2222%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%238FA6BC%22/%3E%3Crect%20x%3D%22110%22%20y%3D%2222%22%20width%3D%221%22%20height%3D%2212%22%20fill%3D%22%2322324A%22/%3E%3Crect%20x%3D%22110%22%20y%3D%2222%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%238FA6BC%22/%3E%3Crect%20x%3D%22111%22%20y%3D%2222%22%20width%3D%221%22%20height%3D%2212%22%20fill%3D%22%2322324A%22/%3E%3Crect%20x%3D%22111%22%20y%3D%2222%22%20width%3D%221%22%20height%3D%222%22%20fill%3D%22%238FA6BC%22/%3E%3Crect%20x%3D%22112%22%20y%3D%2221%22%20width%3D%221%22%20height%3D%2213%22%20fill%3D%22%2322324A%22/%3E%3Crect%20x%3D%22112%22%20y%3D%2221%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%238FA6BC%22/%3E%3Crect%20x%3D%22113%22%20y%3D%2220%22%20width%3D%221%22%20height%3D%2214%22%20fill%3D%22%2322324A%22/%3E%3Crect%20x%3D%22113%22%20y%3D%2220%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%238FA6BC%22/%3E%3Crect%20x%3D%22114%22%20y%3D%2219%22%20width%3D%221%22%20height%3D%2215%22%20fill%3D%22%2322324A%22/%3E%3Crect%20x%3D%22114%22%20y%3D%2219%22%20width%3D%221%22%20height%3D%222%22%20fill%3D%22%238FA6BC%22/%3E%3Crect%20x%3D%22115%22%20y%3D%2218%22%20width%3D%221%22%20height%3D%2216%22%20fill%3D%22%2322324A%22/%3E%3Crect%20x%3D%22115%22%20y%3D%2218%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%238FA6BC%22/%3E%3Crect%20x%3D%22116%22%20y%3D%2216%22%20width%3D%221%22%20height%3D%2218%22%20fill%3D%22%2322324A%22/%3E%3Crect%20x%3D%22116%22%20y%3D%2216%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%238FA6BC%22/%3E%3Crect%20x%3D%22117%22%20y%3D%2215%22%20width%3D%221%22%20height%3D%2219%22%20fill%3D%22%2322324A%22/%3E%3Crect%20x%3D%22117%22%20y%3D%2215%22%20width%3D%221%22%20height%3D%222%22%20fill%3D%22%238FA6BC%22/%3E%3Crect%20x%3D%22118%22%20y%3D%2213%22%20width%3D%221%22%20height%3D%2221%22%20fill%3D%22%2322324A%22/%3E%3Crect%20x%3D%22118%22%20y%3D%2213%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%238FA6BC%22/%3E%3Crect%20x%3D%22119%22%20y%3D%2212%22%20width%3D%221%22%20height%3D%2222%22%20fill%3D%22%2322324A%22/%3E%3Crect%20x%3D%22119%22%20y%3D%2212%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%238FA6BC%22/%3E%3Crect%20x%3D%220%22%20y%3D%2218%22%20width%3D%221%22%20height%3D%2216%22%20fill%3D%22%232B3F57%22/%3E%3Crect%20x%3D%220%22%20y%3D%2218%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%23B9CBDA%22/%3E%3Crect%20x%3D%221%22%20y%3D%2218%22%20width%3D%221%22%20height%3D%2216%22%20fill%3D%22%232B3F57%22/%3E%3Crect%20x%3D%221%22%20y%3D%2218%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%23B9CBDA%22/%3E%3Crect%20x%3D%222%22%20y%3D%2218%22%20width%3D%221%22%20height%3D%2216%22%20fill%3D%22%232B3F57%22/%3E%3Crect%20x%3D%222%22%20y%3D%2218%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%23B9CBDA%22/%3E%3Crect%20x%3D%223%22%20y%3D%2217%22%20width%3D%221%22%20height%3D%2217%22%20fill%3D%22%232B3F57%22/%3E%3Crect%20x%3D%223%22%20y%3D%2217%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%23B9CBDA%22/%3E%3Crect%20x%3D%224%22%20y%3D%2218%22%20width%3D%221%22%20height%3D%2216%22%20fill%3D%22%232B3F57%22/%3E%3Crect%20x%3D%224%22%20y%3D%2218%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%23B9CBDA%22/%3E%3Crect%20x%3D%225%22%20y%3D%2219%22%20width%3D%221%22%20height%3D%2215%22%20fill%3D%22%232B3F57%22/%3E%3Crect%20x%3D%225%22%20y%3D%2219%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%23B9CBDA%22/%3E%3Crect%20x%3D%226%22%20y%3D%2220%22%20width%3D%221%22%20height%3D%2214%22%20fill%3D%22%232B3F57%22/%3E%3Crect%20x%3D%226%22%20y%3D%2220%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%23B9CBDA%22/%3E%3Crect%20x%3D%227%22%20y%3D%2221%22%20width%3D%221%22%20height%3D%2213%22%20fill%3D%22%232B3F57%22/%3E%3Crect%20x%3D%227%22%20y%3D%2221%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%23B9CBDA%22/%3E%3Crect%20x%3D%228%22%20y%3D%2222%22%20width%3D%221%22%20height%3D%2212%22%20fill%3D%22%232B3F57%22/%3E%3Crect%20x%3D%228%22%20y%3D%2222%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%23B9CBDA%22/%3E%3Crect%20x%3D%229%22%20y%3D%2224%22%20width%3D%221%22%20height%3D%2210%22%20fill%3D%22%232B3F57%22/%3E%3Crect%20x%3D%229%22%20y%3D%2224%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%23B9CBDA%22/%3E%3Crect%20x%3D%2210%22%20y%3D%2226%22%20width%3D%221%22%20height%3D%228%22%20fill%3D%22%232B3F57%22/%3E%3Crect%20x%3D%2210%22%20y%3D%2226%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%23B9CBDA%22/%3E%3Crect%20x%3D%2211%22%20y%3D%2227%22%20width%3D%221%22%20height%3D%227%22%20fill%3D%22%232B3F57%22/%3E%3Crect%20x%3D%2211%22%20y%3D%2227%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%23B9CBDA%22/%3E%3Crect%20x%3D%2212%22%20y%3D%2228%22%20width%3D%221%22%20height%3D%226%22%20fill%3D%22%232B3F57%22/%3E%3Crect%20x%3D%2212%22%20y%3D%2228%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%23B9CBDA%22/%3E%3Crect%20x%3D%2213%22%20y%3D%2229%22%20width%3D%221%22%20height%3D%225%22%20fill%3D%22%232B3F57%22/%3E%3Crect%20x%3D%2213%22%20y%3D%2229%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%23B9CBDA%22/%3E%3Crect%20x%3D%2214%22%20y%3D%2229%22%20width%3D%221%22%20height%3D%225%22%20fill%3D%22%232B3F57%22/%3E%3Crect%20x%3D%2214%22%20y%3D%2229%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%23B9CBDA%22/%3E%3Crect%20x%3D%2215%22%20y%3D%2228%22%20width%3D%221%22%20height%3D%226%22%20fill%3D%22%232B3F57%22/%3E%3Crect%20x%3D%2215%22%20y%3D%2228%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%23B9CBDA%22/%3E%3Crect%20x%3D%2216%22%20y%3D%2228%22%20width%3D%221%22%20height%3D%226%22%20fill%3D%22%232B3F57%22/%3E%3Crect%20x%3D%2216%22%20y%3D%2228%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%23B9CBDA%22/%3E%3Crect%20x%3D%2217%22%20y%3D%2227%22%20width%3D%221%22%20height%3D%227%22%20fill%3D%22%232B3F57%22/%3E%3Crect%20x%3D%2217%22%20y%3D%2227%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%23B9CBDA%22/%3E%3Crect%20x%3D%2218%22%20y%3D%2226%22%20width%3D%221%22%20height%3D%228%22%20fill%3D%22%232B3F57%22/%3E%3Crect%20x%3D%2218%22%20y%3D%2226%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%23B9CBDA%22/%3E%3Crect%20x%3D%2219%22%20y%3D%2225%22%20width%3D%221%22%20height%3D%229%22%20fill%3D%22%232B3F57%22/%3E%3Crect%20x%3D%2219%22%20y%3D%2225%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%23B9CBDA%22/%3E%3Crect%20x%3D%2220%22%20y%3D%2224%22%20width%3D%221%22%20height%3D%2210%22%20fill%3D%22%232B3F57%22/%3E%3Crect%20x%3D%2220%22%20y%3D%2224%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%23B9CBDA%22/%3E%3Crect%20x%3D%2221%22%20y%3D%2224%22%20width%3D%221%22%20height%3D%2210%22%20fill%3D%22%232B3F57%22/%3E%3Crect%20x%3D%2221%22%20y%3D%2224%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%23B9CBDA%22/%3E%3Crect%20x%3D%2222%22%20y%3D%2223%22%20width%3D%221%22%20height%3D%2211%22%20fill%3D%22%232B3F57%22/%3E%3Crect%20x%3D%2222%22%20y%3D%2223%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%23B9CBDA%22/%3E%3Crect%20x%3D%2223%22%20y%3D%2223%22%20width%3D%221%22%20height%3D%2211%22%20fill%3D%22%232B3F57%22/%3E%3Crect%20x%3D%2223%22%20y%3D%2223%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%23B9CBDA%22/%3E%3Crect%20x%3D%2224%22%20y%3D%2223%22%20width%3D%221%22%20height%3D%2211%22%20fill%3D%22%232B3F57%22/%3E%3Crect%20x%3D%2224%22%20y%3D%2223%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%23B9CBDA%22/%3E%3Crect%20x%3D%2225%22%20y%3D%2223%22%20width%3D%221%22%20height%3D%2211%22%20fill%3D%22%232B3F57%22/%3E%3Crect%20x%3D%2225%22%20y%3D%2223%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%23B9CBDA%22/%3E%3Crect%20x%3D%2226%22%20y%3D%2224%22%20width%3D%221%22%20height%3D%2210%22%20fill%3D%22%232B3F57%22/%3E%3Crect%20x%3D%2226%22%20y%3D%2224%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%23B9CBDA%22/%3E%3Crect%20x%3D%2227%22%20y%3D%2224%22%20width%3D%221%22%20height%3D%2210%22%20fill%3D%22%232B3F57%22/%3E%3Crect%20x%3D%2227%22%20y%3D%2224%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%23B9CBDA%22/%3E%3Crect%20x%3D%2228%22%20y%3D%2224%22%20width%3D%221%22%20height%3D%2210%22%20fill%3D%22%232B3F57%22/%3E%3Crect%20x%3D%2228%22%20y%3D%2224%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%23B9CBDA%22/%3E%3Crect%20x%3D%2229%22%20y%3D%2224%22%20width%3D%221%22%20height%3D%2210%22%20fill%3D%22%232B3F57%22/%3E%3Crect%20x%3D%2229%22%20y%3D%2224%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%23B9CBDA%22/%3E%3Crect%20x%3D%2230%22%20y%3D%2223%22%20width%3D%221%22%20height%3D%2211%22%20fill%3D%22%232B3F57%22/%3E%3Crect%20x%3D%2230%22%20y%3D%2223%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%23B9CBDA%22/%3E%3Crect%20x%3D%2231%22%20y%3D%2222%22%20width%3D%221%22%20height%3D%2212%22%20fill%3D%22%232B3F57%22/%3E%3Crect%20x%3D%2231%22%20y%3D%2222%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%23B9CBDA%22/%3E%3Crect%20x%3D%2232%22%20y%3D%2221%22%20width%3D%221%22%20height%3D%2213%22%20fill%3D%22%232B3F57%22/%3E%3Crect%20x%3D%2232%22%20y%3D%2221%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%23B9CBDA%22/%3E%3Crect%20x%3D%2233%22%20y%3D%2220%22%20width%3D%221%22%20height%3D%2214%22%20fill%3D%22%232B3F57%22/%3E%3Crect%20x%3D%2233%22%20y%3D%2220%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%23B9CBDA%22/%3E%3Crect%20x%3D%2234%22%20y%3D%2219%22%20width%3D%221%22%20height%3D%2215%22%20fill%3D%22%232B3F57%22/%3E%3Crect%20x%3D%2234%22%20y%3D%2219%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%23B9CBDA%22/%3E%3Crect%20x%3D%2235%22%20y%3D%2218%22%20width%3D%221%22%20height%3D%2216%22%20fill%3D%22%232B3F57%22/%3E%3Crect%20x%3D%2235%22%20y%3D%2218%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%23B9CBDA%22/%3E%3Crect%20x%3D%2236%22%20y%3D%2217%22%20width%3D%221%22%20height%3D%2217%22%20fill%3D%22%232B3F57%22/%3E%3Crect%20x%3D%2236%22%20y%3D%2217%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%23B9CBDA%22/%3E%3Crect%20x%3D%2237%22%20y%3D%2216%22%20width%3D%221%22%20height%3D%2218%22%20fill%3D%22%232B3F57%22/%3E%3Crect%20x%3D%2237%22%20y%3D%2216%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%23B9CBDA%22/%3E%3Crect%20x%3D%2238%22%20y%3D%2216%22%20width%3D%221%22%20height%3D%2218%22%20fill%3D%22%232B3F57%22/%3E%3Crect%20x%3D%2238%22%20y%3D%2216%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%23B9CBDA%22/%3E%3Crect%20x%3D%2239%22%20y%3D%2216%22%20width%3D%221%22%20height%3D%2218%22%20fill%3D%22%232B3F57%22/%3E%3Crect%20x%3D%2239%22%20y%3D%2216%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%23B9CBDA%22/%3E%3Crect%20x%3D%2240%22%20y%3D%2216%22%20width%3D%221%22%20height%3D%2218%22%20fill%3D%22%232B3F57%22/%3E%3Crect%20x%3D%2240%22%20y%3D%2216%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%23B9CBDA%22/%3E%3Crect%20x%3D%2241%22%20y%3D%2217%22%20width%3D%221%22%20height%3D%2217%22%20fill%3D%22%232B3F57%22/%3E%3Crect%20x%3D%2241%22%20y%3D%2217%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%23B9CBDA%22/%3E%3Crect%20x%3D%2242%22%20y%3D%2218%22%20width%3D%221%22%20height%3D%2216%22%20fill%3D%22%232B3F57%22/%3E%3Crect%20x%3D%2242%22%20y%3D%2218%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%23B9CBDA%22/%3E%3Crect%20x%3D%2243%22%20y%3D%2220%22%20width%3D%221%22%20height%3D%2214%22%20fill%3D%22%232B3F57%22/%3E%3Crect%20x%3D%2243%22%20y%3D%2220%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%23B9CBDA%22/%3E%3Crect%20x%3D%2244%22%20y%3D%2221%22%20width%3D%221%22%20height%3D%2213%22%20fill%3D%22%232B3F57%22/%3E%3Crect%20x%3D%2244%22%20y%3D%2221%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%23B9CBDA%22/%3E%3Crect%20x%3D%2245%22%20y%3D%2223%22%20width%3D%221%22%20height%3D%2211%22%20fill%3D%22%232B3F57%22/%3E%3Crect%20x%3D%2245%22%20y%3D%2223%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%23B9CBDA%22/%3E%3Crect%20x%3D%2246%22%20y%3D%2224%22%20width%3D%221%22%20height%3D%2210%22%20fill%3D%22%232B3F57%22/%3E%3Crect%20x%3D%2246%22%20y%3D%2224%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%23B9CBDA%22/%3E%3Crect%20x%3D%2247%22%20y%3D%2225%22%20width%3D%221%22%20height%3D%229%22%20fill%3D%22%232B3F57%22/%3E%3Crect%20x%3D%2247%22%20y%3D%2225%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%23B9CBDA%22/%3E%3Crect%20x%3D%2248%22%20y%3D%2225%22%20width%3D%221%22%20height%3D%229%22%20fill%3D%22%232B3F57%22/%3E%3Crect%20x%3D%2248%22%20y%3D%2225%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%23B9CBDA%22/%3E%3Crect%20x%3D%2249%22%20y%3D%2226%22%20width%3D%221%22%20height%3D%228%22%20fill%3D%22%232B3F57%22/%3E%3Crect%20x%3D%2249%22%20y%3D%2226%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%23B9CBDA%22/%3E%3Crect%20x%3D%2250%22%20y%3D%2226%22%20width%3D%221%22%20height%3D%228%22%20fill%3D%22%232B3F57%22/%3E%3Crect%20x%3D%2250%22%20y%3D%2226%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%23B9CBDA%22/%3E%3Crect%20x%3D%2251%22%20y%3D%2225%22%20width%3D%221%22%20height%3D%229%22%20fill%3D%22%232B3F57%22/%3E%3Crect%20x%3D%2251%22%20y%3D%2225%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%23B9CBDA%22/%3E%3Crect%20x%3D%2252%22%20y%3D%2225%22%20width%3D%221%22%20height%3D%229%22%20fill%3D%22%232B3F57%22/%3E%3Crect%20x%3D%2252%22%20y%3D%2225%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%23B9CBDA%22/%3E%3Crect%20x%3D%2253%22%20y%3D%2225%22%20width%3D%221%22%20height%3D%229%22%20fill%3D%22%232B3F57%22/%3E%3Crect%20x%3D%2253%22%20y%3D%2225%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%23B9CBDA%22/%3E%3Crect%20x%3D%2254%22%20y%3D%2224%22%20width%3D%221%22%20height%3D%2210%22%20fill%3D%22%232B3F57%22/%3E%3Crect%20x%3D%2254%22%20y%3D%2224%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%23B9CBDA%22/%3E%3Crect%20x%3D%2255%22%20y%3D%2224%22%20width%3D%221%22%20height%3D%2210%22%20fill%3D%22%232B3F57%22/%3E%3Crect%20x%3D%2255%22%20y%3D%2224%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%23B9CBDA%22/%3E%3Crect%20x%3D%2256%22%20y%3D%2224%22%20width%3D%221%22%20height%3D%2210%22%20fill%3D%22%232B3F57%22/%3E%3Crect%20x%3D%2256%22%20y%3D%2224%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%23B9CBDA%22/%3E%3Crect%20x%3D%2257%22%20y%3D%2225%22%20width%3D%221%22%20height%3D%229%22%20fill%3D%22%232B3F57%22/%3E%3Crect%20x%3D%2257%22%20y%3D%2225%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%23B9CBDA%22/%3E%3Crect%20x%3D%2258%22%20y%3D%2225%22%20width%3D%221%22%20height%3D%229%22%20fill%3D%22%232B3F57%22/%3E%3Crect%20x%3D%2258%22%20y%3D%2225%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%23B9CBDA%22/%3E%3Crect%20x%3D%2259%22%20y%3D%2226%22%20width%3D%221%22%20height%3D%228%22%20fill%3D%22%232B3F57%22/%3E%3Crect%20x%3D%2259%22%20y%3D%2226%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%23B9CBDA%22/%3E%3Crect%20x%3D%2260%22%20y%3D%2227%22%20width%3D%221%22%20height%3D%227%22%20fill%3D%22%232B3F57%22/%3E%3Crect%20x%3D%2260%22%20y%3D%2227%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%23B9CBDA%22/%3E%3Crect%20x%3D%2261%22%20y%3D%2227%22%20width%3D%221%22%20height%3D%227%22%20fill%3D%22%232B3F57%22/%3E%3Crect%20x%3D%2261%22%20y%3D%2227%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%23B9CBDA%22/%3E%3Crect%20x%3D%2262%22%20y%3D%2227%22%20width%3D%221%22%20height%3D%227%22%20fill%3D%22%232B3F57%22/%3E%3Crect%20x%3D%2262%22%20y%3D%2227%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%23B9CBDA%22/%3E%3Crect%20x%3D%2263%22%20y%3D%2228%22%20width%3D%221%22%20height%3D%226%22%20fill%3D%22%232B3F57%22/%3E%3Crect%20x%3D%2263%22%20y%3D%2228%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%23B9CBDA%22/%3E%3Crect%20x%3D%2264%22%20y%3D%2227%22%20width%3D%221%22%20height%3D%227%22%20fill%3D%22%232B3F57%22/%3E%3Crect%20x%3D%2264%22%20y%3D%2227%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%23B9CBDA%22/%3E%3Crect%20x%3D%2265%22%20y%3D%2226%22%20width%3D%221%22%20height%3D%228%22%20fill%3D%22%232B3F57%22/%3E%3Crect%20x%3D%2265%22%20y%3D%2226%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%23B9CBDA%22/%3E%3Crect%20x%3D%2266%22%20y%3D%2225%22%20width%3D%221%22%20height%3D%229%22%20fill%3D%22%232B3F57%22/%3E%3Crect%20x%3D%2266%22%20y%3D%2225%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%23B9CBDA%22/%3E%3Crect%20x%3D%2267%22%20y%3D%2224%22%20width%3D%221%22%20height%3D%2210%22%20fill%3D%22%232B3F57%22/%3E%3Crect%20x%3D%2267%22%20y%3D%2224%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%23B9CBDA%22/%3E%3Crect%20x%3D%2268%22%20y%3D%2223%22%20width%3D%221%22%20height%3D%2211%22%20fill%3D%22%232B3F57%22/%3E%3Crect%20x%3D%2268%22%20y%3D%2223%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%23B9CBDA%22/%3E%3Crect%20x%3D%2269%22%20y%3D%2221%22%20width%3D%221%22%20height%3D%2213%22%20fill%3D%22%232B3F57%22/%3E%3Crect%20x%3D%2269%22%20y%3D%2221%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%23B9CBDA%22/%3E%3Crect%20x%3D%2270%22%20y%3D%2219%22%20width%3D%221%22%20height%3D%2215%22%20fill%3D%22%232B3F57%22/%3E%3Crect%20x%3D%2270%22%20y%3D%2219%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%23B9CBDA%22/%3E%3Crect%20x%3D%2271%22%20y%3D%2218%22%20width%3D%221%22%20height%3D%2216%22%20fill%3D%22%232B3F57%22/%3E%3Crect%20x%3D%2271%22%20y%3D%2218%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%23B9CBDA%22/%3E%3Crect%20x%3D%2272%22%20y%3D%2217%22%20width%3D%221%22%20height%3D%2217%22%20fill%3D%22%232B3F57%22/%3E%3Crect%20x%3D%2272%22%20y%3D%2217%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%23B9CBDA%22/%3E%3Crect%20x%3D%2273%22%20y%3D%2216%22%20width%3D%221%22%20height%3D%2218%22%20fill%3D%22%232B3F57%22/%3E%3Crect%20x%3D%2273%22%20y%3D%2216%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%23B9CBDA%22/%3E%3Crect%20x%3D%2274%22%20y%3D%2216%22%20width%3D%221%22%20height%3D%2218%22%20fill%3D%22%232B3F57%22/%3E%3Crect%20x%3D%2274%22%20y%3D%2216%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%23B9CBDA%22/%3E%3Crect%20x%3D%2275%22%20y%3D%2217%22%20width%3D%221%22%20height%3D%2217%22%20fill%3D%22%232B3F57%22/%3E%3Crect%20x%3D%2275%22%20y%3D%2217%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%23B9CBDA%22/%3E%3Crect%20x%3D%2276%22%20y%3D%2217%22%20width%3D%221%22%20height%3D%2217%22%20fill%3D%22%232B3F57%22/%3E%3Crect%20x%3D%2276%22%20y%3D%2217%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%23B9CBDA%22/%3E%3Crect%20x%3D%2277%22%20y%3D%2218%22%20width%3D%221%22%20height%3D%2216%22%20fill%3D%22%232B3F57%22/%3E%3Crect%20x%3D%2277%22%20y%3D%2218%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%23B9CBDA%22/%3E%3Crect%20x%3D%2278%22%20y%3D%2219%22%20width%3D%221%22%20height%3D%2215%22%20fill%3D%22%232B3F57%22/%3E%3Crect%20x%3D%2278%22%20y%3D%2219%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%23B9CBDA%22/%3E%3Crect%20x%3D%2279%22%20y%3D%2220%22%20width%3D%221%22%20height%3D%2214%22%20fill%3D%22%232B3F57%22/%3E%3Crect%20x%3D%2279%22%20y%3D%2220%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%23B9CBDA%22/%3E%3Crect%20x%3D%2280%22%20y%3D%2221%22%20width%3D%221%22%20height%3D%2213%22%20fill%3D%22%232B3F57%22/%3E%3Crect%20x%3D%2280%22%20y%3D%2221%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%23B9CBDA%22/%3E%3Crect%20x%3D%2281%22%20y%3D%2221%22%20width%3D%221%22%20height%3D%2213%22%20fill%3D%22%232B3F57%22/%3E%3Crect%20x%3D%2281%22%20y%3D%2221%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%23B9CBDA%22/%3E%3Crect%20x%3D%2282%22%20y%3D%2222%22%20width%3D%221%22%20height%3D%2212%22%20fill%3D%22%232B3F57%22/%3E%3Crect%20x%3D%2282%22%20y%3D%2222%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%23B9CBDA%22/%3E%3Crect%20x%3D%2283%22%20y%3D%2222%22%20width%3D%221%22%20height%3D%2212%22%20fill%3D%22%232B3F57%22/%3E%3Crect%20x%3D%2283%22%20y%3D%2222%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%23B9CBDA%22/%3E%3Crect%20x%3D%2284%22%20y%3D%2222%22%20width%3D%221%22%20height%3D%2212%22%20fill%3D%22%232B3F57%22/%3E%3Crect%20x%3D%2284%22%20y%3D%2222%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%23B9CBDA%22/%3E%3Crect%20x%3D%2285%22%20y%3D%2222%22%20width%3D%221%22%20height%3D%2212%22%20fill%3D%22%232B3F57%22/%3E%3Crect%20x%3D%2285%22%20y%3D%2222%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%23B9CBDA%22/%3E%3Crect%20x%3D%2286%22%20y%3D%2221%22%20width%3D%221%22%20height%3D%2213%22%20fill%3D%22%232B3F57%22/%3E%3Crect%20x%3D%2286%22%20y%3D%2221%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%23B9CBDA%22/%3E%3Crect%20x%3D%2287%22%20y%3D%2221%22%20width%3D%221%22%20height%3D%2213%22%20fill%3D%22%232B3F57%22/%3E%3Crect%20x%3D%2287%22%20y%3D%2221%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%23B9CBDA%22/%3E%3Crect%20x%3D%2288%22%20y%3D%2221%22%20width%3D%221%22%20height%3D%2213%22%20fill%3D%22%232B3F57%22/%3E%3Crect%20x%3D%2288%22%20y%3D%2221%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%23B9CBDA%22/%3E%3Crect%20x%3D%2289%22%20y%3D%2221%22%20width%3D%221%22%20height%3D%2213%22%20fill%3D%22%232B3F57%22/%3E%3Crect%20x%3D%2289%22%20y%3D%2221%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%23B9CBDA%22/%3E%3Crect%20x%3D%2290%22%20y%3D%2222%22%20width%3D%221%22%20height%3D%2212%22%20fill%3D%22%232B3F57%22/%3E%3Crect%20x%3D%2290%22%20y%3D%2222%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%23B9CBDA%22/%3E%3Crect%20x%3D%2291%22%20y%3D%2223%22%20width%3D%221%22%20height%3D%2211%22%20fill%3D%22%232B3F57%22/%3E%3Crect%20x%3D%2291%22%20y%3D%2223%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%23B9CBDA%22/%3E%3Crect%20x%3D%2292%22%20y%3D%2224%22%20width%3D%221%22%20height%3D%2210%22%20fill%3D%22%232B3F57%22/%3E%3Crect%20x%3D%2292%22%20y%3D%2224%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%23B9CBDA%22/%3E%3Crect%20x%3D%2293%22%20y%3D%2225%22%20width%3D%221%22%20height%3D%229%22%20fill%3D%22%232B3F57%22/%3E%3Crect%20x%3D%2293%22%20y%3D%2225%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%23B9CBDA%22/%3E%3Crect%20x%3D%2294%22%20y%3D%2226%22%20width%3D%221%22%20height%3D%228%22%20fill%3D%22%232B3F57%22/%3E%3Crect%20x%3D%2294%22%20y%3D%2226%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%23B9CBDA%22/%3E%3Crect%20x%3D%2295%22%20y%3D%2227%22%20width%3D%221%22%20height%3D%227%22%20fill%3D%22%232B3F57%22/%3E%3Crect%20x%3D%2295%22%20y%3D%2227%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%23B9CBDA%22/%3E%3Crect%20x%3D%2296%22%20y%3D%2228%22%20width%3D%221%22%20height%3D%226%22%20fill%3D%22%232B3F57%22/%3E%3Crect%20x%3D%2296%22%20y%3D%2228%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%23B9CBDA%22/%3E%3Crect%20x%3D%2297%22%20y%3D%2229%22%20width%3D%221%22%20height%3D%225%22%20fill%3D%22%232B3F57%22/%3E%3Crect%20x%3D%2297%22%20y%3D%2229%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%23B9CBDA%22/%3E%3Crect%20x%3D%2298%22%20y%3D%2229%22%20width%3D%221%22%20height%3D%225%22%20fill%3D%22%232B3F57%22/%3E%3Crect%20x%3D%2298%22%20y%3D%2229%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%23B9CBDA%22/%3E%3Crect%20x%3D%2299%22%20y%3D%2229%22%20width%3D%221%22%20height%3D%225%22%20fill%3D%22%232B3F57%22/%3E%3Crect%20x%3D%2299%22%20y%3D%2229%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%23B9CBDA%22/%3E%3Crect%20x%3D%22100%22%20y%3D%2229%22%20width%3D%221%22%20height%3D%225%22%20fill%3D%22%232B3F57%22/%3E%3Crect%20x%3D%22100%22%20y%3D%2229%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%23B9CBDA%22/%3E%3Crect%20x%3D%22101%22%20y%3D%2228%22%20width%3D%221%22%20height%3D%226%22%20fill%3D%22%232B3F57%22/%3E%3Crect%20x%3D%22101%22%20y%3D%2228%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%23B9CBDA%22/%3E%3Crect%20x%3D%22102%22%20y%3D%2227%22%20width%3D%221%22%20height%3D%227%22%20fill%3D%22%232B3F57%22/%3E%3Crect%20x%3D%22102%22%20y%3D%2227%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%23B9CBDA%22/%3E%3Crect%20x%3D%22103%22%20y%3D%2225%22%20width%3D%221%22%20height%3D%229%22%20fill%3D%22%232B3F57%22/%3E%3Crect%20x%3D%22103%22%20y%3D%2225%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%23B9CBDA%22/%3E%3Crect%20x%3D%22104%22%20y%3D%2224%22%20width%3D%221%22%20height%3D%2210%22%20fill%3D%22%232B3F57%22/%3E%3Crect%20x%3D%22104%22%20y%3D%2224%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%23B9CBDA%22/%3E%3Crect%20x%3D%22105%22%20y%3D%2222%22%20width%3D%221%22%20height%3D%2212%22%20fill%3D%22%232B3F57%22/%3E%3Crect%20x%3D%22105%22%20y%3D%2222%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%23B9CBDA%22/%3E%3Crect%20x%3D%22106%22%20y%3D%2221%22%20width%3D%221%22%20height%3D%2213%22%20fill%3D%22%232B3F57%22/%3E%3Crect%20x%3D%22106%22%20y%3D%2221%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%23B9CBDA%22/%3E%3Crect%20x%3D%22107%22%20y%3D%2220%22%20width%3D%221%22%20height%3D%2214%22%20fill%3D%22%232B3F57%22/%3E%3Crect%20x%3D%22107%22%20y%3D%2220%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%23B9CBDA%22/%3E%3Crect%20x%3D%22108%22%20y%3D%2220%22%20width%3D%221%22%20height%3D%2214%22%20fill%3D%22%232B3F57%22/%3E%3Crect%20x%3D%22108%22%20y%3D%2220%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%23B9CBDA%22/%3E%3Crect%20x%3D%22109%22%20y%3D%2219%22%20width%3D%221%22%20height%3D%2215%22%20fill%3D%22%232B3F57%22/%3E%3Crect%20x%3D%22109%22%20y%3D%2219%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%23B9CBDA%22/%3E%3Crect%20x%3D%22110%22%20y%3D%2219%22%20width%3D%221%22%20height%3D%2215%22%20fill%3D%22%232B3F57%22/%3E%3Crect%20x%3D%22110%22%20y%3D%2219%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%23B9CBDA%22/%3E%3Crect%20x%3D%22111%22%20y%3D%2220%22%20width%3D%221%22%20height%3D%2214%22%20fill%3D%22%232B3F57%22/%3E%3Crect%20x%3D%22111%22%20y%3D%2220%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%23B9CBDA%22/%3E%3Crect%20x%3D%22112%22%20y%3D%2220%22%20width%3D%221%22%20height%3D%2214%22%20fill%3D%22%232B3F57%22/%3E%3Crect%20x%3D%22112%22%20y%3D%2220%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%23B9CBDA%22/%3E%3Crect%20x%3D%22113%22%20y%3D%2220%22%20width%3D%221%22%20height%3D%2214%22%20fill%3D%22%232B3F57%22/%3E%3Crect%20x%3D%22113%22%20y%3D%2220%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%23B9CBDA%22/%3E%3Crect%20x%3D%22114%22%20y%3D%2221%22%20width%3D%221%22%20height%3D%2213%22%20fill%3D%22%232B3F57%22/%3E%3Crect%20x%3D%22114%22%20y%3D%2221%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%23B9CBDA%22/%3E%3Crect%20x%3D%22115%22%20y%3D%2221%22%20width%3D%221%22%20height%3D%2213%22%20fill%3D%22%232B3F57%22/%3E%3Crect%20x%3D%22115%22%20y%3D%2221%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%23B9CBDA%22/%3E%3Crect%20x%3D%22116%22%20y%3D%2221%22%20width%3D%221%22%20height%3D%2213%22%20fill%3D%22%232B3F57%22/%3E%3Crect%20x%3D%22116%22%20y%3D%2221%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%23B9CBDA%22/%3E%3Crect%20x%3D%22117%22%20y%3D%2220%22%20width%3D%221%22%20height%3D%2214%22%20fill%3D%22%232B3F57%22/%3E%3Crect%20x%3D%22117%22%20y%3D%2220%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%23B9CBDA%22/%3E%3Crect%20x%3D%22118%22%20y%3D%2220%22%20width%3D%221%22%20height%3D%2214%22%20fill%3D%22%232B3F57%22/%3E%3Crect%20x%3D%22118%22%20y%3D%2220%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%23B9CBDA%22/%3E%3Crect%20x%3D%22119%22%20y%3D%2219%22%20width%3D%221%22%20height%3D%2215%22%20fill%3D%22%232B3F57%22/%3E%3Crect%20x%3D%22119%22%20y%3D%2219%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%23B9CBDA%22/%3E%3Crect%20x%3D%228%22%20y%3D%2221%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%23D6E2EC%22/%3E%3Crect%20x%3D%228%22%20y%3D%2222%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%231C2C3E%22/%3E%3Crect%20x%3D%227%22%20y%3D%2223%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%231C2C3E%22/%3E%3Crect%20x%3D%228%22%20y%3D%2223%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%231C2C3E%22/%3E%3Crect%20x%3D%229%22%20y%3D%2223%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%231C2C3E%22/%3E%3Crect%20x%3D%227%22%20y%3D%2224%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%23D6E2EC%22/%3E%3Crect%20x%3D%228%22%20y%3D%2224%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%231C2C3E%22/%3E%3Crect%20x%3D%229%22%20y%3D%2224%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%23D6E2EC%22/%3E%3Crect%20x%3D%226%22%20y%3D%2225%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%231C2C3E%22/%3E%3Crect%20x%3D%227%22%20y%3D%2225%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%231C2C3E%22/%3E%3Crect%20x%3D%228%22%20y%3D%2225%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%231C2C3E%22/%3E%3Crect%20x%3D%229%22%20y%3D%2225%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%231C2C3E%22/%3E%3Crect%20x%3D%2210%22%20y%3D%2225%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%231C2C3E%22/%3E%3Crect%20x%3D%226%22%20y%3D%2226%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%231C2C3E%22/%3E%3Crect%20x%3D%227%22%20y%3D%2226%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%231C2C3E%22/%3E%3Crect%20x%3D%228%22%20y%3D%2226%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%231C2C3E%22/%3E%3Crect%20x%3D%229%22%20y%3D%2226%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%231C2C3E%22/%3E%3Crect%20x%3D%2210%22%20y%3D%2226%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%231C2C3E%22/%3E%3Crect%20x%3D%225%22%20y%3D%2227%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%23D6E2EC%22/%3E%3Crect%20x%3D%226%22%20y%3D%2227%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%231C2C3E%22/%3E%3Crect%20x%3D%227%22%20y%3D%2227%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%231C2C3E%22/%3E%3Crect%20x%3D%228%22%20y%3D%2227%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%231C2C3E%22/%3E%3Crect%20x%3D%229%22%20y%3D%2227%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%231C2C3E%22/%3E%3Crect%20x%3D%2210%22%20y%3D%2227%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%231C2C3E%22/%3E%3Crect%20x%3D%2211%22%20y%3D%2227%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%23D6E2EC%22/%3E%3Crect%20x%3D%225%22%20y%3D%2228%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%231C2C3E%22/%3E%3Crect%20x%3D%226%22%20y%3D%2228%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%231C2C3E%22/%3E%3Crect%20x%3D%227%22%20y%3D%2228%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%231C2C3E%22/%3E%3Crect%20x%3D%228%22%20y%3D%2228%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%231C2C3E%22/%3E%3Crect%20x%3D%229%22%20y%3D%2228%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%231C2C3E%22/%3E%3Crect%20x%3D%2210%22%20y%3D%2228%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%231C2C3E%22/%3E%3Crect%20x%3D%2211%22%20y%3D%2228%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%231C2C3E%22/%3E%3Crect%20x%3D%224%22%20y%3D%2229%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%231C2C3E%22/%3E%3Crect%20x%3D%225%22%20y%3D%2229%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%231C2C3E%22/%3E%3Crect%20x%3D%226%22%20y%3D%2229%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%231C2C3E%22/%3E%3Crect%20x%3D%227%22%20y%3D%2229%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%231C2C3E%22/%3E%3Crect%20x%3D%228%22%20y%3D%2229%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%231C2C3E%22/%3E%3Crect%20x%3D%229%22%20y%3D%2229%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%231C2C3E%22/%3E%3Crect%20x%3D%2210%22%20y%3D%2229%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%231C2C3E%22/%3E%3Crect%20x%3D%2211%22%20y%3D%2229%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%231C2C3E%22/%3E%3Crect%20x%3D%2212%22%20y%3D%2229%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%231C2C3E%22/%3E%3Crect%20x%3D%228%22%20y%3D%2230%22%20width%3D%221%22%20height%3D%222%22%20fill%3D%22%233A2F2A%22/%3E%3Crect%20x%3D%2215%22%20y%3D%2223%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%23D6E2EC%22/%3E%3Crect%20x%3D%2215%22%20y%3D%2224%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%231C2C3E%22/%3E%3Crect%20x%3D%2214%22%20y%3D%2225%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%231C2C3E%22/%3E%3Crect%20x%3D%2215%22%20y%3D%2225%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%231C2C3E%22/%3E%3Crect%20x%3D%2216%22%20y%3D%2225%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%231C2C3E%22/%3E%3Crect%20x%3D%2214%22%20y%3D%2226%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%23D6E2EC%22/%3E%3Crect%20x%3D%2215%22%20y%3D%2226%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%231C2C3E%22/%3E%3Crect%20x%3D%2216%22%20y%3D%2226%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%23D6E2EC%22/%3E%3Crect%20x%3D%2213%22%20y%3D%2227%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%231C2C3E%22/%3E%3Crect%20x%3D%2214%22%20y%3D%2227%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%231C2C3E%22/%3E%3Crect%20x%3D%2215%22%20y%3D%2227%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%231C2C3E%22/%3E%3Crect%20x%3D%2216%22%20y%3D%2227%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%231C2C3E%22/%3E%3Crect%20x%3D%2217%22%20y%3D%2227%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%231C2C3E%22/%3E%3Crect%20x%3D%2213%22%20y%3D%2228%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%231C2C3E%22/%3E%3Crect%20x%3D%2214%22%20y%3D%2228%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%231C2C3E%22/%3E%3Crect%20x%3D%2215%22%20y%3D%2228%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%231C2C3E%22/%3E%3Crect%20x%3D%2216%22%20y%3D%2228%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%231C2C3E%22/%3E%3Crect%20x%3D%2217%22%20y%3D%2228%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%231C2C3E%22/%3E%3Crect%20x%3D%2212%22%20y%3D%2229%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%23D6E2EC%22/%3E%3Crect%20x%3D%2213%22%20y%3D%2229%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%231C2C3E%22/%3E%3Crect%20x%3D%2214%22%20y%3D%2229%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%231C2C3E%22/%3E%3Crect%20x%3D%2215%22%20y%3D%2229%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%231C2C3E%22/%3E%3Crect%20x%3D%2216%22%20y%3D%2229%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%231C2C3E%22/%3E%3Crect%20x%3D%2217%22%20y%3D%2229%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%231C2C3E%22/%3E%3Crect%20x%3D%2218%22%20y%3D%2229%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%23D6E2EC%22/%3E%3Crect%20x%3D%2215%22%20y%3D%2230%22%20width%3D%221%22%20height%3D%222%22%20fill%3D%22%233A2F2A%22/%3E%3Crect%20x%3D%2233%22%20y%3D%2222%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%23D6E2EC%22/%3E%3Crect%20x%3D%2233%22%20y%3D%2223%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%231C2C3E%22/%3E%3Crect%20x%3D%2232%22%20y%3D%2224%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%231C2C3E%22/%3E%3Crect%20x%3D%2233%22%20y%3D%2224%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%231C2C3E%22/%3E%3Crect%20x%3D%2234%22%20y%3D%2224%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%231C2C3E%22/%3E%3Crect%20x%3D%2232%22%20y%3D%2225%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%23D6E2EC%22/%3E%3Crect%20x%3D%2233%22%20y%3D%2225%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%231C2C3E%22/%3E%3Crect%20x%3D%2234%22%20y%3D%2225%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%23D6E2EC%22/%3E%3Crect%20x%3D%2231%22%20y%3D%2226%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%231C2C3E%22/%3E%3Crect%20x%3D%2232%22%20y%3D%2226%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%231C2C3E%22/%3E%3Crect%20x%3D%2233%22%20y%3D%2226%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%231C2C3E%22/%3E%3Crect%20x%3D%2234%22%20y%3D%2226%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%231C2C3E%22/%3E%3Crect%20x%3D%2235%22%20y%3D%2226%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%231C2C3E%22/%3E%3Crect%20x%3D%2231%22%20y%3D%2227%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%231C2C3E%22/%3E%3Crect%20x%3D%2232%22%20y%3D%2227%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%231C2C3E%22/%3E%3Crect%20x%3D%2233%22%20y%3D%2227%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%231C2C3E%22/%3E%3Crect%20x%3D%2234%22%20y%3D%2227%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%231C2C3E%22/%3E%3Crect%20x%3D%2235%22%20y%3D%2227%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%231C2C3E%22/%3E%3Crect%20x%3D%2230%22%20y%3D%2228%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%23D6E2EC%22/%3E%3Crect%20x%3D%2231%22%20y%3D%2228%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%231C2C3E%22/%3E%3Crect%20x%3D%2232%22%20y%3D%2228%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%231C2C3E%22/%3E%3Crect%20x%3D%2233%22%20y%3D%2228%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%231C2C3E%22/%3E%3Crect%20x%3D%2234%22%20y%3D%2228%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%231C2C3E%22/%3E%3Crect%20x%3D%2235%22%20y%3D%2228%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%231C2C3E%22/%3E%3Crect%20x%3D%2236%22%20y%3D%2228%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%23D6E2EC%22/%3E%3Crect%20x%3D%2230%22%20y%3D%2229%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%231C2C3E%22/%3E%3Crect%20x%3D%2231%22%20y%3D%2229%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%231C2C3E%22/%3E%3Crect%20x%3D%2232%22%20y%3D%2229%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%231C2C3E%22/%3E%3Crect%20x%3D%2233%22%20y%3D%2229%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%231C2C3E%22/%3E%3Crect%20x%3D%2234%22%20y%3D%2229%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%231C2C3E%22/%3E%3Crect%20x%3D%2235%22%20y%3D%2229%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%231C2C3E%22/%3E%3Crect%20x%3D%2236%22%20y%3D%2229%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%231C2C3E%22/%3E%3Crect%20x%3D%2233%22%20y%3D%2230%22%20width%3D%221%22%20height%3D%222%22%20fill%3D%22%233A2F2A%22/%3E%3Crect%20x%3D%2252%22%20y%3D%2220%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%23D6E2EC%22/%3E%3Crect%20x%3D%2252%22%20y%3D%2221%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%231C2C3E%22/%3E%3Crect%20x%3D%2251%22%20y%3D%2222%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%231C2C3E%22/%3E%3Crect%20x%3D%2252%22%20y%3D%2222%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%231C2C3E%22/%3E%3Crect%20x%3D%2253%22%20y%3D%2222%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%231C2C3E%22/%3E%3Crect%20x%3D%2251%22%20y%3D%2223%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%23D6E2EC%22/%3E%3Crect%20x%3D%2252%22%20y%3D%2223%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%231C2C3E%22/%3E%3Crect%20x%3D%2253%22%20y%3D%2223%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%23D6E2EC%22/%3E%3Crect%20x%3D%2250%22%20y%3D%2224%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%231C2C3E%22/%3E%3Crect%20x%3D%2251%22%20y%3D%2224%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%231C2C3E%22/%3E%3Crect%20x%3D%2252%22%20y%3D%2224%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%231C2C3E%22/%3E%3Crect%20x%3D%2253%22%20y%3D%2224%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%231C2C3E%22/%3E%3Crect%20x%3D%2254%22%20y%3D%2224%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%231C2C3E%22/%3E%3Crect%20x%3D%2250%22%20y%3D%2225%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%231C2C3E%22/%3E%3Crect%20x%3D%2251%22%20y%3D%2225%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%231C2C3E%22/%3E%3Crect%20x%3D%2252%22%20y%3D%2225%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%231C2C3E%22/%3E%3Crect%20x%3D%2253%22%20y%3D%2225%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%231C2C3E%22/%3E%3Crect%20x%3D%2254%22%20y%3D%2225%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%231C2C3E%22/%3E%3Crect%20x%3D%2249%22%20y%3D%2226%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%23D6E2EC%22/%3E%3Crect%20x%3D%2250%22%20y%3D%2226%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%231C2C3E%22/%3E%3Crect%20x%3D%2251%22%20y%3D%2226%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%231C2C3E%22/%3E%3Crect%20x%3D%2252%22%20y%3D%2226%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%231C2C3E%22/%3E%3Crect%20x%3D%2253%22%20y%3D%2226%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%231C2C3E%22/%3E%3Crect%20x%3D%2254%22%20y%3D%2226%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%231C2C3E%22/%3E%3Crect%20x%3D%2255%22%20y%3D%2226%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%23D6E2EC%22/%3E%3Crect%20x%3D%2249%22%20y%3D%2227%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%231C2C3E%22/%3E%3Crect%20x%3D%2250%22%20y%3D%2227%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%231C2C3E%22/%3E%3Crect%20x%3D%2251%22%20y%3D%2227%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%231C2C3E%22/%3E%3Crect%20x%3D%2252%22%20y%3D%2227%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%231C2C3E%22/%3E%3Crect%20x%3D%2253%22%20y%3D%2227%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%231C2C3E%22/%3E%3Crect%20x%3D%2254%22%20y%3D%2227%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%231C2C3E%22/%3E%3Crect%20x%3D%2255%22%20y%3D%2227%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%231C2C3E%22/%3E%3Crect%20x%3D%2248%22%20y%3D%2228%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%231C2C3E%22/%3E%3Crect%20x%3D%2249%22%20y%3D%2228%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%231C2C3E%22/%3E%3Crect%20x%3D%2250%22%20y%3D%2228%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%231C2C3E%22/%3E%3Crect%20x%3D%2251%22%20y%3D%2228%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%231C2C3E%22/%3E%3Crect%20x%3D%2252%22%20y%3D%2228%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%231C2C3E%22/%3E%3Crect%20x%3D%2253%22%20y%3D%2228%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%231C2C3E%22/%3E%3Crect%20x%3D%2254%22%20y%3D%2228%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%231C2C3E%22/%3E%3Crect%20x%3D%2255%22%20y%3D%2228%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%231C2C3E%22/%3E%3Crect%20x%3D%2256%22%20y%3D%2228%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%231C2C3E%22/%3E%3Crect%20x%3D%2248%22%20y%3D%2229%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%23D6E2EC%22/%3E%3Crect%20x%3D%2249%22%20y%3D%2229%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%231C2C3E%22/%3E%3Crect%20x%3D%2250%22%20y%3D%2229%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%231C2C3E%22/%3E%3Crect%20x%3D%2251%22%20y%3D%2229%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%231C2C3E%22/%3E%3Crect%20x%3D%2252%22%20y%3D%2229%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%231C2C3E%22/%3E%3Crect%20x%3D%2253%22%20y%3D%2229%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%231C2C3E%22/%3E%3Crect%20x%3D%2254%22%20y%3D%2229%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%231C2C3E%22/%3E%3Crect%20x%3D%2255%22%20y%3D%2229%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%231C2C3E%22/%3E%3Crect%20x%3D%2256%22%20y%3D%2229%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%23D6E2EC%22/%3E%3Crect%20x%3D%2252%22%20y%3D%2230%22%20width%3D%221%22%20height%3D%222%22%20fill%3D%22%233A2F2A%22/%3E%3Crect%20x%3D%2258%22%20y%3D%2223%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%23D6E2EC%22/%3E%3Crect%20x%3D%2258%22%20y%3D%2224%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%231C2C3E%22/%3E%3Crect%20x%3D%2257%22%20y%3D%2225%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%231C2C3E%22/%3E%3Crect%20x%3D%2258%22%20y%3D%2225%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%231C2C3E%22/%3E%3Crect%20x%3D%2259%22%20y%3D%2225%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%231C2C3E%22/%3E%3Crect%20x%3D%2257%22%20y%3D%2226%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%23D6E2EC%22/%3E%3Crect%20x%3D%2258%22%20y%3D%2226%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%231C2C3E%22/%3E%3Crect%20x%3D%2259%22%20y%3D%2226%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%23D6E2EC%22/%3E%3Crect%20x%3D%2256%22%20y%3D%2227%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%231C2C3E%22/%3E%3Crect%20x%3D%2257%22%20y%3D%2227%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%231C2C3E%22/%3E%3Crect%20x%3D%2258%22%20y%3D%2227%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%231C2C3E%22/%3E%3Crect%20x%3D%2259%22%20y%3D%2227%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%231C2C3E%22/%3E%3Crect%20x%3D%2260%22%20y%3D%2227%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%231C2C3E%22/%3E%3Crect%20x%3D%2256%22%20y%3D%2228%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%231C2C3E%22/%3E%3Crect%20x%3D%2257%22%20y%3D%2228%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%231C2C3E%22/%3E%3Crect%20x%3D%2258%22%20y%3D%2228%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%231C2C3E%22/%3E%3Crect%20x%3D%2259%22%20y%3D%2228%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%231C2C3E%22/%3E%3Crect%20x%3D%2260%22%20y%3D%2228%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%231C2C3E%22/%3E%3Crect%20x%3D%2255%22%20y%3D%2229%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%23D6E2EC%22/%3E%3Crect%20x%3D%2256%22%20y%3D%2229%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%231C2C3E%22/%3E%3Crect%20x%3D%2257%22%20y%3D%2229%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%231C2C3E%22/%3E%3Crect%20x%3D%2258%22%20y%3D%2229%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%231C2C3E%22/%3E%3Crect%20x%3D%2259%22%20y%3D%2229%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%231C2C3E%22/%3E%3Crect%20x%3D%2260%22%20y%3D%2229%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%231C2C3E%22/%3E%3Crect%20x%3D%2261%22%20y%3D%2229%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%23D6E2EC%22/%3E%3Crect%20x%3D%2258%22%20y%3D%2230%22%20width%3D%221%22%20height%3D%222%22%20fill%3D%22%233A2F2A%22/%3E%3Crect%20x%3D%2279%22%20y%3D%2222%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%23D6E2EC%22/%3E%3Crect%20x%3D%2279%22%20y%3D%2223%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%231C2C3E%22/%3E%3Crect%20x%3D%2278%22%20y%3D%2224%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%231C2C3E%22/%3E%3Crect%20x%3D%2279%22%20y%3D%2224%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%231C2C3E%22/%3E%3Crect%20x%3D%2280%22%20y%3D%2224%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%231C2C3E%22/%3E%3Crect%20x%3D%2278%22%20y%3D%2225%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%23D6E2EC%22/%3E%3Crect%20x%3D%2279%22%20y%3D%2225%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%231C2C3E%22/%3E%3Crect%20x%3D%2280%22%20y%3D%2225%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%23D6E2EC%22/%3E%3Crect%20x%3D%2277%22%20y%3D%2226%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%231C2C3E%22/%3E%3Crect%20x%3D%2278%22%20y%3D%2226%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%231C2C3E%22/%3E%3Crect%20x%3D%2279%22%20y%3D%2226%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%231C2C3E%22/%3E%3Crect%20x%3D%2280%22%20y%3D%2226%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%231C2C3E%22/%3E%3Crect%20x%3D%2281%22%20y%3D%2226%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%231C2C3E%22/%3E%3Crect%20x%3D%2277%22%20y%3D%2227%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%231C2C3E%22/%3E%3Crect%20x%3D%2278%22%20y%3D%2227%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%231C2C3E%22/%3E%3Crect%20x%3D%2279%22%20y%3D%2227%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%231C2C3E%22/%3E%3Crect%20x%3D%2280%22%20y%3D%2227%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%231C2C3E%22/%3E%3Crect%20x%3D%2281%22%20y%3D%2227%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%231C2C3E%22/%3E%3Crect%20x%3D%2276%22%20y%3D%2228%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%23D6E2EC%22/%3E%3Crect%20x%3D%2277%22%20y%3D%2228%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%231C2C3E%22/%3E%3Crect%20x%3D%2278%22%20y%3D%2228%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%231C2C3E%22/%3E%3Crect%20x%3D%2279%22%20y%3D%2228%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%231C2C3E%22/%3E%3Crect%20x%3D%2280%22%20y%3D%2228%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%231C2C3E%22/%3E%3Crect%20x%3D%2281%22%20y%3D%2228%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%231C2C3E%22/%3E%3Crect%20x%3D%2282%22%20y%3D%2228%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%23D6E2EC%22/%3E%3Crect%20x%3D%2276%22%20y%3D%2229%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%231C2C3E%22/%3E%3Crect%20x%3D%2277%22%20y%3D%2229%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%231C2C3E%22/%3E%3Crect%20x%3D%2278%22%20y%3D%2229%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%231C2C3E%22/%3E%3Crect%20x%3D%2279%22%20y%3D%2229%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%231C2C3E%22/%3E%3Crect%20x%3D%2280%22%20y%3D%2229%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%231C2C3E%22/%3E%3Crect%20x%3D%2281%22%20y%3D%2229%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%231C2C3E%22/%3E%3Crect%20x%3D%2282%22%20y%3D%2229%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%231C2C3E%22/%3E%3Crect%20x%3D%2279%22%20y%3D%2230%22%20width%3D%221%22%20height%3D%222%22%20fill%3D%22%233A2F2A%22/%3E%3Crect%20x%3D%2297%22%20y%3D%2221%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%23D6E2EC%22/%3E%3Crect%20x%3D%2297%22%20y%3D%2222%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%231C2C3E%22/%3E%3Crect%20x%3D%2296%22%20y%3D%2223%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%231C2C3E%22/%3E%3Crect%20x%3D%2297%22%20y%3D%2223%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%231C2C3E%22/%3E%3Crect%20x%3D%2298%22%20y%3D%2223%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%231C2C3E%22/%3E%3Crect%20x%3D%2296%22%20y%3D%2224%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%23D6E2EC%22/%3E%3Crect%20x%3D%2297%22%20y%3D%2224%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%231C2C3E%22/%3E%3Crect%20x%3D%2298%22%20y%3D%2224%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%23D6E2EC%22/%3E%3Crect%20x%3D%2295%22%20y%3D%2225%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%231C2C3E%22/%3E%3Crect%20x%3D%2296%22%20y%3D%2225%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%231C2C3E%22/%3E%3Crect%20x%3D%2297%22%20y%3D%2225%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%231C2C3E%22/%3E%3Crect%20x%3D%2298%22%20y%3D%2225%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%231C2C3E%22/%3E%3Crect%20x%3D%2299%22%20y%3D%2225%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%231C2C3E%22/%3E%3Crect%20x%3D%2295%22%20y%3D%2226%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%231C2C3E%22/%3E%3Crect%20x%3D%2296%22%20y%3D%2226%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%231C2C3E%22/%3E%3Crect%20x%3D%2297%22%20y%3D%2226%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%231C2C3E%22/%3E%3Crect%20x%3D%2298%22%20y%3D%2226%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%231C2C3E%22/%3E%3Crect%20x%3D%2299%22%20y%3D%2226%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%231C2C3E%22/%3E%3Crect%20x%3D%2294%22%20y%3D%2227%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%23D6E2EC%22/%3E%3Crect%20x%3D%2295%22%20y%3D%2227%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%231C2C3E%22/%3E%3Crect%20x%3D%2296%22%20y%3D%2227%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%231C2C3E%22/%3E%3Crect%20x%3D%2297%22%20y%3D%2227%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%231C2C3E%22/%3E%3Crect%20x%3D%2298%22%20y%3D%2227%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%231C2C3E%22/%3E%3Crect%20x%3D%2299%22%20y%3D%2227%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%231C2C3E%22/%3E%3Crect%20x%3D%22100%22%20y%3D%2227%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%23D6E2EC%22/%3E%3Crect%20x%3D%2294%22%20y%3D%2228%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%231C2C3E%22/%3E%3Crect%20x%3D%2295%22%20y%3D%2228%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%231C2C3E%22/%3E%3Crect%20x%3D%2296%22%20y%3D%2228%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%231C2C3E%22/%3E%3Crect%20x%3D%2297%22%20y%3D%2228%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%231C2C3E%22/%3E%3Crect%20x%3D%2298%22%20y%3D%2228%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%231C2C3E%22/%3E%3Crect%20x%3D%2299%22%20y%3D%2228%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%231C2C3E%22/%3E%3Crect%20x%3D%22100%22%20y%3D%2228%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%231C2C3E%22/%3E%3Crect%20x%3D%2293%22%20y%3D%2229%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%231C2C3E%22/%3E%3Crect%20x%3D%2294%22%20y%3D%2229%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%231C2C3E%22/%3E%3Crect%20x%3D%2295%22%20y%3D%2229%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%231C2C3E%22/%3E%3Crect%20x%3D%2296%22%20y%3D%2229%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%231C2C3E%22/%3E%3Crect%20x%3D%2297%22%20y%3D%2229%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%231C2C3E%22/%3E%3Crect%20x%3D%2298%22%20y%3D%2229%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%231C2C3E%22/%3E%3Crect%20x%3D%2299%22%20y%3D%2229%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%231C2C3E%22/%3E%3Crect%20x%3D%22100%22%20y%3D%2229%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%231C2C3E%22/%3E%3Crect%20x%3D%22101%22%20y%3D%2229%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%231C2C3E%22/%3E%3Crect%20x%3D%2297%22%20y%3D%2230%22%20width%3D%221%22%20height%3D%222%22%20fill%3D%22%233A2F2A%22/%3E%3Crect%20x%3D%22104%22%20y%3D%2223%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%23D6E2EC%22/%3E%3Crect%20x%3D%22104%22%20y%3D%2224%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%231C2C3E%22/%3E%3Crect%20x%3D%22103%22%20y%3D%2225%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%231C2C3E%22/%3E%3Crect%20x%3D%22104%22%20y%3D%2225%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%231C2C3E%22/%3E%3Crect%20x%3D%22105%22%20y%3D%2225%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%231C2C3E%22/%3E%3Crect%20x%3D%22103%22%20y%3D%2226%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%23D6E2EC%22/%3E%3Crect%20x%3D%22104%22%20y%3D%2226%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%231C2C3E%22/%3E%3Crect%20x%3D%22105%22%20y%3D%2226%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%23D6E2EC%22/%3E%3Crect%20x%3D%22102%22%20y%3D%2227%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%231C2C3E%22/%3E%3Crect%20x%3D%22103%22%20y%3D%2227%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%231C2C3E%22/%3E%3Crect%20x%3D%22104%22%20y%3D%2227%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%231C2C3E%22/%3E%3Crect%20x%3D%22105%22%20y%3D%2227%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%231C2C3E%22/%3E%3Crect%20x%3D%22106%22%20y%3D%2227%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%231C2C3E%22/%3E%3Crect%20x%3D%22102%22%20y%3D%2228%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%231C2C3E%22/%3E%3Crect%20x%3D%22103%22%20y%3D%2228%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%231C2C3E%22/%3E%3Crect%20x%3D%22104%22%20y%3D%2228%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%231C2C3E%22/%3E%3Crect%20x%3D%22105%22%20y%3D%2228%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%231C2C3E%22/%3E%3Crect%20x%3D%22106%22%20y%3D%2228%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%231C2C3E%22/%3E%3Crect%20x%3D%22101%22%20y%3D%2229%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%23D6E2EC%22/%3E%3Crect%20x%3D%22102%22%20y%3D%2229%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%231C2C3E%22/%3E%3Crect%20x%3D%22103%22%20y%3D%2229%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%231C2C3E%22/%3E%3Crect%20x%3D%22104%22%20y%3D%2229%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%231C2C3E%22/%3E%3Crect%20x%3D%22105%22%20y%3D%2229%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%231C2C3E%22/%3E%3Crect%20x%3D%22106%22%20y%3D%2229%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%231C2C3E%22/%3E%3Crect%20x%3D%22107%22%20y%3D%2229%22%20width%3D%221%22%20height%3D%221%22%20fill%3D%22%23D6E2EC%22/%3E%3Crect%20x%3D%22104%22%20y%3D%2230%22%20width%3D%221%22%20height%3D%222%22%20fill%3D%22%233A2F2A%22/%3E%3Crect%20x%3D%220%22%20y%3D%2231%22%20width%3D%22120%22%20height%3D%223%22%20fill%3D%22%23C3D3E0%22/%3E%3Crect%20x%3D%220%22%20y%3D%2231%22%20width%3D%22120%22%20height%3D%221%22%20fill%3D%22%23E4ECF2%22/%3E%3Crect%20x%3D%220%22%20y%3D%2232%22%20width%3D%223%22%20height%3D%221%22%20fill%3D%22%23A9BDCD%22/%3E%3Crect%20x%3D%227%22%20y%3D%2232%22%20width%3D%223%22%20height%3D%221%22%20fill%3D%22%23A9BDCD%22/%3E%3Crect%20x%3D%2214%22%20y%3D%2232%22%20width%3D%223%22%20height%3D%221%22%20fill%3D%22%23A9BDCD%22/%3E%3Crect%20x%3D%2221%22%20y%3D%2232%22%20width%3D%223%22%20height%3D%221%22%20fill%3D%22%23A9BDCD%22/%3E%3Crect%20x%3D%2228%22%20y%3D%2232%22%20width%3D%223%22%20height%3D%221%22%20fill%3D%22%23A9BDCD%22/%3E%3Crect%20x%3D%2235%22%20y%3D%2232%22%20width%3D%223%22%20height%3D%221%22%20fill%3D%22%23A9BDCD%22/%3E%3Crect%20x%3D%2242%22%20y%3D%2232%22%20width%3D%223%22%20height%3D%221%22%20fill%3D%22%23A9BDCD%22/%3E%3Crect%20x%3D%2249%22%20y%3D%2232%22%20width%3D%223%22%20height%3D%221%22%20fill%3D%22%23A9BDCD%22/%3E%3Crect%20x%3D%2256%22%20y%3D%2232%22%20width%3D%223%22%20height%3D%221%22%20fill%3D%22%23A9BDCD%22/%3E%3Crect%20x%3D%2263%22%20y%3D%2232%22%20width%3D%223%22%20height%3D%221%22%20fill%3D%22%23A9BDCD%22/%3E%3Crect%20x%3D%2270%22%20y%3D%2232%22%20width%3D%223%22%20height%3D%221%22%20fill%3D%22%23A9BDCD%22/%3E%3Crect%20x%3D%2277%22%20y%3D%2232%22%20width%3D%223%22%20height%3D%221%22%20fill%3D%22%23A9BDCD%22/%3E%3Crect%20x%3D%2284%22%20y%3D%2232%22%20width%3D%223%22%20height%3D%221%22%20fill%3D%22%23A9BDCD%22/%3E%3Crect%20x%3D%2291%22%20y%3D%2232%22%20width%3D%223%22%20height%3D%221%22%20fill%3D%22%23A9BDCD%22/%3E%3Crect%20x%3D%2298%22%20y%3D%2232%22%20width%3D%223%22%20height%3D%221%22%20fill%3D%22%23A9BDCD%22/%3E%3Crect%20x%3D%22105%22%20y%3D%2232%22%20width%3D%223%22%20height%3D%221%22%20fill%3D%22%23A9BDCD%22/%3E%3Crect%20x%3D%22112%22%20y%3D%2232%22%20width%3D%223%22%20height%3D%221%22%20fill%3D%22%23A9BDCD%22/%3E%3Crect%20x%3D%22119%22%20y%3D%2232%22%20width%3D%223%22%20height%3D%221%22%20fill%3D%22%23A9BDCD%22/%3E%3C/svg%3E") center bottom / auto 100% repeat-x;
+    image-rendering:pixelated;
   }
-  body.midautumn-theme .wishlantern-section{ display:block; }
-  .wishlantern-section .msgwall-cta{ margin-bottom:0; }
-  .wishlantern-section .msgwall-cta-icon{ background:#ffb347; color:#3a1e00; }
-  .wishlantern-section .msgwall-cta-title{ color:#ffd98c; }
-
-  /* ===== 中秋活動回顧榜單彈窗：沿用既有 .leaderboard-list 樣式，額外補頭像圓框 ===== */
-  .lb-avatar{
-    flex:0 0 28px; width:28px; height:28px; border-radius:50%;
-    object-fit:cover; background:rgba(255,255,255,0.1);
+  body.winter-theme #winterSnow{
+    display:block; position:fixed; inset:0; z-index:-1; pointer-events:none;
+    width:100%; height:100%; image-rendering:pixelated;
   }
-  .lb-name-col{ flex:1; min-width:0; }
-  .lb-name-col .lb-name{ display:block; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
-  .lb-sub{ font-size:10.5px; color:#888; margin-top:2px; }
-
-  /* 河燈容器：固定滿版，只在中秋主題顯示 */
-  .lantern-field{ position:fixed; inset:0; z-index:0; pointer-events:none; overflow:hidden; display:none; }
-  body.midautumn-theme .lantern-field{ display:block; }
-  .lantern{
-    position:absolute; display:flex; flex-direction:column; align-items:center; gap:3px;
-    animation:lanternDrift linear infinite; opacity:0;
+  /* 聚光燈改成冷色極光 */
+  body.winter-theme::after{
+    background:
+      conic-gradient(from 0deg at 50% -8%,
+        transparent 136deg,
+        rgba(169,197,214,0.10) 145deg, transparent 153deg,
+        transparent 158deg,
+        rgba(141,181,176,0.14) 167deg, transparent 178deg,
+        rgba(207,221,232,0.10) 182deg, transparent 193deg,
+        transparent 198deg,
+        rgba(143,152,191,0.10) 207deg, transparent 215deg,
+        transparent 360deg);
   }
-  .lantern img{ width:38px; height:38px; object-fit:contain; filter:drop-shadow(0 0 10px rgba(255,190,100,0.7)); }
-  .lantern-name{
-    background:rgba(20,10,5,0.55); color:#ffe3b8; font-size:10.5px; font-weight:700;
-    padding:2px 9px; border-radius:12px; white-space:nowrap;
-  }
-  @keyframes lanternDrift{
-    0%{ transform:translate(0,0); opacity:0; }
-    8%{ opacity:1; }
-    92%{ opacity:1; }
-    100%{ transform:translate(var(--dx,200px), var(--dy,140px)); opacity:0; }
+  body.winter-theme::before{
+    background-image:
+      linear-gradient(rgba(207,221,232,0.03) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(207,221,232,0.03) 1px, transparent 1px);
+    background-size:40px 40px, 40px 40px;
   }
 
-  /* ===== 中秋月餅卡（detailCard 內容）===== */
-  .mooncake-stage{ position:relative; width:180px; height:170px; margin:14px auto 18px; cursor:pointer; }
-  .mooncake-img{ position:absolute; inset:0; width:100%; height:100%; object-fit:contain; transition:opacity 0.5s ease, transform 0.5s ease; }
-  .mooncake-img.split{ opacity:0; transform:scale(0.92); }
-  .mooncake-stage.cracked .mooncake-img.whole{ opacity:0; transform:scale(1.08); }
-  .mooncake-stage.cracked .mooncake-img.split{ opacity:1; transform:scale(1); }
-  .mooncake-hint{ font-size:12.5px; color:rgba(255,255,255,0.7); text-align:center; margin:0 0 14px; }
-  .mooncake-result{
-    opacity:0; transform:translateY(8px); transition:opacity 0.6s ease, transform 0.6s ease;
-    font-size:14px; line-height:1.8; color:#fff2d8; text-align:center; min-height:20px;
+  /* 標題裝飾：隱藏皇冠/寶石，換成冰晶皇冠＋像素雪花 */
+  .winter-deco, .winter-crown{ display:none; }
+  body.winter-theme .deco-crown, body.winter-theme .deco-gem{ display:none; }
+  body.winter-theme .winter-crown{
+    display:block; width:62px; height:auto; margin:0 auto 8px;
+    filter:drop-shadow(0 0 8px rgba(169,197,214,0.45));
+    animation:float 3.2s ease-in-out infinite;
   }
-  .mooncake-result.show{ opacity:1; transform:translateY(0); }
+  body.winter-theme .winter-deco{
+    display:inline-block; flex:0 0 auto; width:26px; height:26px;
+    animation:flakeTwinkle 2.6s ease-in-out infinite;   /* 左右同步、同時間，保持對稱 */
+  }
+  @keyframes flakeTwinkle{
+    0%,100%{ transform:translateY(0); opacity:1; }
+    50%{ transform:translateY(-5px); opacity:.75; }
+  }
+  @media (max-width:480px){
+    body.winter-theme .winter-deco{ width:22px; height:22px; }
+    body.winter-theme .winter-crown{ width:54px; }
+  }
+
+  /* 卡片：降低混色比例，維持淡雅 */
+  body.winter-theme .tile{
+    background:linear-gradient(155deg,
+      color-mix(in srgb, var(--accent, var(--brand)) 26%, var(--card-bg)) 0%,
+      color-mix(in srgb, var(--accent, var(--brand)) 7%, var(--card-bg)) 75%);
+    border-color:color-mix(in srgb, var(--accent, var(--brand)) 85%, #ffffff);
+    box-shadow:inset 0 2px 0 rgba(238,243,247,0.10);
+  }
+  body.winter-theme .tile.tarot{
+    background:
+      repeating-linear-gradient(45deg, color-mix(in srgb, var(--accent) 15%, transparent) 0 4px, transparent 4px 11px),
+      linear-gradient(155deg, color-mix(in srgb, var(--accent) 26%, var(--card-bg)) 0%, color-mix(in srgb, var(--accent) 7%, var(--card-bg)) 75%);
+  }
+  body.winter-theme .tile-title{ color:color-mix(in srgb, var(--accent, var(--brand)) 70%, #ffffff); }
+  body.winter-theme .tile-badge{ background:color-mix(in srgb, var(--accent, var(--brand)) 30%, var(--bg)); }
+  body.winter-theme .week-pill span.date{ color:var(--ink); }
+  body.winter-theme .hint{ color:#9FB0BF; }
+  body.winter-theme footer p{ color:#8295A6; }
+
+  /* 原本寫死的金/青/粉 → 冬季藍 */
+  body.winter-theme .streak-crown{ filter:drop-shadow(0 3px 5px rgba(0,0,0,0.6)) drop-shadow(0 0 10px rgba(169,197,214,0.8)); }
+  body.winter-theme .streak-badge{ background:linear-gradient(160deg,#DCE7EF,#7EA6BC); color:var(--ink); }
+  body.winter-theme .game-unlock-btn,
+  body.winter-theme .record-btn,
+  body.winter-theme .name-submit-btn{ background:var(--yellow); color:var(--ink); }
+  body.winter-theme .retry-btn,
+  body.winter-theme .msgwall-submit{ background:var(--brand); color:var(--ink); }
+  body.winter-theme .game-title,
+  body.winter-theme .name-modal-title,
+  body.winter-theme .leaderboard-title,
+  body.winter-theme .lb-score{ color:var(--yellow); }
+  body.winter-theme .lb-rank{ color:var(--brand); }
+  body.winter-theme .game-lb-btn{ color:var(--brand); border-color:var(--brand); }
+  body.winter-theme .name-modal,
+  body.winter-theme .leaderboard-modal{ border-color:var(--pink); }
+  body.winter-theme #nameInput{ border-color:var(--brand); background:var(--bg); }
+  body.winter-theme #gameCanvas,
+  body.winter-theme .whack-stage{
+    background:linear-gradient(180deg,#22344A 0%,#18232F 70%,#111821 100%);
+    border-color:var(--brand);
+  }
+  body.winter-theme .whack-hole{ border-color:#2E4258; background:radial-gradient(circle at 50% 60%, #2A3D52, #141E29 70%); }
+  body.winter-theme .stack-stage{ background:linear-gradient(180deg,#22344A 0%,#18232F 70%,#111821 100%); border-color:var(--blue); }
+  body.winter-theme .stack-tile span,
+  body.winter-theme .stack-slot.filled{ background:#F2F6F9; border-color:#A9BDCD; }
+  body.winter-theme .stack-tray{ background:#22344A; border-color:#5E7C99; }
+
+  body.winter-theme .msgwall-cta{ background:rgba(169,197,214,0.08); border-color:rgba(169,197,214,0.40); }
+  body.winter-theme .msgwall-cta-icon{ background:var(--pink); color:var(--ink); }
+  body.winter-theme .msgwall-cta-title{ color:var(--pink); }
+
+  /* 拉霸機：金色機台 → 冰藍機台 */
+  body.winter-theme .slot-body{
+    background:linear-gradient(180deg, #24384D 0%, #17212B 70%);
+    box-shadow:0 0 0 3px #3A5068, 0 0 22px rgba(169,197,214,0.20), inset 0 0 18px rgba(169,197,214,0.10);
+  }
+  body.winter-theme .slot-lights{ background:radial-gradient(circle, #CFDDE8 2.5px, transparent 3px) 0 50% / 16px 8px repeat-x; }
+  body.winter-theme .slot-window{ background:var(--bg); border-color:#34485E; }
+  body.winter-theme .lever-knob{ background:radial-gradient(circle at 35% 35%, #E4EDF3, #8DB5B0 55%, #4F7470); }
+  body.winter-theme .gacha-back{
+    background:repeating-linear-gradient(45deg, rgba(169,197,214,0.12) 0 8px, transparent 8px 16px), #18232F;
+    border-color:rgba(169,197,214,0.55);
+  }
+  body.winter-theme .gacha-modal-card{ background:linear-gradient(170deg, #22344A, #17212B 65%); box-shadow:0 0 30px rgba(169,197,214,0.30); }
+  body.winter-theme .gacha-modal-avatar{ box-shadow:0 0 22px rgba(169,197,214,0.45); }
+  body.winter-theme .gacha-modal-go{ color:var(--ink); }
+  body.winter-theme .gacha-avatar{ background:#1D2A37; }
+
+  @media (prefers-reduced-motion: reduce){
+    body.winter-theme .winter-deco{ animation:none; }
+  }
+
+  /* =====================================================
+     🎄 聖誕版（body.xmas-theme，疊在冬季主題上）
+     素材圖片放在跟 index.html 同一個資料夾；還沒做好的會自動用 emoji 代替
+     ===================================================== */
+  .xmas-fb{ display:flex; align-items:center; justify-content:center; line-height:1; }
+
+  /* 頁首聖誕樹（取代冬季皇冠） */
+  .xmas-tree{ display:none; position:relative; width:92px; height:104px; margin:0 auto 2px; cursor:pointer;
+    background:none; border:none; padding:0; -webkit-tap-highlight-color:transparent; }
+  body.xmas-theme .xmas-tree{ display:block; }
+  body.xmas-theme .winter-crown{ display:none !important; }
+  .xmas-tree img, .xmas-tree > .xmas-fb{ width:100%; height:100%; object-fit:contain; display:block; pointer-events:none; }
+  .xmas-tree > .xmas-fb{ display:flex; font-size:84px; }
+  .xmas-bulb{ position:absolute; width:9px; height:9px; border-radius:50%; background:#3a3a3a;
+    transform:translate(-50%,-50%); box-shadow:0 0 0 1px rgba(0,0,0,.4); transition:background .2s, box-shadow .2s; pointer-events:none; }
+  .xmas-bulb.on{ background:var(--c); box-shadow:0 0 6px 2px var(--c); }
+  .xmas-tree.all-lit .xmas-bulb.on{ animation:xmasTwinkle 1.2s ease-in-out infinite; animation-delay:var(--d); }
+  @keyframes xmasTwinkle{ 50%{ opacity:.3; } }
+  .xmas-tree.jiggle{ animation:xmasJiggle .35s ease; }
+  @keyframes xmasJiggle{ 25%{ transform:rotate(-4deg); } 75%{ transform:rotate(4deg); } }
+
+  /* 標題兩側裝飾（取代冬季雪花） */
+  .xmas-deco{ display:none; width:34px; height:34px; object-fit:contain; flex-shrink:0; }
+  body.xmas-theme .xmas-deco{ display:inline-flex; }
+  body.xmas-theme .winter-deco{ display:none !important; }
+  .xmas-deco.xmas-fb{ font-size:28px; }
+
+  /* 雪人＋禮物＋聖誕襪那一排 */
+  .xmas-row{ display:none; max-width:460px; margin:26px auto 0; padding:0 16px; align-items:flex-end;
+    justify-content:space-between; gap:10px; position:relative; z-index:1; }
+  body.xmas-theme .xmas-row{ display:flex; }
+  .xmas-snowman{ position:relative; width:96px; height:120px; cursor:pointer; background:none; border:none; padding:0;
+    /* ↓ 雪人的帽子、鼻子位置：拿到正式素材後可以只調這幾個數字 */
+    --hat-top:-9%; --hat-w:62%; --hat-left:51%;
+    --nose-top:29%; --nose-left:44%; --nose-w:13%; }
+  .xmas-snowman .sm-body{ position:absolute; inset:0; width:100%; height:100%; object-fit:contain; }
+  .xmas-snowman .sm-body.xmas-fb{ font-size:86px; align-items:flex-end; }
+  .xmas-snowman .sm-hat{ position:absolute; left:var(--hat-left, 50%); top:var(--hat-top); width:var(--hat-w); transform:translateX(-50%); }
+  .xmas-snowman .sm-nose{ position:absolute; left:var(--nose-left); top:var(--nose-top); width:var(--nose-w); }
+  .xmas-snowman .sm-hat.xmas-fb{ width:auto; font-size:34px; }
+  .xmas-snowman .sm-nose.xmas-fb{ width:auto; font-size:18px; }
+  .xmas-snowman .sm-hat.bounce{ animation:xmasHat .7s cubic-bezier(.3,1.6,.5,1); }
+  @keyframes xmasHat{ 0%{ transform:translateX(-50%) translateY(0); } 40%{ transform:translateX(-50%) translateY(-34px) rotate(-14deg); } 100%{ transform:translateX(-50%) translateY(0); } }
+  .xmas-snowman .sm-nose.drop{ animation:xmasNose .9s cubic-bezier(.4,0,.6,1) forwards; }
+  @keyframes xmasNose{ 0%{ transform:translateY(0) rotate(0); } 55%{ transform:translateY(78px) rotate(90deg); }
+    72%{ transform:translateY(62px) rotate(100deg); } 100%{ transform:translateY(78px) rotate(110deg); } }
+
+  .xmas-gift{ display:none; position:relative; width:64px; height:64px; cursor:pointer; background:none; border:none; padding:0; }
+  body.xmas-theme .xmas-gift{ display:inline-block; }
+  .xmas-gift.small{ width:48px; height:48px; }
+  .xmas-gift img, .xmas-gift .xmas-fb{ width:100%; height:100%; object-fit:contain; font-size:48px; }
+  .xmas-gift.small .xmas-fb{ font-size:36px; }
+  .xmas-gift .g-open{ display:none !important; }
+  .xmas-gift.opened .g-open{ display:flex !important; }
+  .xmas-gift.opened .g-closed{ display:none !important; }
+  .xmas-gift.shake{ animation:xmasShake .4s; }
+  @keyframes xmasShake{ 20%{ transform:rotate(-8deg); } 40%{ transform:rotate(8deg); } 60%{ transform:rotate(-5deg); } 80%{ transform:rotate(5deg); } }
+  .xmas-footer-gift{ display:none; justify-content:center; margin-top:8px; }
+  body.xmas-theme .xmas-footer-gift{ display:flex; }
+
+  .xmas-stocking{ width:60px; height:84px; cursor:pointer; transform-origin:50% 0; background:none; border:none; padding:0; }
+  .xmas-stocking img, .xmas-stocking .xmas-fb{ width:100%; height:100%; object-fit:contain; font-size:52px; }
+  .xmas-stocking.swing{ animation:xmasSwing .9s ease; }
+  @keyframes xmasSwing{ 20%{ transform:rotate(14deg); } 45%{ transform:rotate(-10deg); } 70%{ transform:rotate(6deg); } 100%{ transform:rotate(0); } }
+
+  /* 飛過的雪橇 */
+  .xmas-sleigh{ position:fixed; top:calc(env(safe-area-inset-top, 0px) + 70px); left:0; width:150px; height:76px; z-index:40;
+    cursor:pointer; display:none; background:none; border:none; padding:0; }
+  .xmas-sleigh img, .xmas-sleigh .xmas-fb{ width:100%; height:100%; object-fit:contain; font-size:42px; }
+  .xmas-sleigh.flying{ display:block; animation:xmasFly 9s linear forwards; }
+  @keyframes xmasFly{ from{ transform:translateX(-170px); } 25%{ transform:translateX(25vw) translateY(-10px); }
+    50%{ transform:translateX(50vw) translateY(6px); } 75%{ transform:translateX(75vw) translateY(-8px); } to{ transform:translateX(calc(100vw + 20px)); } }
+  .xmas-fall{ position:fixed; z-index:41; font-size:34px; pointer-events:none; animation:xmasFall 1.4s cubic-bezier(.5,0,1,1) forwards; }
+  @keyframes xmasFall{ to{ transform:translateY(var(--dist)) rotate(360deg); } }
+
+  /* 點擊特效粒子、可以點的雪花 */
+  .xmas-particle{ position:fixed; left:0; top:0; z-index:60; pointer-events:none; font-size:16px; animation:xmasParticle .9s ease-out forwards; }
+  @keyframes xmasParticle{ from{ transform:translate(var(--x0), var(--y0)) scale(1); opacity:1; }
+    to{ transform:translate(calc(var(--x0) + var(--dx)), calc(var(--y0) + var(--dy))) scale(.4) rotate(var(--r)); opacity:0; } }
+  .xmas-flake{ position:fixed; top:-34px; z-index:30; font-size:22px; color:#eaf4ff; cursor:pointer; background:none; border:none; padding:6px;
+    text-shadow:0 0 6px rgba(255,255,255,.7); animation:xmasFlake var(--dur) linear forwards; }
+  @keyframes xmasFlake{ to{ transform:translate(var(--drift), calc(100vh + 60px)) rotate(240deg); } }
+
+  /* 彩蛋收集進度、聖誕卡 */
+  .xmas-badge{ position:fixed; left:12px; bottom:calc(env(safe-area-inset-bottom, 0px) + 12px); z-index:50; display:none;
+    background:rgba(20,30,45,.9); color:#fff; border:2px solid #FFD100; border-radius:999px; padding:7px 12px;
+    font-size:12.5px; font-weight:800; cursor:pointer; }
+  body.xmas-theme .xmas-badge{ display:block; }
+  .xmas-badge.pop{ animation:xmasPop .5s; }
+  @keyframes xmasPop{ 40%{ transform:scale(1.25); } }
+  .xmas-card-modal{ position:fixed; inset:0; z-index:3500; display:none; flex-direction:column; align-items:center; justify-content:center;
+    padding:24px; background:rgba(0,0,0,.8); }
+  .xmas-card-modal.active{ display:flex; }
+  .xmas-card{ position:relative; width:min(320px, 82vw); aspect-ratio:2/3; border-radius:18px; overflow:hidden;
+    border:3px solid #FFD100; box-shadow:0 0 30px rgba(255,209,0,.35); background:linear-gradient(170deg,#7a1020,#1b3b2a);
+    animation:xmasPop .45s; }
+  .xmas-card img{ width:100%; height:100%; object-fit:cover; display:block; }
+  .xmas-card .xmas-fb{ height:100%; font-size:110px; padding-bottom:30%; }
+  .xmas-card .xc-text{ position:absolute; left:0; right:0; bottom:0; padding:18px 16px 20px; text-align:center; color:#fff;
+    background:linear-gradient(transparent, rgba(0,0,0,.7)); }
+  .xc-title{ font-size:22px; font-weight:900; color:#FFD100; }
+  .xc-sub{ font-size:13.5px; margin-top:6px; line-height:1.55; white-space:pre-line; }
+  .xc-hint{ color:#ddd; font-size:12px; margin-top:12px; }
+  .xc-close{ position:absolute; top:calc(env(safe-area-inset-top, 0px) + 14px); right:14px; width:40px; height:40px; border-radius:10px;
+    border:2px solid #fff; background:rgba(0,0,0,.5); color:#fff; font-size:18px; cursor:pointer; }
+
+  @media (prefers-reduced-motion: reduce){
+    .xmas-tree.jiggle, .xmas-tree.all-lit .xmas-bulb.on, .xmas-snowman .sm-hat.bounce, .xmas-gift.shake,
+    .xmas-stocking.swing, .xmas-badge.pop, .xmas-card{ animation:none; }
+  }
 </style>
 </head>
 
 <body>
+
+<!-- ❄ 冬季主題背景層（僅 body.winter-theme 顯示）-->
+<div class="winter-sky" aria-hidden="true"></div>
+<canvas id="winterSnow" aria-hidden="true"></canvas>
+<div class="winter-scene" aria-hidden="true"></div>
 
 <div class="meteor-shower" aria-hidden="true">
   <div class="meteor"></div>
@@ -1044,9 +1438,6 @@
   <div class="meteor"></div>
   <div class="meteor"></div>
 </div>
-
-<div class="midautumn-bg" aria-hidden="true"></div>
-<div class="lantern-field" id="lanternField" aria-hidden="true"></div>
 
 <!-- 預載好運動物圖（静態 <img> 使離線打包時能將圖片內嵌為 data URI）-->
 <div style="display:none" aria-hidden="true">
@@ -1057,12 +1448,24 @@
 
 <header>
   <img class="deco-crown" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAFgAAABACAYAAACeELDCAAABxUlEQVR4AezYMU4DQQyF4dF2FPRcjxsgcQ4kbsBtoOYW9BSUQRZVpOxzBvtlo82P5IL1zJvJty6iLIfPcVA1Nv5Td4vextcbcQdVy9YX3Pv5AJvfMMAAmwXM8UwwwGYBczwTDLBZwBzPBANsFjDH73KCzWZT8QBPcc0vBnjebGoHwFNc84sBnjeb2pECq986ozd12onFkaHqxJajR2pv9I4W/+OfyFCVRabAWQB9LQCw9il3AS4T6gCAtU+5C3CZUAcArH3K3Tbg8k12GmAHVt8ho+d2jTNUuc+3A7s/wLXnA2x+QwADbBYwxzPBAJsFzPFM8LUDq++Y0TPfvxwfd1RVPYAJrgom+wFWQA09gBsQVQTASqehB3ADoooAWOk09ABuQFQRKfDP08tQpcLP6T1+fw1V52SoNeru0VN7O3opcMcht5wBsPntAwywWcAczwTfHLD5A186ngk2i6fAd6/PQ1X1fm/3D0NVNV/dPXrV/Gx/CpwF0NcCAGufchfgMqEOAFj7lLsAlwl1AMDap9wFuEyoA5aP9zEonwETrAew3P0DLscQsCYA8JpM03OAmyDXYgBek2l6DnAT5FoMwGsyTc9/AQAA//+brXK+AAAABklEQVQDAG7LyDDVm/8VAAAAAElFTkSuQmCC" alt="">
+  <svg class="winter-crown" viewBox="0 0 11 8" shape-rendering="crispEdges" aria-hidden="true">
+    <g fill="#A9C5D6"><rect x="0" y="1" width="1" height="2"/><rect x="10" y="1" width="1" height="2"/><rect x="4" y="1" width="3" height="1"/><rect x="1" y="2" width="1" height="1"/><rect x="3" y="2" width="5" height="1"/><rect x="9" y="2" width="1" height="1"/><rect x="0" y="3" width="11" height="4"/></g>
+    <g fill="#7EA6BC"><rect x="0" y="6" width="11" height="1"/><rect x="0" y="3" width="1" height="4"/></g>
+    <g fill="#EEF3F7"><rect x="0" y="0" width="1" height="1"/><rect x="5" y="0" width="1" height="1"/><rect x="10" y="0" width="1" height="1"/><rect x="2" y="3" width="1" height="1"/><rect x="6" y="3" width="1" height="1"/></g>
+    <g fill="#8DB5B0"><rect x="2" y="4" width="1" height="1"/><rect x="5" y="4" width="1" height="1"/><rect x="8" y="4" width="1" height="1"/></g>
+    <rect x="0" y="7" width="11" height="1" fill="#5E7C99"/>
+  </svg>
+  <button class="xmas-tree" id="xmasTree" type="button" aria-label="聖誕樹"><img class="" src="xmas_tree.png" data-fallback="🎄" alt=""></button>
   <div class="title-row">
+    <img class="xmas-deco" src="xmas_deco_left.png" data-fallback="🔔" alt="">
+    <svg class="winter-deco" viewBox="0 0 7 7" shape-rendering="crispEdges" aria-hidden="true"><g fill="#A9C5D6"><rect x="3" y="0" width="1" height="7"/><rect x="0" y="3" width="7" height="1"/><rect x="1" y="1" width="1" height="1"/><rect x="5" y="1" width="1" height="1"/><rect x="1" y="5" width="1" height="1"/><rect x="5" y="5" width="1" height="1"/><rect x="2" y="2" width="3" height="3"/></g><rect x="3" y="3" width="1" height="1" fill="#EEF3F7"/></svg>
     <img class="qixi-deco" src="qixi_deco_left.png" alt="" style="display:none; width:44px; height:44px; object-fit:contain;">
     <svg class="deco-gem" viewBox="0 0 9 8" shape-rendering="crispEdges" aria-hidden="true"><rect x="3" y="0" width="3" height="1" fill="#ffc3dd"/><rect x="2" y="1" width="5" height="1" fill="#f6418d"/><rect x="1" y="2" width="7" height="1" fill="#f6418d"/><rect x="0" y="3" width="9" height="1" fill="#f6418d"/><rect x="1" y="4" width="7" height="1" fill="#c01f6b"/><rect x="2" y="5" width="5" height="1" fill="#c01f6b"/><rect x="3" y="6" width="3" height="1" fill="#c01f6b"/><rect x="4" y="7" width="1" height="1" fill="#c01f6b"/></svg>
     <h1 class="pixel" id="mainTitle" style="font-family:'Work Sans', sans-serif; font-size:36px; white-space:nowrap;">本週主播榮譽榜</h1>
     <svg class="deco-gem" viewBox="0 0 9 9" shape-rendering="crispEdges" aria-hidden="true"><rect x="4" y="0" width="1" height="9" fill="#FFD100"/><rect x="0" y="4" width="9" height="1" fill="#FFD100"/><rect x="3" y="1" width="3" height="1" fill="#FFD100"/><rect x="1" y="3" width="1" height="3" fill="#FFD100"/><rect x="7" y="3" width="1" height="3" fill="#FFD100"/><rect x="3" y="7" width="3" height="1" fill="#FFD100"/><rect x="3" y="3" width="3" height="3" fill="#fff3a8"/></svg>
     <img class="qixi-deco" src="qixi_deco_right.png" alt="" style="display:none; width:44px; height:44px; object-fit:contain;">
+    <svg class="winter-deco" viewBox="0 0 7 7" shape-rendering="crispEdges" aria-hidden="true"><g fill="#A9C5D6"><rect x="3" y="0" width="1" height="7"/><rect x="0" y="3" width="7" height="1"/><rect x="1" y="1" width="1" height="1"/><rect x="5" y="1" width="1" height="1"/><rect x="1" y="5" width="1" height="1"/><rect x="5" y="5" width="1" height="1"/><rect x="2" y="2" width="3" height="3"/></g><rect x="3" y="3" width="1" height="1" fill="#EEF3F7"/></svg>
+    <img class="xmas-deco" src="xmas_deco_right.png" data-fallback="🍭" alt="">
   </div>
   <div class="week-pill">
     <span class="date">2026/06/29-2026/07/06</span>
@@ -1071,6 +1474,7 @@
 </header>
 
 <p class="hint" id="mainHint" style="font-size:15.5px;">點開卡片看獲獎人是誰，記得截圖或分享出去炫耀一下 ✦</p>
+<p class="header-tip" id="headerTip" aria-live="polite"></p>
 
 <div class="grid-loading" id="gridLoading">
   <img class="grid-loading-sprite" id="gridLoadingSprite" src="run_0.png" alt="載入中">
@@ -1094,6 +1498,11 @@
   <div id="whackStage" class="whack-stage" style="display:none;">
     <div id="whackGrid" class="whack-grid"></div>
     <div id="whackMsg" class="whack-msg"></div>
+  </div>
+  <div id="stackStage" class="stack-stage" style="display:none;">
+    <div id="stackBoard" class="stack-board"></div>
+    <div id="stackTray" class="stack-tray"></div>
+    <div id="stackMsg" class="whack-msg"></div>
   </div>
   <p class="game-hint" id="gameHint">按空白鍵／點擊畫面 跳躍，跳起來吃鑽石加分，撞到石頭遊戲結束</p>
   <div class="game-over-actions" id="gameOverActions">
@@ -1125,24 +1534,56 @@
   </div>
 </div>
 
-<div class="wishlantern-section" id="wishlanternSection">
-  <div class="msgwall-section-head"><span class="dot"></span><span class="msgwall-section-title">許願燈</span></div>
-  <div class="msgwall-cta" id="campaignLbCta">
-    <div class="msgwall-cta-icon">🏆</div>
-    <div>
-      <p class="msgwall-cta-title">中秋活動回顧榜單</p>
-      <p class="msgwall-cta-sub">看看「中秋節系列」禮物活動的排行結果</p>
-    </div>
-  </div>
+<div class="xmas-row" aria-label="聖誕彩蛋">
+  <button class="xmas-snowman" id="xmasSnowman" type="button" aria-label="雪人">
+    <img class="sm-body" src="xmas_snowman_body.png" data-fallback="⛄" alt="">
+    <img class="sm-hat" src="xmas_snowman_hat.png" data-fallback="🎩" alt="">
+    <img class="sm-nose" src="xmas_snowman_nose.png" data-fallback="🥕" alt="">
+  </button>
+  <button class="xmas-gift" type="button" aria-label="禮物盒">
+    <img class="g-closed" src="xmas_gift_closed.png" data-fallback="🎁" alt="">
+    <img class="g-open" src="xmas_gift_open.png" data-fallback="🎉" alt="">
+  </button>
+  <button class="xmas-stocking" id="xmasStocking" type="button" aria-label="聖誕襪">
+    <img class="" src="xmas_stocking.png" data-fallback="🧦" alt="">
+  </button>
 </div>
 
-<div class="leaderboard-overlay" id="campaignLbOverlay">
-  <div class="leaderboard-modal">
-    <p class="leaderboard-title">🌕 中秋活動回顧榜單</p>
-    <p class="leaderboard-week">依「中秋節系列」禮物累積鑽石數排名，前十名享排名獎勵；收滿一套整組禮物再加碼回饋，最高可疊加至10%</p>
-    <ol class="leaderboard-list" id="campaignLbList"><li>載入中...</li></ol>
-    <button class="leaderboard-close-btn" id="campaignLbCloseBtn">✕ 關閉</button>
+<button class="xmas-sleigh" id="xmasSleigh" type="button" aria-label="雪橇"><img class="" src="xmas_sleigh.png" data-fallback="🦌🛷" alt=""></button>
+<button class="xmas-badge" id="xmasBadge" type="button"></button>
+<div class="xmas-card-modal" id="xmasCardModal" aria-hidden="true">
+  <div class="xmas-card">
+    <img class="" src="xmas_card.png" data-fallback="🎄" alt="">
+    <div class="xc-text"><div class="xc-title" id="xmasCardTitle"></div><div class="xc-sub" id="xmasCardSub"></div></div>
   </div>
+  <div class="xc-hint" id="xmasCardHint"></div>
+  <button class="xc-close" id="xmasCardClose" type="button" aria-label="關閉">✕</button>
+</div>
+
+<div class="gacha-section" id="gachaSection">
+  <div class="msgwall-section-head"><span class="dot"></span><span class="msgwall-section-title" id="gachaSectionTitle">今日推薦主播</span></div>
+  <div class="slot" id="gachaMachine">
+    <div class="slot-body">
+      <div class="slot-lights"></div>
+      <div class="slot-window">
+        <div class="slot-reel"><span class="slot-sym">💎</span></div>
+        <div class="slot-reel"><span class="slot-sym">🎁</span></div>
+        <div class="slot-reel"><span class="slot-sym">⭐</span></div>
+      </div>
+      <p class="slot-hint" id="gachaHint"></p>
+    </div>
+    <button class="slot-lever" id="gachaLever" aria-label="拉下拉桿">
+      <span class="lever-base"></span>
+      <span class="lever-arm"><span class="lever-knob"></span></span>
+    </button>
+  </div>
+  <div class="gacha-tray" id="gachaTray"></div>
+</div>
+
+<div class="gacha-modal" id="gachaModal" aria-hidden="true">
+  <div class="gacha-modal-backdrop" id="gachaModalBackdrop"></div>
+  <a class="gacha-modal-card" id="gachaModalCard" href="#" target="_blank" rel="noopener"></a>
+  <button class="gacha-modal-close" id="gachaModalClose" aria-label="關閉">✕</button>
 </div>
 
 <div class="msgwall-section">
@@ -1177,6 +1618,7 @@
 
 <footer>
   <p style="font-size:15px;" id="footerHint">下週榜單，敬請期待新副本！</p>
+  <div class="xmas-footer-gift"><button class="xmas-gift small" type="button" aria-label="禮物盒"><img class="g-closed" src="xmas_gift_closed.png" data-fallback="🎁" alt=""><img class="g-open" src="xmas_gift_open.png" data-fallback="🎉" alt=""></button></div>
   <p class="press" style="font-size:14px;">continued? yes!</p>
 </footer>
 
@@ -1194,6 +1636,33 @@
 // ===== 中英雙語 i18n（語言切換）=====
 const I18N = {
   zh: {
+    game_meta_stack_title: '✦ 主播疊疊樂 ✦',
+    game_meta_stack_hint: '點最上層沒被蓋住的圖塊放進下方格子，3 個一樣就會消除；7 格全滿就失敗，看誰最快清空！',
+    stack_left_prefix: '剩餘：',
+    stack_unit: ' 塊',
+    stack_best_prefix: '最快：',
+    stack_time_prefix: '時間：',
+    stack_sec: ' 秒',
+    stack_tap_to_start: '點任一個圖塊開始計時',
+    stack_done_text: '全部清空！',
+    stack_your_time: '本次時間：',
+    stack_new_best: '🎉 新紀錄！',
+    stack_fail_text: '格子滿了，挑戰失敗！',
+    stack_fail_hint: '每一局都保證有解，再試一次吧',
+    gacha_title: '今日推薦主播',
+    gacha_lever_label: '拉下拉桿',
+    gacha_hint_start: '拉一下右邊的拉桿，抽出今天的推薦主播',
+    gacha_hint_left: '今天還可以拉 {n} 次',
+    gacha_hint_done: '今天的機會用完了，明天再來 ✦',
+    gacha_hint_spinning: '轉轉轉⋯',
+    gacha_tray_empty: '拉下拉桿，三張神秘卡片就會出現',
+    gacha_tap_unlock: '點我解鎖',
+    gacha_tap_who: '再點一次看看是誰',
+    gacha_go: '前往他的主頁 →',
+    gacha_empty: '推薦名單準備中，晚點再來看看',
+    gacha_p_follow: '追蹤他會很幸運',
+    gacha_p_look: '也許可以看看他？',
+    gacha_p_gift: '今天很適合送禮給他！',
     page_title: '本週主播榮譽榜',
     main_hint: '點開卡片看獲獎人是誰，記得截圖或分享出去炫耀一下 ✦',
     game_unlock_btn: '🎮 隱藏小遊戲已解鎖！點我玩玩看',
@@ -1260,6 +1729,33 @@ const I18N = {
     secret_title: 'TAROT CARD'
   },
   en: {
+    game_meta_stack_title: '✦ Creator Tile Stack ✦',
+    game_meta_stack_hint: 'Tap uncovered tiles to move them into the tray. Three of a kind clear. Fill all 7 slots and you lose. Clear the board fastest!',
+    stack_left_prefix: 'Left: ',
+    stack_unit: '',
+    stack_best_prefix: 'Best: ',
+    stack_time_prefix: 'Time: ',
+    stack_sec: 's',
+    stack_tap_to_start: 'Tap any tile to start the clock',
+    stack_done_text: 'Board cleared!',
+    stack_your_time: 'Your time: ',
+    stack_new_best: '🎉 New record!',
+    stack_fail_text: 'Tray full. Game over!',
+    stack_fail_hint: 'Every board is solvable. Try again!',
+    gacha_title: "Today's Picks",
+    gacha_lever_label: 'Pull the lever',
+    gacha_hint_start: "Pull the lever to reveal today's picks",
+    gacha_hint_left: '{n} pulls left today',
+    gacha_hint_done: 'No pulls left today. Come back tomorrow ✦',
+    gacha_hint_spinning: 'Spinning…',
+    gacha_tray_empty: 'Pull the lever and three mystery cards will appear',
+    gacha_tap_unlock: 'Tap to unlock',
+    gacha_tap_who: 'Tap again to see who',
+    gacha_go: 'Visit profile →',
+    gacha_empty: 'The list is on its way. Check back later',
+    gacha_p_follow: 'Follow them for good luck',
+    gacha_p_look: 'Maybe check them out?',
+    gacha_p_gift: 'A perfect day to send them a gift!',
     page_title: "This Week's Creator Hall of Fame",
     main_hint: 'Tap a card to reveal the winner — screenshot it and flex a little ✦',
     game_unlock_btn: '🎮 Hidden mini-game unlocked! Tap to play',
@@ -1328,6 +1824,25 @@ const I18N = {
 };
 let LANG = localStorage.getItem('report_lang') || 'zh';
 function t(key){ return (I18N[LANG] && I18N[LANG][key]) || I18N.zh[key] || key; }
+// ===== 🔒 顯示 Google Sheet 資料前的安全處理（防 XSS）=====
+// 週報資料裡的暱稱、ID 等最終來自主播自己填的內容，放進頁面前一律跳脫，
+// 避免有人把暱稱設成 HTML／程式碼，在所有訪客的瀏覽器裡執行
+function escHtml(v){
+  return String(v ?? '').replace(/[&<>"']/g, ch => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[ch]));
+}
+// 說明文字允許 <br> 換行，其他標籤一律跳脫
+function escHtmlBr(v){
+  return escHtml(v).replace(/&lt;br\s*\/?&gt;/gi, '<br>');
+}
+function profileUrl(id){
+  return 'https://swag.live/u/' + encodeURIComponent(String(id ?? '').trim());
+}
+// 卡片主色只接受 var(--xxx)、#hex、rgb()/rgba() 或顏色英文名，其他一律改回品牌色
+function safeColor(v){
+  const c = String(v ?? '').trim();
+  return /^(var\(--[a-zA-Z0-9-]+\)|#[0-9a-fA-F]{3,8}|rgba?\([\d\s.,%]+\)|[a-zA-Z]+)$/.test(c) ? c : 'var(--brand)';
+}
+
 function pick(obj, field){
   if (!obj) return '';
   if (LANG === 'en' && obj[field + '_en']) return obj[field + '_en'];
@@ -1353,7 +1868,13 @@ const AWARD_KEY_EN = {
   swag_socialite: { name: 'SWAG Socialite Award',   statLabel: 'Unique DM Users',
                     desc: 'Awarded to the creator who chatted with the most unique users this week.' },
   rising_star:    { name: 'Rising Star Award',      statLabel: 'New Followers',
-                    desc: 'Awarded to the creator who gained the most new followers this week.' }
+                    desc: 'Awarded to the creator who gained the most new followers this week.' },
+  praise:         { name: 'Top Praise Award',       statLabel: '5-Star Reviews',
+                    desc: 'Awarded to the creator who received the most perfect-score reviews this week.' },
+  popular:        { name: 'Fan Favorite Award',     statLabel: 'Unique Gifters',
+                    desc: 'Awarded to the creator who received gifts from the most different people this week.' },
+  fan_magnet:     { name: 'Fan Magnet Award',       statLabel: 'Follow Rate',
+                    desc: 'Awarded to the creator who turned the highest share of visitors into followers this week.' }
 };
 function pickAward(item){
   if (!item || !item.award) return '';
@@ -1523,14 +2044,119 @@ function updateWeekPill(weekStart){
   if (el) el.textContent = `${f(d)}-${f(end)}`;
 }
 
+
+// ===== ❄ 像素飄雪（canvas，方塊雪花＋十字雪花，僅冬季主題啟動）=====
+window.WinterSnow = (function(){
+  const cvs = document.getElementById('winterSnow');
+  if (!cvs) return { start(){} };
+  const ctx = cvs.getContext('2d');
+  const COLORS = ['#EEF3F7', '#DCE7EF', '#CFDDE8', '#A9C5D6', '#B7D0CC'];
+  const PX = 3;               // 一個「像素」= 3 CSS px，維持像素風
+  let flakes = [], w = 0, h = 0, dpr = 1, raf = 0, started = false, last = 0;
+  const reduce = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  function resize(){
+    dpr = Math.min(window.devicePixelRatio || 1, 2);
+    w = window.innerWidth; h = window.innerHeight;
+    cvs.width = Math.round(w * dpr); cvs.height = Math.round(h * dpr);
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    ctx.imageSmoothingEnabled = false;
+    const target = Math.round(Math.min(110, Math.max(45, w * h / 9000)));
+    while (flakes.length < target) flakes.push(make(true));
+    flakes.length = target;
+  }
+  function make(anyY){
+    const kind = Math.random() < 0.18 ? 'cross' : 'dot';
+    const size = kind === 'cross' ? 1 : (Math.random() < 0.55 ? 1 : 2);
+    const depth = 0.35 + Math.random() * 0.65;        // 遠近：越遠越小越慢越淡
+    return {
+      x: Math.random() * w, y: anyY ? Math.random() * h : -12,
+      vy: (14 + Math.random() * 22) * depth,
+      sway: 6 + Math.random() * 14, phase: Math.random() * Math.PI * 2,
+      freq: 0.4 + Math.random() * 0.8,
+      kind, size, alpha: 0.35 + depth * 0.55,
+      color: COLORS[(Math.random() * COLORS.length) | 0]
+    };
+  }
+  function drawFlake(f, x){
+    const s = PX * f.size;
+    const px = Math.round(x / PX) * PX, py = Math.round(f.y / PX) * PX;   // 對齊像素格
+    ctx.globalAlpha = f.alpha; ctx.fillStyle = f.color;
+    if (f.kind === 'cross') {
+      ctx.fillRect(px, py - PX, PX, PX * 3);
+      ctx.fillRect(px - PX, py, PX * 3, PX);
+    } else {
+      ctx.fillRect(px, py, s, s);
+    }
+  }
+  function frame(t){
+    const dt = Math.min(0.05, (t - (last || t)) / 1000); last = t;
+    ctx.clearRect(0, 0, w, h);
+    for (const f of flakes) {
+      f.y += f.vy * dt; f.phase += f.freq * dt;
+      const x = f.x + Math.sin(f.phase) * f.sway;
+      if (f.y > h + 12) Object.assign(f, make(false));
+      drawFlake(f, x);
+    }
+    ctx.globalAlpha = 1;
+    raf = requestAnimationFrame(frame);
+  }
+  function start(){
+    if (started) return; started = true;
+    resize();
+    window.addEventListener('resize', resize);
+    if (reduce) { flakes.forEach(f => drawFlake(f, f.x)); return; }
+    raf = requestAnimationFrame(frame);
+    document.addEventListener('visibilitychange', () => {
+      if (document.hidden) { cancelAnimationFrame(raf); raf = 0; }
+      else if (!raf) { last = 0; raf = requestAnimationFrame(frame); }
+    });
+  }
+  return { start };
+})();
+
 // ===== 節日限定主題（依 week_start 判斷，過了那週自動恢復平常樣式）=====
 // 之後有其他節日（中秋、跨年⋯）要加，直接在這裡多加一組 'YYYY-MM-DD': '主題名稱' 即可
 const SPECIAL_THEMES = {
   '2026-08-17': 'qixi'   // 七夕（國曆8/19落在這一週）
 };
 
-// 中秋是手動開關，不綁日期：現在就是啟用中，活動結束把這行改成 null 換回平常樣式即可
-const FORCE_THEME = 'midautumn';
+// ❄ 手動強制主題：設 'winter' 開啟冬季版；活動結束改回 null 即恢復預設
+const FORCE_THEME = 'winter';
+
+const WINTER_TEXT = {   // 🎄 聖誕版文案
+  title: '聖誕主播榮譽榜',
+  title_en: 'Christmas Hall of Fame',
+  hint: '點開卡片看獲獎人是誰，聖誕節的禮物記得截圖炫耀一下 🎄',
+  hint_en: 'Tap a card to reveal the winner, then screenshot your Christmas gift 🎄',
+  footer: '聖誕快樂！這一頁還藏著 5 個彩蛋，找找看 🎁',
+  footer_en: 'Merry Christmas! 5 surprises are hidden on this page. Can you find them all? 🎁',
+  msgwallSectionTitle: '聖誕祝福牆',
+  msgwallCtaTitle: '送出一則聖誕祝福',
+  msgwallCtaSub: '點擊寫下想說的話，完全匿名',
+  msgwallModalTitle: '🎄 送出一則祝福'
+};
+// 冬季卡片色：Sheet 若給的是 hex 色碼，依序換成莫蘭迪藍
+// 冬季卡片色：依卡片順序套用（第 1～9 張獎項、最後一張塔羅卡），不讀 Sheet 的 accent_color
+const WINTER_ACCENTS = [   // 🎄 聖誕配色：依卡片順序套用
+  '#C8323C', '#2E8B57', '#C9A227', '#B22234', '#3A7D44',
+  '#D4A017', '#A83240', '#2F6F4E', '#B8860B', '#8E2C48'
+];
+function isWinter(){ return document.body.classList.contains('winter-theme'); }
+let TAROT_ACCENT = 'var(--brand)';
+function applyWinterTexts(){
+  const en = (typeof LANG !== 'undefined' && LANG === 'en');
+  const set = (id, v) => { const el = document.getElementById(id); if (el && v) el.textContent = v; };
+  set('mainTitle', en ? WINTER_TEXT.title_en : WINTER_TEXT.title);   // 🎄 聖誕版標題
+  set('mainHint', en ? WINTER_TEXT.hint_en : WINTER_TEXT.hint);
+  set('footerHint', en ? WINTER_TEXT.footer_en : WINTER_TEXT.footer);
+  if (!en) {
+    set('msgwallSectionTitle', WINTER_TEXT.msgwallSectionTitle);
+    set('msgwallCtaTitle', WINTER_TEXT.msgwallCtaTitle);
+    set('msgwallCtaSub', WINTER_TEXT.msgwallCtaSub);
+    set('msgwallModalTitle', WINTER_TEXT.msgwallModalTitle);
+  }
+}
 
 const QIXI_TEXT = {
   title: '🐦🌉 七夕鵲橋榜 🌉🐦',
@@ -1548,47 +2174,11 @@ const DEFAULT_TEXT = {
   msgwallModalTitle: '💬 送出一則留言'
 };
 
-// ===== 中秋限定：河燈預設祝福詞（後端還沒有真實許願資料時的備用內容）=====
-const MIDAUTUMN_LANTERN_WISHES = ['團圓','平安順遂','好運旺旺來','許願中','闔家歡樂','月圓人團圓','想念阿嬤','回家吃飯'];
-
-// ===== 中秋限定：月餅裡的無釐頭小知識，點開後隨機出現一句 =====
-const MOONCAKE_MESSAGES = [
-  '吃一顆月餅的熱量，大概要慢跑 2 小時才能消耗完——但沒關係，反正月亮也是圓的，你也可以是圓的',
-  '如果你站上月球，體重會變成地球的 1/6，代表你現在少吃的那塊月餅，在月球上根本不痛不癢',
-  '月餅界公認最危險的動作：把蛋黃酥誤認成月餅一口咬下去，然後陷入「這不是月餅但也不錯」的哲學思考',
-  '中秋節烤肉用掉的錫箔紙，如果全台灣攤開來，據說可以繞地球好幾圈——月餅還在你手上，錫箔紙已經環遊世界了',
-  '玉兔搗藥搗了幾千年都沒換班，你這禮拜開播的時數搞不好比玉兔還認真',
-  '嫦娥奔月的時候沒有導航，你直播的時候至少還有留言區告訴你方向',
-  '廣寒宮沒有 Wifi，所以嫦娥到現在還不知道你這禮拜上榜了',
-  '月亮每年以 3.8 公分的速度遠離地球——跟你手滑划掉的那個粉絲一樣，回不來了',
-  '科學家說滿月會讓人比較睡不著，但你這週的開播時數證明了，你根本不需要科學理由熬夜',
-  '月餅切八份最容易吵架，切九份最容易眾生平等——中秋節最難的數學題，不是奧數是切月餅',
-  '今天最大的驚喜不是月餅裡的蛋黃，是打開月餅盒發現自己上榜了',
-  '月亮每個月都會圓一次，你的榜單也是——只是你比較準時',
-  '吃一顆廣式月餅的熱量，大概等於追完 3 集半小時韓劇消耗的腦力，但完全不會消耗',
-  '你今晚多吃的那半顆月餅，要騎腳踏車 40 分鐘才能扯平——但月亮很圓，這筆帳先欠著',
-  '一顆蛋黃酥的含糖量，大概是一杯全糖珍奶的 1.5 倍，中秋節的甜蜜是有科學根據的',
-  '如果把今晚全台灣吃下肚的月餅疊起來，高度據說可以蓋出兩座 101——可惜你的胃只能裝一顆的份量',
-  '月球上一天等於地球的 27.3 天，換算下來你只要在月球排一次班，等於在地球連上快一個月的班',
-  '滿月的亮度大概是太陽的 40 萬分之一，但你這幾天熬夜看月亮的專注力，感覺比太陽還亮',
-  '中秋節烤肉都會說「今年少烤一點」，結果全部烤光光——這條沒有科學根據，但每年準確率 100%',
-  '中秋節連假三天，全台便利商店賣出的月餅疊起來，據說可以繞 101 大樓一整圈',
-  '月餅盒裡最容易被忽略的隱藏關卡：那包乾燥劑，每年都有人因為包裝像糖果差點誤會',
-  '柚子皮拿來做帽子戴的人數，保守估計比真的吃完一整顆柚子的人還多'
-];
-let lastMooncakeMsgIdx = -1;
-function pickMooncakeMessage(){
-  let idx;
-  do { idx = Math.floor(Math.random() * MOONCAKE_MESSAGES.length); }
-  while (idx === lastMooncakeMsgIdx && MOONCAKE_MESSAGES.length > 1);
-  lastMooncakeMsgIdx = idx;
-  return MOONCAKE_MESSAGES[idx];
-}
-
 function applySpecialTheme(weekStartStr){
   const theme = FORCE_THEME || SPECIAL_THEMES[weekStartStr] || null;
   document.body.classList.toggle('qixi-theme', theme === 'qixi');
-  document.body.classList.toggle('midautumn-theme', theme === 'midautumn');
+  document.body.classList.toggle('winter-theme', theme === 'winter');
+  if (theme === 'winter' && window.WinterSnow) window.WinterSnow.start();
   const titleEl = document.getElementById('mainTitle');
   const hintEl = document.getElementById('mainHint');
   const footerEl = document.getElementById('footerHint');
@@ -1604,6 +2194,8 @@ function applySpecialTheme(weekStartStr){
     if (msgCtaTitleEl) msgCtaTitleEl.textContent = QIXI_TEXT.msgwallCtaTitle;
     if (msgCtaSubEl) msgCtaSubEl.textContent = QIXI_TEXT.msgwallCtaSub;
     if (msgModalTitleEl) msgModalTitleEl.textContent = QIXI_TEXT.msgwallModalTitle;
+  } else if (theme === 'winter') {
+    applyWinterTexts();
   } else {
     if (titleEl) titleEl.textContent = t('page_title');
     if (hintEl) hintEl.textContent = t('main_hint');
@@ -1616,7 +2208,7 @@ function applySpecialTheme(weekStartStr){
 }
 
 // ===== 遊戲輪替：主播衝刺跑／獎金獵人 每週自動交換（節日限定遊戲優先）=====
-const GAME_ROTATION = ['whack', 'runner'];   // 原本 ['runner', 'whack']，順序對調讓 7/20 這週輪到獎金獵人
+const GAME_ROTATION = ['stack', 'whack'];   // 主播疊疊樂取代主播衝刺跑；順序讓 10/12 這週（10/19 發布）先輪到疊疊樂
 const ROTATION_EPOCH_MONDAY = new Date('2026-01-05T00:00:00');
 function clientMonday(d){
   const date = new Date(d);
@@ -1626,7 +2218,9 @@ function clientMonday(d){
   date.setHours(0, 0, 0, 0);
   return date;
 }
+const FORCE_GAME = 'xmas';   // 🎄 聖誕版：固定玩「聖誕老人接禮物」
 function pickActiveGame(weekStartStr){
+  if (FORCE_GAME) return FORCE_GAME;
   const key = weekStartStr || (function(){
     const d = clientMonday(new Date());
     return d.getFullYear() + '-' + String(d.getMonth()+1).padStart(2,'0') + '-' + String(d.getDate()).padStart(2,'0');
@@ -1672,7 +2266,7 @@ async function loadCards(){
     rows.sort((a, b) => (parseFloat(a.rank_order)||0) - (parseFloat(b.rank_order)||0));
     DATA = rows.map(o => ({
       icon: o.icon || '🏆',
-      accent: o.accent_color || 'var(--brand)',
+      accent: safeColor(o.accent_color),   // 🔒（冬季主題會在 buildGrid 依順序換色）
       stat: o.award_key || '',
       award: o.award_name || '',
       nickname: o.nickname || '',
@@ -1768,7 +2362,26 @@ async function loadQuotes(){
     // 英文沿用內建翻譯（暫不依賴 Sheet 提供英文欄位）
   } catch(e){ /* 保留內建文案 */ }
 }
-loadQuotes();
+// ===== 頁首隨機小語：Sheet 載入完（或最多等 2 秒）才顯示，避免先閃出內建文案再被換掉 =====
+let headerTipReady = false;
+let headerTipIdx = -1;
+function renderHeaderTip(){
+  const el = document.getElementById('headerTip');
+  if (!el) return;
+  const list = (QUOTES[LANG] && QUOTES[LANG].length) ? QUOTES[LANG] : QUOTES.zh;
+  let idx;
+  do { idx = Math.floor(Math.random() * list.length); }
+  while (idx === headerTipIdx && list.length > 1);
+  headerTipIdx = idx;
+  el.classList.remove('show');
+  el.textContent = list[idx];
+  void el.offsetWidth;
+  el.classList.add('show');
+}
+Promise.race([loadQuotes(), new Promise(r => setTimeout(r, 2000))]).then(() => {
+  headerTipReady = true;
+  renderHeaderTip();
+});
 
 // ===== 好運小動物（隨機顯示於第八張卡）=====
 const LUCK_ANIMALS = [
@@ -1791,38 +2404,34 @@ function buildGrid(){
   DATA.forEach((item, idx) => {
     const tile = document.createElement('div');
     tile.className = 'tile';
+    if (isWinter()) item.accent = WINTER_ACCENTS[idx % WINTER_ACCENTS.length];
     tile.style.setProperty('--accent', item.accent);
     tile.dataset.idx = idx;
     tile.innerHTML = `
-      <div class="tile-badge">${item.icon}</div>
-      <p class="tile-title">${pickAward(item) || pick(item,'nickname')}</p>
-      <p class="tile-desc">${pickDesc(item)}</p>
+      <div class="tile-badge">${escHtml(item.icon)}</div>
+      <p class="tile-title">${escHtml(pickAward(item) || pick(item,'nickname'))}</p>
+      <p class="tile-desc">${escHtmlBr(pickDesc(item))}</p>
     `;
     grid.appendChild(tile);
   });
-  if (document.body.classList.contains('midautumn-theme')) {
-    // 中秋限定：月餅祈願卡（取代塔羅卡格，文案之後再補）
-    const mooncakeTile = document.createElement('div');
-    mooncakeTile.className = 'tile tarot mooncake';
-    mooncakeTile.dataset.idx = 'mooncake';
-    mooncakeTile.innerHTML = `
-      <div class="tile-badge">🥮</div>
-      <p class="tile-title">這裡有一顆月餅</p>
-      <p class="tile-desc">點開看看月餅裡藏了什麼？</p>
-    `;
-    grid.appendChild(mooncakeTile);
-  } else {
-    // 塔羅指引卡（第八張，尺寸跟其他卡片一致）
-    const tarotTile = document.createElement('div');
-    tarotTile.className = 'tile tarot';
-    tarotTile.dataset.idx = 'tarot';
-    tarotTile.innerHTML = `
-      <div class="tile-badge">🔮</div>
-      <p class="tile-title">${t('secret_title')}</p>
-      <p class="tile-desc">${t('secret_desc')}</p>
-    `;
-    grid.appendChild(tarotTile);
+  // 塔羅指引卡（第八張，尺寸跟其他卡片一致）
+  const tarotTile = document.createElement('div');
+  tarotTile.className = 'tile tarot';
+  tarotTile.dataset.idx = 'tarot';
+  TAROT_ACCENT = isWinter() ? WINTER_ACCENTS[DATA.length % WINTER_ACCENTS.length] : 'var(--brand)';
+  tarotTile.style.setProperty('--accent', TAROT_ACCENT);
+  tarotTile.innerHTML = `
+    <div class="tile-badge">🔮</div>
+    <p class="tile-title">${t('secret_title')}</p>
+    <p class="tile-desc">${t('secret_desc')}</p>
+  `;
+  // 獎項數 +1 張塔羅卡 若為奇數，最後一張會孤零零靠左：改成置中，寬度維持跟其他卡片一致
+  if ((DATA.length + 1) % 2 === 1) {
+    tarotTile.style.gridColumn = '1 / -1';
+    tarotTile.style.justifySelf = 'center';
+    tarotTile.style.width = 'calc(50% - 7px)';
   }
+  grid.appendChild(tarotTile);
 }
 
 loadCards();      // 顯示跑步動畫，資料回來後才畫格子
@@ -1833,7 +2442,6 @@ const detailCard = document.getElementById('detailCard');
 const sharePill = document.getElementById('sharePill');
 let currentItem = null;
 let isSecretOpen = false;
-let isMooncakeOpen = false;
 const viewedTiles = new Set();
 const totalTiles = DATA.length + 1;
 
@@ -1883,26 +2491,26 @@ function renderDetail(item){
     <span class="detail-corner tl"></span><span class="detail-corner tr"></span><span class="detail-corner bl"></span><span class="detail-corner br"></span>
     <div class="avatar-wrap">
       ${isStreak ? `<span class="streak-crown">👑</span>` : ''}
-      <div class="avatar-slot" data-avatar="${item.id}">
+      <div class="avatar-slot" data-avatar="${escHtml(item.id)}">
         <span class="avatar-label">AVATAR</span>
         <span class="avatar-sub">${t('avatar_sub')}</span>
       </div>
       ${isStreak ? `<div class="streak-badge">連續 ${item.streakCount} 週</div>` : ''}
     </div>
-    <p class="detail-title">${award || nickname}</p>
-    ${award && nickname ? `<p class="detail-nickname">${nickname}</p>` : ''}
-    <p class="detail-desc">${pickDesc(item)}</p>
-    <p class="detail-id"><span class="heart">❤</span> @${item.id} <span class="heart">❤</span></p>
-    ${statLabel ? `<p class="detail-stat-label">${statLabel}</p>` : ''}
-    <p class="detail-stat-value">${statValue}</p>
+    <p class="detail-title">${escHtml(award || nickname)}</p>
+    ${award && nickname ? `<p class="detail-nickname">${escHtml(nickname)}</p>` : ''}
+    <p class="detail-desc">${escHtmlBr(pickDesc(item))}</p>
+    <p class="detail-id"><span class="heart">❤</span> <a href="${profileUrl(item.id)}" target="_blank" rel="noopener" class="profile-link">@${escHtml(item.id)}</a> <span class="heart">❤</span></p>
+    ${statLabel ? `<p class="detail-stat-label">${escHtml(statLabel)}</p>` : ''}
+    <p class="detail-stat-value">${escHtml(statValue)}</p>
     ${(item.runnersUp && item.runnersUp.length) ? `
       <div class="runners">
         <p class="runners-head">${t('runners_head')}</p>
         ${item.runnersUp.map(r => `
           <div class="runner-row">
-            <span class="runner-rank">${r.rank}</span>
-            <span class="runner-name">${pick(r,'nickname') ? pick(r,'nickname') + (r.id ? `<span class="runner-id">@${r.id}</span>` : '') : (r.id ? '@' + r.id : '')}</span>
-            ${pick(r,'value') ? `<span class="runner-val">${pick(r,'value')}</span>` : ''}
+            <span class="runner-rank">${escHtml(r.rank)}</span>
+            <span class="runner-name">${pick(r,'nickname') ? escHtml(pick(r,'nickname')) + (r.id ? ` <a href="${profileUrl(r.id)}" target="_blank" rel="noopener" class="profile-link runner-id">@${escHtml(r.id)}</a>` : '') : (r.id ? `<a href="${profileUrl(r.id)}" target="_blank" rel="noopener" class="profile-link">@${escHtml(r.id)}</a>` : '')}</span>
+            ${pick(r,'value') ? `<span class="runner-val">${escHtml(pick(r,'value'))}</span>` : ''}
           </div>
         `).join('')}
       </div>` : ''}
@@ -2125,8 +2733,8 @@ function tarotPosLabels(spread){
 }
 
 function renderTarot(){
-  detailCard.style.setProperty('--accent', 'var(--brand)');
-  overlay.style.setProperty('--accent', 'var(--brand)');
+  detailCard.style.setProperty('--accent', TAROT_ACCENT);
+  overlay.style.setProperty('--accent', TAROT_ACCENT);
 
   const s = tarotState.spread;
   const labels = tarotPosLabels(s);
@@ -2198,22 +2806,6 @@ function renderTarot(){
     ${drawn ? `<button class="redraw-btn tarot-again-btn" id="tarotAgainBtn">${t('tarot_again_btn')}</button>` : ''}
 
     <p class="tarot-disclaimer">${t('tarot_disclaimer')}</p>
-    <div class="card-logo"><img src="swag-logo.png" alt="SWAG"></div>
-  `;
-}
-
-function renderMooncake(){
-  detailCard.style.setProperty('--accent', 'var(--brand)');
-  overlay.style.setProperty('--accent', 'var(--brand)');
-  detailCard.innerHTML = `
-    <span class="detail-corner tl"></span><span class="detail-corner tr"></span><span class="detail-corner bl"></span><span class="detail-corner br"></span>
-    <p class="detail-title">🌕 月餅祈願 🌕</p>
-    <div class="mooncake-stage" id="mooncakeStage">
-      <img class="mooncake-img whole" src="mooncake_whole.png" alt="">
-      <img class="mooncake-img split" src="mooncake_split.png" alt="">
-    </div>
-    <p class="mooncake-hint">點一下月餅，看看裡面藏著什麼</p>
-    <div class="mooncake-result"></div>
     <div class="card-logo"><img src="swag-logo.png" alt="SWAG"></div>
   `;
 }
@@ -2354,17 +2946,10 @@ grid.addEventListener('click', (e) => {
   const openDetail = () => {
     if (tile.dataset.idx === 'tarot') {
       isSecretOpen = true;
-      isMooncakeOpen = false;
       overlay.classList.add('tarot-open');
       renderTarot();
-    } else if (tile.dataset.idx === 'mooncake') {
-      isSecretOpen = false;
-      isMooncakeOpen = true;
-      overlay.classList.add('tarot-open');   // 沿用塔羅卡的置中/可捲動樣式
-      renderMooncake();
     } else {
       isSecretOpen = false;
-      isMooncakeOpen = false;
       overlay.classList.remove('tarot-open');
       currentItem = DATA[tile.dataset.idx];
       renderDetail(currentItem);
@@ -2389,21 +2974,6 @@ grid.addEventListener('click', (e) => {
 });
 
 detailCard.addEventListener('click', (e) => {
-  // 中秋：點月餅裂開，隨機出現一句無釐頭小知識
-  const mooncakeStage = e.target.closest('.mooncake-stage');
-  if (mooncakeStage && !mooncakeStage.classList.contains('cracked')) {
-    mooncakeStage.classList.add('cracked');
-    playFlipSound('card_tap');
-    const hint = detailCard.querySelector('.mooncake-hint');
-    if (hint) hint.style.opacity = '0';
-    const result = detailCard.querySelector('.mooncake-result');
-    if (result) {
-      result.textContent = pickMooncakeMessage();
-      setTimeout(() => result.classList.add('show'), 500);
-    }
-    return;
-  }
-
   // 塔羅：切換牌陣（切換後回到未抽牌狀態）
   const spreadBtn = e.target.closest('.tarot-spread-btn');
   if (spreadBtn) {
@@ -2486,9 +3056,7 @@ sharePill.addEventListener('click', async () => {
 
   if (!blob) { showToast(t('share_fail')); return; }
 
-  const name = isSecretOpen ? t('share_secret_filename')
-    : isMooncakeOpen ? '中秋月餅祈願.png'
-    : `${currentItem.id}${t('share_card_filename_suffix')}`;
+  const name = isSecretOpen ? t('share_secret_filename') : `${currentItem.id}${t('share_card_filename_suffix')}`;
   const file = new File([blob], name, { type: 'image/png' });
 
   // 這裡是整個流程裡「緊接著使用者點擊」的關鍵一步，前面都已經準備好資料，
@@ -3061,6 +3629,338 @@ const GAME_SPRITES = {
   };
 })();
 
+// ===== 主播疊疊樂（三消）：點最上層的圖塊放進 7 格槽，3 個一樣消除，比誰最快清空 =====
+// 盤面保證有解：先排出一個隨機的「可依序拿取」順序，再依這個順序每 3 塊配同一個圖案
+(function(){
+  const SYMBOLS = ['💎', '🎁', '⭐', '👑', '💖', '🎀', '🔑', '🍀'];
+  const TRIPLES_PER_SYMBOL = 2;                         // 每種圖案 6 塊，共 48 塊
+  const LAYERS = [                                      // 由下到上：數量與位移（每層錯開不同距離，任兩層都不會完全重疊，不會有被整塊遮住看不到的圖塊）
+    { count: 20, off: 0,    inset: 0 },
+    { count: 14, off: 0.5,  inset: 0 },
+    { count: 9,  off: 0.25, inset: 1 },
+    { count: 5,  off: 0.75, inset: 1 },
+  ];
+  const UNITS = 7;                                      // 盤面 7×7 格
+  const TRAY_SIZE = 7;
+  const BEST_KEY = 'stack_best_ms';
+
+  const boardEl = document.getElementById('stackBoard');
+  const trayEl = document.getElementById('stackTray');
+  const msgEl = document.getElementById('stackMsg');
+  const scoreEl = document.getElementById('gameScore');
+  const bestEl = document.getElementById('gameBest');
+  const timerEl = document.getElementById('gameTimer');
+  const recordBtn = document.getElementById('recordBtn');
+  const gameOverActions = document.getElementById('gameOverActions');
+  if (!boardEl) return;
+
+  let tiles = [], tray = [], lock = false;
+  let startAt = 0, elapsed = 0, timerId = null, running = false, finished = false, won = false;
+  let best = 0;
+  try { best = Number(localStorage.getItem(BEST_KEY) || 0); } catch (e) { best = 0; }
+
+  const fmt = ms => (ms / 1000).toFixed(1) + t('stack_sec');
+  const shuffle = arr => { for (let i = arr.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [arr[i], arr[j]] = [arr[j], arr[i]]; } return arr; };
+  const overlap = (a, b) => Math.abs(a.x - b.x) < 1 && Math.abs(a.y - b.y) < 1;
+  const isBlocked = (tile, alive) => tiles.some(o => o !== tile && alive(o) && o.layer > tile.layer && overlap(o, tile));
+
+  // ---- 產生盤面 ----
+  function generate(){
+    tiles = [];
+    LAYERS.forEach((L, layer) => {
+      const lo = L.inset + L.off, hi = UNITS - 1 - L.inset - L.off;
+      let cells = [];
+      for (let y = lo; y <= hi + 1e-9; y++) for (let x = lo; x <= hi + 1e-9; x++) cells.push({ x, y });
+      shuffle(cells);
+      if (layer > 0) {   // 上層盡量疊在下層的圖塊上面
+        const below = tiles.filter(t => t.layer === layer - 1);
+        cells.sort((a, b) => (below.some(t => overlap(t, b)) ? 1 : 0) - (below.some(t => overlap(t, a)) ? 1 : 0));
+      }
+      cells.slice(0, L.count).forEach(p => tiles.push({ id: tiles.length, x: p.x, y: p.y, layer, sym: '', gone: false }));
+    });
+    // 配圖案（保證有解，而且畫面上看得到的圖塊盡量都湊得滿三個）：
+    // 每一輪把「當下最上層可點的圖塊」全部分成完整的三個一組並拿掉，剩下不到 3 塊的留到下一輪；
+    // 只要每次拿完一整組，槽裡最多只會有 3 塊，所以一定解得開
+    const left = new Set(tiles);
+    const triples = shuffle(SYMBOLS.flatMap(s => Array(TRIPLES_PER_SYMBOL).fill(s)));
+    let ti = 0;
+    const freeNow = () => [...left].filter(tile => !isBlocked(tile, o => left.has(o)));
+    while (left.size) {
+      const free = shuffle(freeNow());
+      if (free.length >= 3) {
+        const n = Math.floor(free.length / 3) * 3;
+        for (let k = 0; k < n; k += 3) {
+          const sym = triples[ti++];
+          free.slice(k, k + 3).forEach(g => { g.sym = sym; left.delete(g); });
+        }
+      } else {
+        // 最上層不到 3 塊（接近尾聲）：先拿這幾塊，再往下補滿一組
+        const sym = triples[ti++];
+        const group = free.slice();
+        group.forEach(g => left.delete(g));
+        while (group.length < 3) {
+          const more = freeNow();
+          const p = more[Math.floor(Math.random() * more.length)];
+          group.push(p); left.delete(p);
+        }
+        group.forEach(g => { g.sym = sym; });
+      }
+    }
+  }
+
+  // ---- 畫面 ----
+  function renderBoard(){
+    boardEl.innerHTML = '';
+    const size = 100 / UNITS;
+    tiles.forEach(tile => {
+      if (tile.gone) return;
+      const el = document.createElement('button');
+      el.type = 'button';
+      el.className = 'stack-tile' + (isBlocked(tile, o => !o.gone) ? ' blocked' : '');
+      el.dataset.id = tile.id;
+      el.style.left = (tile.x * size) + '%';
+      el.style.top = (tile.y * size) + '%';
+      el.style.width = el.style.height = size + '%';
+      el.style.zIndex = 10 + tile.layer;
+      el.innerHTML = '<span>' + tile.sym + '</span>';
+      boardEl.appendChild(el);
+    });
+  }
+  function renderTray(clearingSym){
+    trayEl.innerHTML = '';
+    for (let i = 0; i < TRAY_SIZE; i++) {
+      const s = tray[i];
+      const el = document.createElement('div');
+      el.className = 'stack-slot' + (s ? ' filled' : '') + (s && s === clearingSym ? ' clearing' : '');
+      el.textContent = s || '';
+      trayEl.appendChild(el);
+    }
+  }
+  function renderHud(){
+    const left = tiles.filter(tile => !tile.gone).length + tray.length;
+    scoreEl.textContent = t('stack_left_prefix') + left + t('stack_unit');
+    bestEl.textContent = t('stack_best_prefix') + (best ? fmt(best) : '—');
+    timerEl.textContent = (startAt || finished) ? t('stack_time_prefix') + fmt(elapsed) : t('stack_tap_to_start');
+  }
+
+  // ---- 計時 ----
+  function stopClock(){ clearInterval(timerId); timerId = null; }
+  function startClock(){
+    startAt = performance.now();
+    timerId = setInterval(() => { elapsed = Math.round(performance.now() - startAt); renderHud(); }, 100);
+  }
+
+  // ---- 流程 ----
+  function startGame(){
+    stopClock();
+    tray = []; lock = false; startAt = 0; elapsed = 0;
+    running = true; finished = false; won = false;
+    msgEl.classList.remove('show');
+    gameOverActions.classList.remove('show');
+    recordBtn.style.display = '';
+    generate();
+    renderBoard(); renderTray(); renderHud();
+  }
+  function endGame(didWin){
+    stopClock();
+    if (startAt) elapsed = Math.round(performance.now() - startAt);
+    running = false; finished = true; won = didWin;
+    let extra = '';
+    if (didWin) {
+      const isBest = !best || elapsed < best;
+      if (isBest) { best = elapsed; try { localStorage.setItem(BEST_KEY, String(best)); } catch (e) {} }
+      msgEl.innerHTML = '<div style="color:#FFD100;font-weight:900;font-size:16px;">' + t('stack_done_text') + '</div>' +
+        '<div>' + t('stack_your_time') + fmt(elapsed) + '</div>' + (isBest ? '<div>' + t('stack_new_best') + '</div>' : '');
+      recordBtn.style.display = '';
+    } else {
+      msgEl.innerHTML = '<div style="color:#ff5c7a;font-weight:900;font-size:16px;">' + t('stack_fail_text') + '</div>' +
+        '<div>' + t('stack_fail_hint') + '</div>';
+      recordBtn.style.display = 'none';   // 失敗不能記錄成績
+    }
+    renderHud();
+    msgEl.classList.add('show');
+    gameOverActions.classList.add('show');
+  }
+
+  boardEl.addEventListener('click', (e) => {
+    const el = e.target.closest('.stack-tile');
+    if (!el || !running || lock) return;
+    const tile = tiles[Number(el.dataset.id)];
+    if (!tile || tile.gone || isBlocked(tile, o => !o.gone) || tray.length >= TRAY_SIZE) return;
+    if (!startAt) startClock();                       // 第一次點圖塊才開始計時
+    tile.gone = true;
+    // 放進槽裡：跟同圖案排在一起
+    const lastSame = tray.lastIndexOf(tile.sym);
+    if (lastSame >= 0) tray.splice(lastSame + 1, 0, tile.sym); else tray.push(tile.sym);
+    el.classList.add('picked');
+    const triple = tray.filter(s => s === tile.sym).length >= 3;
+    if (triple) {
+      lock = true;
+      renderTray(tile.sym);
+      setTimeout(() => {
+        let removed = 0;
+        tray = tray.filter(s => (s === tile.sym && removed < 3) ? (removed++, false) : true);
+        lock = false;
+        renderBoard(); renderTray(); renderHud();
+        if (!tiles.some(x => !x.gone) && tray.length === 0) endGame(true);
+      }, 230);
+    } else {
+      renderBoard(); renderTray(); renderHud();
+      if (tray.length >= TRAY_SIZE) endGame(false);
+    }
+  });
+
+  window.StackGame = {
+    getScore(){ return (finished && won) ? elapsed : 0; },          // 送到排行榜的是毫秒數，越小越好
+    getScoreLabel(){ return t('stack_time_prefix') + fmt(elapsed); },
+    formatScore(ms){ return fmt(Number(ms) || 0); },
+    retry(){ startGame(); },
+    onOpen(){ if (!running) startGame(); else renderHud(); },
+    onClose(){ stopClock(); running = false; finished = false; recordBtn.style.display = ''; }   // 中途離開就作廢
+  };
+})();
+// ===== 🎄 聖誕限定小遊戲：聖誕老人接禮物（沿用遊戲畫布）=====
+// 用時間計算移動速度，60Hz、120Hz 的手機玩起來一樣快；正常玩最高約 400 分，在排行榜上限 600 分以內
+(function(){
+  const canvas = document.getElementById('gameCanvas');
+  if (!canvas) return;
+  const ctx = canvas.getContext('2d');
+  const scoreEl = document.getElementById('gameScore');
+  const bestEl = document.getElementById('gameBest');
+  const timerEl = document.getElementById('gameTimer');
+  const gameOverActions = document.getElementById('gameOverActions');
+  const CW = canvas.width, CH = canvas.height;
+  const GROUND_Y = CH - 46;
+  const DURATION = 30;
+  const en = () => (typeof LANG !== 'undefined' && LANG === 'en');
+  const loadImg = src => { const im = new Image(); im.src = src; return im; };
+  const ready = im => im.complete && im.naturalWidth > 0;
+
+  const SACK = loadImg('xmas_sack.png');
+  const SACK_W = 72, SACK_H = 56;
+  const ITEMS = [
+    { emoji: '🎁', img: loadImg('xmas_item_gift.png'),  points: 10,  weight: 56 },
+    { emoji: '🍬', img: loadImg('xmas_item_candy.png'), points: 5,   weight: 22 },
+    { emoji: '🔔', img: loadImg('xmas_item_bell.png'),  points: 20,  weight: 7 },
+    { emoji: '🪨', img: loadImg('xmas_item_coal.png'),  points: -10, weight: 15 },
+  ];
+  const TOTAL_W = ITEMS.reduce((s, it) => s + it.weight, 0);
+  const pickItem = () => { let r = Math.random() * TOTAL_W; for (const it of ITEMS) { if ((r -= it.weight) < 0) return it; } return ITEMS[0]; };
+
+  let best = 0;
+  try { best = Number(localStorage.getItem('xmas_best') || 0); } catch (e) {}
+  let score = 0, timeLeft = DURATION, running = false, sackX = CW / 2;
+  let drops = [], pops = [], spawnTimer = 0, timerInterval = null, last = 0;
+  const flakes = Array.from({ length: 30 }, () => ({ x: Math.random() * CW, y: Math.random() * CH, r: Math.random() < .25 ? 1.8 : 1, v: .3 + Math.random() * .5 }));
+
+  function xFromEvent(e){
+    const rect = canvas.getBoundingClientRect();
+    const clientX = (e.touches && e.touches[0]) ? e.touches[0].clientX : e.clientX;
+    return Math.max(30, Math.min(CW - 30, (clientX - rect.left) * (CW / rect.width)));
+  }
+  const onMove = e => { if (activeGame === 'xmas' && running) sackX = xFromEvent(e); };
+  canvas.addEventListener('pointermove', onMove);
+  canvas.addEventListener('touchmove', onMove, { passive: true });
+
+  function drawScene(dt){
+    ctx.clearRect(0, 0, CW, CH);
+    ctx.fillStyle = 'rgba(255,255,255,0.8)';
+    flakes.forEach(f => {
+      f.y += f.v * dt; if (f.y > CH) { f.y = -4; f.x = Math.random() * CW; }
+      ctx.beginPath(); ctx.arc(f.x, f.y, f.r, 0, Math.PI * 2); ctx.fill();
+    });
+    ctx.fillStyle = '#EAF2F8';
+    ctx.fillRect(0, GROUND_Y + 24, CW, CH - GROUND_Y - 24);
+  }
+  function drawSack(){
+    if (ready(SACK)) ctx.drawImage(SACK, sackX - SACK_W / 2, GROUND_Y - SACK_H / 2, SACK_W, SACK_H);
+    else { ctx.font = '42px sans-serif'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle'; ctx.fillText('🎅', sackX, GROUND_Y); }
+  }
+  function drawDrops(){
+    ctx.font = '28px sans-serif'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+    drops.forEach(d => { if (ready(d.it.img)) ctx.drawImage(d.it.img, d.x - 16, d.y - 16, 32, 32); else ctx.fillText(d.it.emoji, d.x, d.y); });
+    pops.forEach(p => {
+      ctx.globalAlpha = Math.max(0, p.life / 40);
+      ctx.fillStyle = p.color; ctx.font = 'bold 16px sans-serif'; ctx.fillText(p.text, p.x, p.y);
+      ctx.globalAlpha = 1;
+    });
+  }
+  function overlay(title, sub){
+    ctx.fillStyle = 'rgba(10,16,30,0.62)'; ctx.fillRect(0, 0, CW, CH);
+    ctx.textAlign = 'center';
+    ctx.fillStyle = '#FFD100'; ctx.font = 'bold 22px sans-serif'; ctx.fillText(title, CW / 2, CH / 2 - 14);
+    ctx.fillStyle = '#fff'; ctx.font = '16px sans-serif'; ctx.fillText(sub, CW / 2, CH / 2 + 16);
+  }
+
+  function loop(now){
+    requestAnimationFrame(loop);
+    if (activeGame !== 'xmas' || !running) { last = now; return; }
+    const dt = Math.min(3, (now - (last || now)) / 16.67);   // 以 60 fps 為 1
+    last = now;
+    spawnTimer -= dt;
+    if (spawnTimer <= 0) {
+      drops.push({ it: pickItem(), x: 30 + Math.random() * (CW - 60), y: -12, v: 2 + Math.random() * 1.2 + Math.min(score / 300, 1.2) });
+      spawnTimer = 45 - Math.min(Math.floor(score / 60), 15);
+    }
+    drawScene(dt);
+    for (let i = drops.length - 1; i >= 0; i--) {
+      const d = drops[i];
+      d.y += d.v * dt;
+      if (Math.abs(d.x - sackX) < 36 && d.y >= GROUND_Y - 24 && d.y <= GROUND_Y + 14) {
+        score = Math.max(0, score + d.it.points);
+        pops.push({ x: d.x, y: GROUND_Y - 30, text: (d.it.points > 0 ? '+' : '') + d.it.points, color: d.it.points > 0 ? '#FFD100' : '#ff6b81', life: 40 });
+        if (typeof playFlipSound === 'function' && d.it.points > 0) playFlipSound('coin_crisp');
+        drops.splice(i, 1);
+        continue;
+      }
+      if (d.y > CH + 20) drops.splice(i, 1);
+    }
+    pops.forEach(p => { p.y -= 0.8 * dt; p.life -= dt; });
+    pops = pops.filter(p => p.life > 0);
+    drawDrops();
+    drawSack();
+    scoreEl.textContent = t('score_prefix') + score;
+  }
+  requestAnimationFrame(loop);
+
+  function tick(){
+    timeLeft--;
+    timerEl.textContent = t('timer_prefix') + timeLeft;
+    if (timeLeft <= 0) endGame();
+  }
+  function startGame(){
+    score = 0; timeLeft = DURATION; drops = []; pops = []; spawnTimer = 20; sackX = CW / 2; last = 0;
+    scoreEl.textContent = t('score_prefix') + '0';
+    timerEl.textContent = t('timer_prefix') + timeLeft;
+    gameOverActions.classList.remove('show');
+    running = true;
+    clearInterval(timerInterval);
+    timerInterval = setInterval(tick, 1000);
+  }
+  function endGame(){
+    running = false;
+    clearInterval(timerInterval);
+    if (score > best) { best = score; try { localStorage.setItem('xmas_best', String(best)); } catch (e) {} }
+    bestEl.textContent = t('best_prefix') + best;
+    drawScene(0); drawSack();
+    overlay(en() ? 'Merry Christmas!' : '聖誕夜結束 🎄', (en() ? 'Your score: ' : '本次分數：') + score);
+    gameOverActions.classList.add('show');
+  }
+  function pause(){ running = false; clearInterval(timerInterval); }
+
+  window.XmasGame = {
+    getScore(){ return score; },
+    retry(){ startGame(); },
+    onOpen(){
+      bestEl.textContent = t('best_prefix') + best;
+      scoreEl.textContent = t('score_prefix') + score;
+      timerEl.textContent = t('timer_prefix') + timeLeft;
+      if (!running) startGame();
+    },
+    onClose(){ pause(); }
+  };
+})();
+
 // ===== 遊戲外框控制器：依 activeGame 決定畫面/分數/紀錄要交給哪個模組 =====
 (function(){
   const gameOverlay = document.getElementById('gameOverlay');
@@ -3070,6 +3970,7 @@ const GAME_SPRITES = {
   const gameHintEl = document.getElementById('gameHint');
   const canvasEl = document.getElementById('gameCanvas');
   const whackStageEl = document.getElementById('whackStage');
+  const stackStageEl = document.getElementById('stackStage');
   const gameTimerEl = document.getElementById('gameTimer');
   const gameOverActions = document.getElementById('gameOverActions');
   const retryBtn = document.getElementById('retryBtn');
@@ -3091,6 +3992,10 @@ const GAME_SPRITES = {
 
   function getGameMeta(key){
     if (key === 'qixi') return { title: '✦ 鵲橋傳情 ✦', hint: '拖曳畫面移動鵲橋，接住掉落的愛心，接不到不扣分，計時三十秒，看你能接多少顆！' };
+    if (key === 'stack') return { title: t('game_meta_stack_title'), hint: t('game_meta_stack_hint') };
+    if (key === 'xmas') return (typeof LANG !== 'undefined' && LANG === 'en')
+      ? { title: '✦ Catch the Christmas Gifts ✦', hint: 'Drag to move the sack and catch falling gifts. Coal costs points. You have 30 seconds!' }
+      : { title: '✦ 聖誕老人接禮物 ✦', hint: '拖曳畫面移動禮物袋，接住掉下來的禮物，接到煤炭會扣分，計時三十秒！' };
     return key === 'whack'
       ? { title: t('game_meta_whack_title'), hint: t('game_meta_whack_hint') }
       : { title: t('game_meta_runner_title'), hint: t('game_meta_runner_hint') };
@@ -3103,6 +4008,8 @@ const GAME_SPRITES = {
 
   function currentModule(){
     if (activeGame === 'qixi') return window.QixiGame;
+    if (activeGame === 'stack') return window.StackGame;
+    if (activeGame === 'xmas') return window.XmasGame;
     return activeGame === 'whack' ? window.WhackGame : window.RunnerGame;
   }
 
@@ -3129,9 +4036,10 @@ const GAME_SPRITES = {
     const meta = getGameMeta(activeGame);
     gameTitleEl.textContent = meta.title;
     gameHintEl.textContent = meta.hint;
-    canvasEl.style.display = (activeGame === 'runner' || activeGame === 'qixi') ? '' : 'none';
+    canvasEl.style.display = (activeGame === 'runner' || activeGame === 'qixi' || activeGame === 'xmas') ? '' : 'none';
     whackStageEl.style.display = activeGame === 'whack' ? '' : 'none';
-    gameTimerEl.style.display = (activeGame === 'whack' || activeGame === 'qixi') ? '' : 'none';
+    stackStageEl.style.display = activeGame === 'stack' ? '' : 'none';
+    gameTimerEl.style.display = (activeGame === 'whack' || activeGame === 'qixi' || activeGame === 'stack' || activeGame === 'xmas') ? '' : 'none';
     gameOverActions.classList.remove('show');
     gameOverlay.classList.add('active');
     lockBodyScroll();
@@ -3145,7 +4053,8 @@ const GAME_SPRITES = {
   retryBtn.addEventListener('click', () => currentModule().retry());
 
   recordBtn.addEventListener('click', () => {
-    nameModalScore.textContent = t('score_prefix') + currentModule().getScore();
+    const mod = currentModule();
+    nameModalScore.textContent = mod.getScoreLabel ? mod.getScoreLabel() : t('score_prefix') + mod.getScore();
     nameInput.value = '';
     nameModalOverlay.classList.add('active');
     nameInput.focus();
@@ -3192,10 +4101,13 @@ const GAME_SPRITES = {
         return;
       }
       leaderboardWeek.textContent = t('week_prefix') + data.week_start;
+      // 安全：名字只保留 A-Z（最多 5 字）並跳脫 HTML、分數強制轉成數字。
+      // 名字限制只寫在前端擋不住直接呼叫 API 的人，這裡在顯示前再把一次關，避免被塞入程式碼（XSS）。
+      const esc = v => String(v ?? '').replace(/[&<>"']/g, ch => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[ch]));
       leaderboardList.innerHTML = data.scores.map((s, i) =>
         '<li><span class="lb-rank">' + (i + 1) + '</span>' +
-        '<span class="lb-name">' + s.name + '</span>' +
-        '<span class="lb-score">' + s.score + '</span></li>'
+        '<span class="lb-name">' + esc(String(s.name ?? '').replace(/[^A-Za-z]/g, '').slice(0, 5)) + '</span>' +
+        '<span class="lb-score">' + (activeGame === 'stack' && window.StackGame ? window.StackGame.formatScore(s.score) : (Number(s.score) || 0)) + '</span></li>'
       ).join('');
     } catch (e) {
       leaderboardList.innerHTML = '<li>' + t('leaderboard_error') + '</li>';
@@ -3250,6 +4162,32 @@ const GAME_SPRITES = {
     return String(str ?? '').replace(/[&<>"']/g, ch => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[ch]));
   }
 
+  // ===== 送出前清理（防試算表公式注入，第一道防線）=====
+  // 注意：前端檢查可以被繞過（直接打 Apps Script 網址），真正的防線要在 Code.gs 寫入端
+  // 1. 移除看不見的字元：BOM、零寬字元、控制字元（換行保留）
+  // 2. trim() 會順便清掉開頭的全形空白、NBSP、Tab、CR、LF、VT、FF
+  const INVISIBLE_CHARS = /[\u0000-\u0009\u000B-\u001F\u007F\u00AD\u200B-\u200F\u2028\u2029\u2060-\u2064\uFEFF]/g;
+  const FORMULA_START = /^[=+\-@]/;   // Google Sheets / Excel 會當成公式開頭的字元
+
+  function cleanInput(str){
+    return String(str ?? '').replace(INVISIBLE_CHARS, '').trim();
+  }
+  function looksLikeFormula(str){
+    return FORMULA_START.test(str);
+  }
+
+  // 同一個瀏覽器送出冷卻時間（擋連發，不擋有心人）
+  const MSG_COOLDOWN_MS = 30 * 1000;
+  const MSG_COOLDOWN_KEY = 'swag_msgwall_last';
+  let msgLastSentMem = 0;
+  function getLastSent(){
+    try { return Number(localStorage.getItem(MSG_COOLDOWN_KEY)) || msgLastSentMem; } catch(e) { return msgLastSentMem; }
+  }
+  function setLastSent(ts){
+    msgLastSentMem = ts;
+    try { localStorage.setItem(MSG_COOLDOWN_KEY, String(ts)); } catch(e) {}
+  }
+
   function renderCard(m, i){
     const style = AVATAR_STYLES[i % AVATAR_STYLES.length];
     const nickname = String(m.nickname ?? '').trim();
@@ -3264,7 +4202,7 @@ const GAME_SPRITES = {
       </div>
       <p class="msgwall-card-text">${escapeHtml(m.text)}</p>
       <div class="msgwall-card-foot">
-        <button class="msgwall-heart-btn" data-idx="${i}">🤍 <span>${m.hearts || 0}</span></button>
+        <button class="msgwall-heart-btn" data-idx="${i}">🤍 <span>${Number(m.hearts) || 0}</span></button>
       </div>
     </div>`;
   }
@@ -3338,9 +4276,20 @@ const GAME_SPRITES = {
   });
 
   msgwallSubmit.addEventListener('click', async () => {
-    const text = msgwallInput.value.trim();
+    const text = cleanInput(msgwallInput.value).slice(0, 50);
     if (!text) { msgwallInput.focus(); return; }
-    const nickname = msgwallNickname.value.trim();
+    const nickname = cleanInput(msgwallNickname.value).slice(0, 12);
+
+    if (looksLikeFormula(text) || looksLikeFormula(nickname)) {
+      showToast('留言和暱稱開頭不能是 = + - @ 符號喔');
+      return;
+    }
+    const wait = MSG_COOLDOWN_MS - (Date.now() - getLastSent());
+    if (wait > 0) {
+      showToast('留言太快了，' + Math.ceil(wait / 1000) + ' 秒後再試');
+      return;
+    }
+
     msgwallSubmit.disabled = true;
     msgwallSubmit.textContent = '送出中...';
     try {
@@ -3349,6 +4298,7 @@ const GAME_SPRITES = {
         headers: { 'Content-Type': 'text/plain;charset=utf-8' },
         body: JSON.stringify({ type: 'message', text: text, nickname: nickname })
       });
+      setLastSent(Date.now());
       msgwallOverlay.classList.remove('active');
       showToast('留言已送出！');
       loadMessages();
@@ -3363,110 +4313,469 @@ const GAME_SPRITES = {
   loadMessages();
 })();
 
-// ===== 河燈飄浮：從許願紀錄抓資料顯示，已不開放新增（點燈輸入已移除）=====
-(function(){
-  const field = document.getElementById('lanternField');
-  if (!field) return;
-
-  // 沿用留言牆同一支 Apps Script，type=wishes 讀取先前已收集的許願紀錄
-  const WISH_API_URL = "https://script.google.com/macros/s/AKfycbx4v3PeB8eMOsWQF6vExH_bJmbIc6hz77BW3nwS4FDnhHtykSOcdsUuyYvovrlmCUpV/exec";
-
-  function escapeHtmlLocal(str){
-    return String(str ?? '').replace(/[&<>"']/g, ch => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[ch]));
-  }
-
-  function addLantern(blessee){
-    const el = document.createElement('div');
-    el.className = 'lantern';
-    el.style.top = (Math.random() * 85) + '%';
-    el.style.left = (Math.random() * 82) + '%';
-    el.style.animationDelay = (Math.random() * 6) + 's';
-    el.style.animationDuration = (16 + Math.random() * 10) + 's';
-    el.style.setProperty('--dx', (120 + Math.random() * 160) + 'px');
-    el.style.setProperty('--dy', (80 + Math.random() * 120) + 'px');
-    el.innerHTML = `<img src="midautumn_lantern.png" alt=""><span class="lantern-name">@${escapeHtmlLocal(blessee)}</span>`;
-    field.appendChild(el);
-  }
-
-  async function loadWishes(){
-    const MIN_LANTERNS = 8;   // 畫面至少要有幾盞燈在飄，數量不夠用吉祥話補
-    const MAX_LANTERNS = 20;  // 真實許願太多時的上限，避免畫面太滿
-
-    let realWishes = [];
-    try {
-      const res = await fetch(WISH_API_URL + '?type=wishes');
-      const data = await res.json();
-      if (data.ok && Array.isArray(data.wishes)) {
-        realWishes = data.wishes.map(w => (w.blessee || '').trim()).filter(Boolean);
-      }
-    } catch(e) { /* 後端還沒接好時，安靜地退回預設祝福詞 */ }
-
-    let list = realWishes.slice(0, MAX_LANTERNS); // 真實許願優先，超過上限就先不顯示多的
-    if (list.length < MIN_LANTERNS) {
-      const fillers = MIDAUTUMN_LANTERN_WISHES.filter(w => !list.includes(w));
-      list = list.concat(fillers.slice(0, MIN_LANTERNS - list.length));
-    }
-    list.forEach(addLantern);
-  }
-
-  loadWishes();
-})();
-
-// ===== 中秋活動回顧榜單：原本點燈按鈕的位置，改成排行榜按鈕+彈窗 =====
-(function(){
-  const cta = document.getElementById('campaignLbCta');
-  const overlay = document.getElementById('campaignLbOverlay');
-  const closeBtn = document.getElementById('campaignLbCloseBtn');
-  const list = document.getElementById('campaignLbList');
-  if (!cta || !overlay || !list) return;
-
-  const CAMPAIGN_API_URL = 'https://talent-campaign-api-618647159770.asia-east1.run.app/api/campaigns/sep26_mid_autumn';
-  const CAMPAIGN_TOP_N = 10;
-  let loaded = false;
-
-  function escapeHtmlCampaign(str){
-    return String(str ?? '').replace(/[&<>"']/g, ch => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[ch]));
-  }
-
-  async function loadCampaignLb(){
-    list.innerHTML = '<li>載入中...</li>';
-    try {
-      const res = await fetch(CAMPAIGN_API_URL);
-      const json = await res.json();
-      const rows = (json.data || []).slice().sort((a, b) => (a.rank || 0) - (b.rank || 0)).slice(0, CAMPAIGN_TOP_N);
-      if (!rows.length) { list.innerHTML = '<li>目前還沒有資料</li>'; return; }
-
-      list.innerHTML = rows.map(r => {
-        const name = escapeHtmlCampaign(r.username || r.creator_name || '');
-        const avatarUrl = `https://public.swag.live/users/${encodeURIComponent(r.creator_id)}/picture.jpg?size=200x200&format=jpg`;
-        const rankReward = r.rank_reward_diamonds ? `排名獎勵 ${formatDiamond(r.rank_reward_diamonds)}` : '';
-        const collectReward = r.collect_reward_diamonds ? `收藏加碼 ${formatDiamond(r.collect_reward_diamonds)}` : '';
-        const sub = [rankReward, collectReward].filter(Boolean).join('・');
-        return `
-          <li>
-            <span class="lb-rank">${r.rank}</span>
-            <img class="lb-avatar" src="${avatarUrl}" alt="" onerror="this.style.visibility='hidden'">
-            <div class="lb-name-col">
-              <span class="lb-name">${name}</span>
-              ${sub ? `<div class="lb-sub">${sub}</div>` : ''}
-            </div>
-            <span class="lb-score">${formatDiamond(r.total_reward_diamonds)}</span>
-          </li>
-        `;
-      }).join('');
-    } catch (e) {
-      list.innerHTML = '<li>載入失敗，稍後再試</li>';
-    }
-  }
-
-  cta.addEventListener('click', () => {
-    overlay.classList.add('active');
-    if (!loaded) { loaded = true; loadCampaignLb(); }
-  });
-  closeBtn.addEventListener('click', () => overlay.classList.remove('active'));
-})();
-
 // ===== 語言切換套用 =====
+
+// ===== 今日推薦主播（拉霸機）=====
+// 名單來源：n8n 每週從 BigQuery 寫進公開表單「推薦名單」分頁（只有帳號與頭貼，不含任何數字）
+// 還沒填網址之前，會暫時用本週得獎主播當名單
+const RECOMMEND_SHEET_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vQ93w4z4KmkSioZMtAZoJ8XYSOn3-woLvtHSYPSIp11vOjY91pkln1HpVr6LAEL8VX4-v5P35SV_kGC/pub?gid=260814192&single=true&output=csv';   // 「推薦名單」分頁（公開表單，只有帳號與頭貼）
+const GACHA_MAX_PER_DAY = 3;
+const GACHA_STORE_KEY = 'swag_gacha_v2';
+const GACHA_PHRASES = [
+  { key: 'gacha_p_follow', color: 'var(--pink)' },
+  { key: 'gacha_p_look',   color: 'var(--blue)' },
+  { key: 'gacha_p_gift',   color: 'var(--yellow)' },
+];
+const GACHA_SYMBOLS = ['💎', '🎁', '⭐', '👑', '💖', '🎀', '✨', '🍀'];
+let gachaPool = null;
+let gachaMemState = null;   // 瀏覽器不允許儲存時的備援（只在這次瀏覽有效）
+let gachaSpinning = false;
+
+const gachaEsc = v => String(v ?? '').replace(/[&<>"']/g, ch => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[ch]));
+const gachaProfileUrl = id => 'https://swag.live/u/' + encodeURIComponent(id);
+
+function gachaToday(){
+  try { return new Intl.DateTimeFormat('sv-SE', { timeZone: 'Asia/Taipei' }).format(new Date()); }
+  catch (e) { return new Date().toISOString().slice(0, 10); }
+}
+function gachaLoadState(){
+  const today = gachaToday();
+  let s = null;
+  try { s = JSON.parse(localStorage.getItem(GACHA_STORE_KEY) || 'null'); } catch (e) { s = gachaMemState; }
+  if (!s || s.date !== today) s = { date: today, count: 0, seen: [], last: [], revealed: [] };   // 換日自動歸零
+  return s;
+}
+function gachaSaveState(s){
+  gachaMemState = s;
+  try { localStorage.setItem(GACHA_STORE_KEY, JSON.stringify(s)); } catch (e) {}
+}
+
+let gachaPoolPromise = null;
+
+function gachaFetchWithTimeout(url, ms){
+  const ctrl = new AbortController();
+  const timer = setTimeout(() => ctrl.abort(), ms);
+  return fetch(url, { cache: 'no-store', signal: ctrl.signal }).finally(() => clearTimeout(timer));
+}
+
+async function gachaLoadPool(){
+  let pool = [], fromSheet = false;
+  if (RECOMMEND_SHEET_URL) {
+    try {
+      const res = await gachaFetchWithTimeout(RECOMMEND_SHEET_URL, 8000);   // 最多等 8 秒，不會無限等待
+      if (res.ok) {
+        const rows = parseCSVObjects(await res.text());
+        const weeks = [...new Set(rows.map(r => r.week_start).filter(Boolean))].sort();
+        const latest = weeks[weeks.length - 1];
+        pool = rows.filter(r => (!latest || r.week_start === latest) && r.creator_id && r.avatar_url)
+                   .map(r => ({ id: String(r.creator_id).trim(), avatar: String(r.avatar_url).trim() }));
+        fromSheet = pool.length > 0;
+      }
+    } catch (e) { pool = []; }
+  }
+  if (!pool.length && Array.isArray(DATA)) {   // 備援：本週得獎主播
+    pool = DATA.filter(d => d.id && d.avatar).map(d => ({ id: String(d.id).trim(), avatar: d.avatar }));
+  }
+  const seen = new Set();
+  pool = pool.filter(p => p.id && !seen.has(p.id) && seen.add(p.id));
+  return { pool, fromSheet };
+}
+
+// 同一時間只會有一個下載在跑；只有成功從 Sheet 拿到的名單才快取（備援名單不快取，下次會再試一次 Sheet）
+function gachaGetPool(){
+  if (gachaPool && gachaPool.length) return Promise.resolve(gachaPool);
+  if (!gachaPoolPromise) {
+    gachaPoolPromise = gachaLoadPool()
+      .then(({ pool, fromSheet }) => { if (fromSheet) gachaPool = pool; return pool; })
+      .catch(() => [])
+      .finally(() => { gachaPoolPromise = null; });
+  }
+  return gachaPoolPromise;
+}
+
+function gachaPick(pool, exclude, n){
+  let cand = pool.filter(p => !exclude.includes(p.id));   // 當天抽過的人先排除
+  if (cand.length < n) cand = pool.slice();               // 名單不夠時才允許重複
+  const arr = cand.slice();
+  for (let i = arr.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [arr[i], arr[j]] = [arr[j], arr[i]]; }
+  return arr.slice(0, n);
+}
+
+function gachaAvatarHtml(p){
+  return `<img src="${gachaEsc(p.avatar)}" alt="" crossorigin="anonymous" onerror="this.outerHTML='<span class=&quot;gacha-avatar-ph&quot;>👤</span>'">`;
+}
+
+// ---- 卡片區 ----
+function renderGachaTray(animate){
+  const tray = document.getElementById('gachaTray');
+  if (!tray) return;
+  const s = gachaLoadState();
+  if (!s.last || !s.last.length) {
+    tray.innerHTML = `<div class="gacha-empty">${gachaEsc(t('gacha_tray_empty'))}</div>`;
+    return;
+  }
+  tray.innerHTML = '<div class="gacha-cards">' + s.last.map((p, i) => {
+    const ph = GACHA_PHRASES[i] || GACHA_PHRASES[0];
+    const revealed = !!(s.revealed && s.revealed[i]);
+    return `<button class="gacha-card${revealed ? ' flipped' : ''}${animate ? ' pop' : ''}" data-i="${i}" style="--i:${i}">
+      <div class="gacha-inner">
+        <div class="gacha-face gacha-back"><span class="q">?</span><span class="gacha-tap">${gachaEsc(t('gacha_tap_unlock'))}</span></div>
+        <div class="gacha-face gacha-front">
+          <span class="gacha-phrase" style="--chip:${ph.color}">${gachaEsc(t(ph.key))}</span>
+          <div class="gacha-avatar">${gachaAvatarHtml(p)}</div>
+          <span class="gacha-tap">${gachaEsc(t('gacha_tap_who'))}</span>
+        </div>
+      </div>
+    </button>`;
+  }).join('') + '</div>';
+}
+
+function onGachaCardClick(e){
+  const card = e.target.closest('.gacha-card');
+  if (!card) return;
+  const i = Number(card.dataset.i);
+  const s = gachaLoadState();
+  const p = s.last && s.last[i];
+  if (!p) return;
+  s.revealed = s.revealed || [];
+  if (!s.revealed[i]) {            // 第一次點：翻開看照片
+    s.revealed[i] = true;
+    gachaSaveState(s);
+    card.classList.remove('pop');
+    card.classList.add('flipped');
+  } else {                         // 第二次點：放大，顯示帳號
+    openGachaModal(p, i);
+  }
+}
+
+// ---- 放大的卡片 ----
+function openGachaModal(p, i){
+  const modal = document.getElementById('gachaModal');
+  const box = document.getElementById('gachaModalCard');
+  const ph = GACHA_PHRASES[i] || GACHA_PHRASES[0];
+  box.href = gachaProfileUrl(p.id);   // 點卡片直接前往主播個人頁
+  box.innerHTML =
+    `<span class="gacha-phrase" style="--chip:${ph.color}">${gachaEsc(t(ph.key))}</span>` +
+    `<div class="gacha-modal-avatar">${gachaAvatarHtml(p)}</div>` +
+    `<div class="gacha-modal-id">@${gachaEsc(p.id)}</div>` +
+    `<span class="gacha-modal-go">${gachaEsc(t('gacha_go'))}</span>`;
+  modal.classList.add('active');
+  modal.setAttribute('aria-hidden', 'false');
+}
+function closeGachaModal(){
+  const modal = document.getElementById('gachaModal');
+  modal.classList.remove('active');
+  modal.setAttribute('aria-hidden', 'true');
+}
+
+// ---- 提示文字與拉桿狀態 ----
+function renderGachaTexts(){
+  const s = gachaLoadState();
+  const title = document.getElementById('gachaSectionTitle');
+  const lever = document.getElementById('gachaLever');
+  const hint = document.getElementById('gachaHint');
+  if (!lever) return;
+  if (title) title.textContent = t('gacha_title');
+  lever.setAttribute('aria-label', t('gacha_lever_label'));
+  if (gachaSpinning) { hint.textContent = t('gacha_hint_spinning'); lever.disabled = true; return; }
+  const left = GACHA_MAX_PER_DAY - s.count;
+  if (s.count === 0) hint.textContent = t('gacha_hint_start');
+  else if (left > 0) hint.textContent = t('gacha_hint_left').replace('{n}', left);
+  else hint.textContent = t('gacha_hint_done');
+  lever.disabled = left <= 0;
+}
+
+// ---- 拉下拉桿：轉轉轉 → 出現三張未知卡片 ----
+function startReels(){
+  const reels = [...document.querySelectorAll('#gachaMachine .slot-reel')];
+  const machine = document.getElementById('gachaMachine');
+  machine.classList.add('spinning');
+  const timers = reels.map(reel => {
+    reel.classList.remove('stopped'); reel.classList.add('spinning');
+    const sym = reel.querySelector('.slot-sym');
+    return setInterval(() => { sym.textContent = GACHA_SYMBOLS[Math.floor(Math.random() * GACHA_SYMBOLS.length)]; }, 70);
+  });
+  return {
+    stop(onDone){   // 三個轉輪依序停在 ❓
+      reels.forEach((reel, i) => {
+        setTimeout(() => {
+          clearInterval(timers[i]);
+          reel.classList.remove('spinning'); reel.classList.add('stopped');
+          reel.querySelector('.slot-sym').textContent = '❓';
+          if (i === reels.length - 1) { machine.classList.remove('spinning'); setTimeout(onDone, 350); }
+        }, i * 350);
+      });
+    }
+  };
+}
+
+async function gachaPull(){
+  if (gachaSpinning) return;
+  const s = gachaLoadState();
+  if (s.count >= GACHA_MAX_PER_DAY) { renderGachaTexts(); return; }
+  const lever = document.getElementById('gachaLever');
+  lever.classList.remove('pulling'); void lever.offsetWidth; lever.classList.add('pulling');
+  gachaSpinning = true;
+  renderGachaTexts();
+  const tray = document.getElementById('gachaTray');
+  if (tray) tray.innerHTML = '';
+  const reels = startReels();   // 拉下去立刻開始轉，名單在背後同時下載
+
+  let pool = [];
+  try {
+    // 至少轉 1 秒；名單還沒下載完就繼續轉，最多等 8 秒
+    [pool] = await Promise.all([gachaGetPool(), new Promise(r => setTimeout(r, 1000))]);
+  } catch (e) { pool = []; }
+
+  if (!pool.length) {   // 真的拿不到名單：停下來、不扣次數、拉桿恢復可用
+    reels.stop(() => {
+      gachaSpinning = false;
+      renderGachaTray(false);
+      renderGachaTexts();
+      document.getElementById('gachaHint').textContent = t('gacha_empty');
+    });
+    return;
+  }
+
+  const picks = gachaPick(pool, s.seen, 3);
+  s.count += 1;
+  s.seen = [...new Set([...s.seen, ...picks.map(p => p.id)])];
+  s.last = picks;
+  s.revealed = [false, false, false];
+  gachaSaveState(s);
+  reels.stop(() => {
+    gachaSpinning = false;
+    renderGachaTray(true);
+    renderGachaTexts();
+  });
+}
+
+(function initGacha(){
+  const lever = document.getElementById('gachaLever');
+  if (!lever) return;
+  lever.addEventListener('click', gachaPull);
+  document.getElementById('gachaTray').addEventListener('click', onGachaCardClick);
+  document.getElementById('gachaModalClose').addEventListener('click', closeGachaModal);
+  document.getElementById('gachaModalBackdrop').addEventListener('click', closeGachaModal);
+  document.addEventListener('keydown', e => { if (e.key === 'Escape') closeGachaModal(); });
+  renderGachaTray(false);    // 重新整理後，保留今天最後一次的卡片與翻開狀態
+  renderGachaTexts();
+  setTimeout(() => { gachaGetPool(); }, 1200);   // 網頁打開後先在背後下載名單，拉的時候就不用等
+})();
+
+
+// ===== 🎄 聖誕版：彩蛋互動（5 個彩蛋：聖誕樹、雪人、禮物盒、雪橇、聖誕襪）=====
+(function(){
+  document.body.classList.add('xmas-theme');
+  const reduceMotion = !!(window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches);
+  const isEn = () => (typeof LANG !== 'undefined' && LANG === 'en');
+  const TEXT = {
+    zh: { tree: '聖誕樹', snowman: '雪人', gift: '禮物盒', sleigh: '飛過的雪橇', stocking: '聖誕襪',
+          badge: '🎄 彩蛋 {n}/5', badgeDone: '🎄 彩蛋 5/5 ✓', missing: '還沒找到：', progress: '｜彩蛋 {n}/5',
+          treeLit: '聖誕樹全部點亮了 ✨', snowmanNose: '哎呀，雪人的鼻子掉了 🥕', sleighGift: '雪橇掉了一個禮物給你 🎁',
+          stockingCandy: '襪子裡掉出糖果了 🍬',
+          cardTitle: 'Merry Christmas', cardSub: '5 個彩蛋全部被你找到了！\n祝你聖誕快樂，新的一年天天都有好事發生 ✨',
+          cardHint: '可以截圖分享給朋友 📸' },
+    en: { tree: 'Christmas tree', snowman: 'Snowman', gift: 'Gift box', sleigh: 'Flying sleigh', stocking: 'Stocking',
+          badge: '🎄 Surprises {n}/5', badgeDone: '🎄 Surprises 5/5 ✓', missing: 'Still hidden: ', progress: ' | {n}/5 found',
+          treeLit: 'The tree is all lit up ✨', snowmanNose: "Oops, the snowman's nose fell off 🥕", sleighGift: 'The sleigh dropped a gift for you 🎁',
+          stockingCandy: 'Candy fell out of the stocking 🍬',
+          cardTitle: 'Merry Christmas', cardSub: 'You found all 5 surprises!\nWishing you a merry Christmas and a wonderful new year ✨',
+          cardHint: 'Take a screenshot and share it 📸' }
+  };
+  const L = () => TEXT[isEn() ? 'en' : 'zh'];
+  const GIFT_MSGS = {
+    zh: ['今天也辛苦了，送你一個大大的擁抱 🤗', '聖誕老人說你今年超乖 🎅', '願你的直播間天天都熱鬧 ✨', '這個禮物裡裝滿了好運 🍀',
+         '偷偷告訴你，明年會更好 💫', '收到一份滿滿的溫暖 ☕', '今晚記得早點休息喔 🌙', '你值得所有美好的事 💖',
+         '叮叮噹，好運送到 🔔', '聖誕快樂，今天也要開心 🎄', '一起期待新的一年吧 🎆', '恭喜獲得一枚隱形的星星 ⭐'],
+    en: ['A big warm hug for you today 🤗', "Santa says you've been extra nice this year 🎅", 'May every stream be full of friends ✨',
+         'This gift is packed with good luck 🍀', 'Psst... next year will be even better 💫', 'A cup of warmth, just for you ☕',
+         'Get some good rest tonight 🌙', 'You deserve every good thing 💖', 'Jingle bells, good luck delivered 🔔',
+         'Merry Christmas, stay happy today 🎄', "Here's to a brand new year 🎆", 'You earned an invisible star ⭐']
+  };
+
+  // 圖片載入失敗（素材還沒放上去）時，換成 emoji
+  document.querySelectorAll('img[data-fallback]').forEach(im => {
+    const swap = () => {
+      const s = document.createElement('span');
+      s.className = (im.className ? im.className + ' ' : '') + 'xmas-fb';
+      s.textContent = im.dataset.fallback;
+      s.setAttribute('aria-hidden', 'true');
+      im.replaceWith(s);
+    };
+    if (im.complete && im.naturalWidth === 0) swap(); else im.addEventListener('error', swap, { once: true });
+  });
+
+  // 點擊時噴出的小東西
+  function burst(x, y, chars, n, spread){
+    if (reduceMotion) return;
+    for (let i = 0; i < (n || 10); i++) {
+      const p = document.createElement('span');
+      p.className = 'xmas-particle';
+      p.textContent = chars[Math.floor(Math.random() * chars.length)];
+      const a = Math.random() * Math.PI * 2, d = (spread || 70) * (0.5 + Math.random() * 0.8);
+      p.style.setProperty('--x0', (x - 8) + 'px'); p.style.setProperty('--y0', (y - 10) + 'px');
+      p.style.setProperty('--dx', Math.cos(a) * d + 'px'); p.style.setProperty('--dy', (Math.sin(a) * d - 20) + 'px');
+      p.style.setProperty('--r', (Math.random() * 360 - 180) + 'deg');
+      document.body.appendChild(p);
+      setTimeout(() => p.remove(), 950);
+    }
+  }
+  const center = el => { const r = el.getBoundingClientRect(); return [r.left + r.width / 2, r.top + r.height / 2]; };
+  const restart = (el, cls) => { el.classList.remove(cls); void el.offsetWidth; el.classList.add(cls); };
+
+  // ---- 收集進度 ----
+  const KEYS = ['tree', 'snowman', 'gift', 'sleigh', 'stocking'];
+  const STORE = 'xmas_eggs_v1';
+  let found = [];
+  try { found = JSON.parse(localStorage.getItem(STORE) || '[]').filter(k => KEYS.includes(k)); } catch (e) { found = []; }
+  const badge = document.getElementById('xmasBadge');
+  function renderBadge(){ if (badge) badge.textContent = found.length >= KEYS.length ? L().badgeDone : L().badge.replace('{n}', found.length); }
+  function findEgg(key, msg){
+    const isNew = !found.includes(key);
+    if (isNew) {
+      found.push(key);
+      try { localStorage.setItem(STORE, JSON.stringify(found)); } catch (e) {}
+      renderBadge();
+      if (badge) restart(badge, 'pop');
+    }
+    showToast(msg + (isNew ? L().progress.replace('{n}', found.length) : ''));
+    if (isNew && found.length === KEYS.length) setTimeout(openCard, 1300);
+  }
+  if (badge) badge.addEventListener('click', () => {
+    if (found.length >= KEYS.length) return openCard();
+    showToast(L().missing + KEYS.filter(k => !found.includes(k)).map(k => L()[k]).join(isEn() ? ', ' : '、'));
+  });
+
+  // ---- 聖誕卡（5 個都找到）----
+  const modal = document.getElementById('xmasCardModal');
+  function renderCard(){
+    const set = (id, v) => { const el = document.getElementById(id); if (el) el.textContent = v; };
+    set('xmasCardTitle', L().cardTitle); set('xmasCardSub', L().cardSub); set('xmasCardHint', L().cardHint);
+  }
+  function openCard(){
+    renderCard();
+    modal.classList.add('active'); modal.setAttribute('aria-hidden', 'false');
+    burst(window.innerWidth / 2, window.innerHeight / 2, ['🎉', '✨', '🎄', '⭐', '❄'], 28, 160);
+  }
+  function closeCard(){ modal.classList.remove('active'); modal.setAttribute('aria-hidden', 'true'); }
+  document.getElementById('xmasCardClose').addEventListener('click', closeCard);
+  modal.addEventListener('click', e => { if (e.target === modal) closeCard(); });
+
+  // ---- 1. 聖誕樹：點一下亮一顆燈，全亮就找到 ----
+  const tree = document.getElementById('xmasTree');
+  const BULBS = [   // 依 xmas_tree.png 的綠色樹葉位置排好，避開禮物和拐杖糖（左右 %, 上下 %, 顏色）
+    [49, 25, '#FFD100'],
+    [54, 36, '#f6418d'],
+    [38, 38, '#60c4e8'],
+    [63, 46, '#7ED957'],
+    [28, 58, '#FF8A3D'],
+    [73, 65, '#f6418d'],
+    [23, 71, '#60c4e8'],
+    [63, 76, '#FFD100']
+  ];
+  const bulbEls = BULBS.map(([x, y, col], i) => {
+    const b = document.createElement('span');
+    b.className = 'xmas-bulb';
+    b.style.left = x + '%'; b.style.top = y + '%';
+    b.style.setProperty('--c', col); b.style.setProperty('--d', (i * 0.15) + 's');
+    tree.appendChild(b);
+    return b;
+  });
+  let lit = 0;
+  tree.addEventListener('click', () => {
+    restart(tree, 'jiggle');
+    const [x, y] = center(tree);
+    if (lit < bulbEls.length) {
+      bulbEls[lit++].classList.add('on');
+      if (lit === bulbEls.length) {
+        tree.classList.add('all-lit');
+        burst(x, y - 30, ['✨', '⭐', '✦'], 16, 90);
+        findEgg('tree', L().treeLit);
+      }
+    } else {
+      burst(x, y - 30, ['✨', '✦'], 8, 60);
+    }
+  });
+
+  // ---- 2. 雪人：第一下帽子彈起來，第二下鼻子掉下來，第三下鼻子裝回去 ----
+  const snowman = document.getElementById('xmasSnowman');
+  let smStep = 0;
+  snowman.addEventListener('click', () => {
+    const hat = snowman.querySelector('.sm-hat'), nose = snowman.querySelector('.sm-nose');
+    smStep = (smStep + 1) % 3;
+    if (smStep === 1 && hat) { restart(hat, 'bounce'); const [x, y] = center(hat); burst(x, y, ['❄'], 6, 40); }
+    else if (smStep === 2 && nose) { nose.classList.add('drop'); findEgg('snowman', L().snowmanNose); }
+    else if (nose) { nose.classList.remove('drop'); }
+  });
+
+  // ---- 3. 禮物盒：打開噴出彩帶和一句話，4 秒後自動蓋回去 ----
+  document.querySelectorAll('.xmas-gift').forEach(g => g.addEventListener('click', () => {
+    if (g.classList.contains('opened') || g.classList.contains('shake')) return;
+    restart(g, 'shake');
+    setTimeout(() => {
+      g.classList.remove('shake'); g.classList.add('opened');
+      const [x, y] = center(g);
+      burst(x, y, ['🎉', '✨', '🎊', '⭐'], 16, 90);
+      const msgs = GIFT_MSGS[isEn() ? 'en' : 'zh'];
+      findEgg('gift', msgs[Math.floor(Math.random() * msgs.length)]);
+      setTimeout(() => g.classList.remove('opened'), 4000);
+    }, 400);
+  }));
+
+  // ---- 4. 聖誕襪：晃一晃、掉出糖果 ----
+  const stocking = document.getElementById('xmasStocking');
+  stocking.addEventListener('click', () => {
+    restart(stocking, 'swing');
+    const [x, y] = center(stocking);
+    burst(x, y + 20, ['🍬', '🍭', '🍫'], 8, 60);
+    findEgg('stocking', L().stockingCandy);
+  });
+
+  // ---- 5. 雪橇：每隔 18～35 秒飛過一次，點到會掉下禮物 ----
+  const sleigh = document.getElementById('xmasSleigh');
+  let sleighTimer = null;
+  function scheduleSleigh(){ clearTimeout(sleighTimer); sleighTimer = setTimeout(flySleigh, 18000 + Math.random() * 17000); }
+  function flySleigh(){
+    if (sleigh.classList.contains('flying')) return;
+    sleigh.dataset.dropped = '';
+    sleigh.classList.add('flying');
+    setTimeout(() => { sleigh.classList.remove('flying'); scheduleSleigh(); }, 9100);
+  }
+  sleigh.addEventListener('click', () => {
+    if (sleigh.dataset.dropped) return;
+    sleigh.dataset.dropped = '1';
+    const r = sleigh.getBoundingClientRect();
+    const g = document.createElement('span');
+    g.className = 'xmas-fall'; g.textContent = '🎁';
+    g.style.left = (r.left + r.width / 2 - 17) + 'px'; g.style.top = r.bottom + 'px';
+    g.style.setProperty('--dist', Math.max(80, window.innerHeight - r.bottom - 80) + 'px');
+    document.body.appendChild(g);
+    setTimeout(() => { burst(r.left + r.width / 2, window.innerHeight - 70, ['✨', '🎉'], 12, 70); g.remove(); }, 1400);
+    findEgg('sleigh', L().sleighGift);
+  });
+  setTimeout(flySleigh, 7000);
+
+  // ---- 不算彩蛋的小特效：可以點的雪花、翻卡片時的雪花 ----
+  function spawnFlake(){
+    if (reduceMotion || document.hidden || document.querySelectorAll('.xmas-flake').length >= 3) return;
+    const f = document.createElement('button');
+    f.type = 'button'; f.className = 'xmas-flake'; f.textContent = '❄'; f.setAttribute('aria-label', 'snowflake');
+    f.style.left = (5 + Math.random() * 85) + 'vw';
+    f.style.setProperty('--dur', (9 + Math.random() * 5) + 's');
+    f.style.setProperty('--drift', (Math.random() * 80 - 40) + 'px');
+    f.addEventListener('click', () => { const [x, y] = center(f); burst(x, y, ['✦', '⭐', '✨'], 10, 55); f.remove(); });
+    f.addEventListener('animationend', () => f.remove());
+    document.body.appendChild(f);
+  }
+  setInterval(spawnFlake, 4000);
+  const grid = document.getElementById('grid');
+  if (grid) grid.addEventListener('click', e => { if (e.target.closest('.tile')) burst(e.clientX, e.clientY, ['❄', '✦'], 8, 50); });
+
+  renderBadge();
+  window.XmasEggs = { renderBadge, renderCard, openCard, flySleigh };
+})();
+
 function applyLanguage(){
   document.documentElement.lang = LANG === 'en' ? 'en' : 'zh-Hant';
   document.title = t('page_title');
@@ -3506,16 +4815,18 @@ function applyLanguage(){
 
   buildGrid();
   if (overlay.classList.contains('active')) {
-    if (isSecretOpen) renderTarot();
-    else if (isMooncakeOpen) renderMooncake();
-    else if (currentItem) renderDetail(currentItem);
+    if (isSecretOpen) renderTarot(); else if (currentItem) renderDetail(currentItem);
     prepareShareImage();
   }
 
   const langBtn = document.getElementById('langToggle');
   if (langBtn) langBtn.textContent = LANG === 'zh' ? 'EN' : 'ZH';
+  if (typeof headerTipReady !== 'undefined' && headerTipReady) renderHeaderTip();
+  if (typeof renderGachaTexts === 'function') { renderGachaTexts(); renderGachaTray(false); }
+  if (window.XmasEggs) { window.XmasEggs.renderBadge(); window.XmasEggs.renderCard(); }
 
-  // 節日限定主題優先於一般語言文字，避免切換語言時把七夕文案蓋掉
+  // 節日限定主題優先於一般語言文字，避免切換語言時把節日文案蓋掉
+  if (document.body.classList.contains('winter-theme')) applyWinterTexts();
   if (document.body.classList.contains('qixi-theme')) {
     const titleEl = document.getElementById('mainTitle');
     const hintEl = document.getElementById('mainHint');
