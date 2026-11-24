@@ -1345,7 +1345,7 @@
   .xmas-snowman{ position:relative; width:96px; height:120px; cursor:pointer; background:none; border:none; padding:0;
     /* ↓ 雪人的帽子、鼻子位置：拿到正式素材後可以只調這幾個數字 */
     --hat-top:-9%; --hat-w:62%; --hat-left:51%;
-    --nose-top:29%; --nose-left:44%; --nose-w:13%; }
+    --nose-top:28%; --nose-left:42%; --nose-w:17%; }
   .xmas-snowman .sm-body{ position:absolute; inset:0; width:100%; height:100%; object-fit:contain; }
   .xmas-snowman .sm-body.xmas-fb{ font-size:86px; align-items:flex-end; }
   .xmas-snowman .sm-hat{ position:absolute; left:var(--hat-left, 50%); top:var(--hat-top); width:var(--hat-w); transform:translateX(-50%); }
@@ -1377,11 +1377,11 @@
   @keyframes xmasSwing{ 20%{ transform:rotate(14deg); } 45%{ transform:rotate(-10deg); } 70%{ transform:rotate(6deg); } 100%{ transform:rotate(0); } }
 
   /* 飛過的雪橇 */
-  .xmas-sleigh{ position:fixed; top:calc(env(safe-area-inset-top, 0px) + 70px); left:0; width:150px; height:76px; z-index:40;
+  .xmas-sleigh{ position:fixed; top:calc(env(safe-area-inset-top, 0px) + 8px); left:0; width:195px; height:99px; z-index:40;
     cursor:pointer; display:none; background:none; border:none; padding:0; }
-  .xmas-sleigh img, .xmas-sleigh .xmas-fb{ width:100%; height:100%; object-fit:contain; font-size:42px; }
+  .xmas-sleigh img, .xmas-sleigh .xmas-fb{ width:100%; height:100%; object-fit:contain; font-size:54px; }
   .xmas-sleigh.flying{ display:block; animation:xmasFly 9s linear forwards; }
-  @keyframes xmasFly{ from{ transform:translateX(-170px); } 25%{ transform:translateX(25vw) translateY(-10px); }
+  @keyframes xmasFly{ from{ transform:translateX(-220px); } 25%{ transform:translateX(25vw) translateY(-10px); }
     50%{ transform:translateX(50vw) translateY(6px); } 75%{ transform:translateX(75vw) translateY(-8px); } to{ transform:translateX(calc(100vw + 20px)); } }
   .xmas-fall{ position:fixed; z-index:41; font-size:34px; pointer-events:none; animation:xmasFall 1.4s cubic-bezier(.5,0,1,1) forwards; }
   @keyframes xmasFall{ to{ transform:translateY(var(--dist)) rotate(360deg); } }
@@ -1390,9 +1390,11 @@
   .xmas-particle{ position:fixed; left:0; top:0; z-index:60; pointer-events:none; font-size:16px; animation:xmasParticle .9s ease-out forwards; }
   @keyframes xmasParticle{ from{ transform:translate(var(--x0), var(--y0)) scale(1); opacity:1; }
     to{ transform:translate(calc(var(--x0) + var(--dx)), calc(var(--y0) + var(--dy))) scale(.4) rotate(var(--r)); opacity:0; } }
-  .xmas-flake{ position:fixed; top:-34px; z-index:30; font-size:22px; color:#eaf4ff; cursor:pointer; background:none; border:none; padding:6px;
-    text-shadow:0 0 6px rgba(255,255,255,.7); animation:xmasFlake var(--dur) linear forwards; }
-  @keyframes xmasFlake{ to{ transform:translate(var(--drift), calc(100vh + 60px)) rotate(240deg); } }
+  .xmas-flake{ position:fixed; top:-50px; z-index:30; font-size:34px; color:#fff; cursor:pointer; background:none; border:none; padding:10px;
+    text-shadow:0 0 8px rgba(255,255,255,.95), 0 0 18px rgba(150,205,255,.85);
+    animation:xmasFlake var(--dur) linear forwards, xmasFlakeGlow 1.4s ease-in-out infinite; }
+  @keyframes xmasFlake{ to{ transform:translate(var(--drift), calc(100vh + 80px)) rotate(240deg); } }
+  @keyframes xmasFlakeGlow{ 50%{ opacity:.6; } }
 
   /* 彩蛋收集進度、聖誕卡 */
   .xmas-badge{ position:fixed; left:12px; bottom:calc(env(safe-area-inset-bottom, 0px) + 12px); z-index:50; display:none;
