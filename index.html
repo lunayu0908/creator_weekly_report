@@ -3839,15 +3839,16 @@ const GAME_SPRITES = {
   const loadImg = src => { const im = new Image(); im.src = src; return im; };
   const ready = im => im.complete && im.naturalWidth > 0;
 
-  // 玩家：跟畫面上飛過的雪橇同一張圖（xmas_sleigh.png）；圖的左邊是車廂、右邊是麋鹿
-  const SLEIGH = loadImg('xmas_sleigh.png');
-  const SLEIGH_W = 180, SLEIGH_H = 91;               // 圖片比例 450×228
-  const SLED_CENTER = 0.23;                          // 車廂中心在圖片寬度 23% 的位置，手指對準的是車廂
-  const CATCH_HALF = 34;                             // 接住範圍：車廂中心左右各 34
+  // 玩家：遊戲專用的空雪橇（xmas_game.png，360×244）
+  const SLEIGH = loadImg('xmas_game.png');
+  const SLEIGH_W = 130, SLEIGH_H = 88;
+  const SLED_CENTER = 0.55;                          // 手指對準的位置：車身中間
+  const CATCH_HALF = 47;                             // 整台車身都接得到（左右各 47）
   const SLEIGH_TOP = GROUND_Y + 26 - SLEIGH_H;       // 滑板貼著雪地
-  const CATCH_TOP = SLEIGH_TOP + SLEIGH_H * 0.40;    // 車廂開口
-  const CATCH_BOTTOM = SLEIGH_TOP + SLEIGH_H * 0.66;
-  const MIN_X = SLEIGH_W * SLED_CENTER + 4, MAX_X = CW - 45;
+  const CATCH_TOP = SLEIGH_TOP + SLEIGH_H * 0.18;    // 碰到車身上緣就算接到
+  const CATCH_BOTTOM = SLEIGH_TOP + SLEIGH_H * 0.65;
+  const ITEM_R = 14;                                 // 掉落物的半徑
+  const MIN_X = SLEIGH_W * SLED_CENTER, MAX_X = CW - SLEIGH_W * (1 - SLED_CENTER);
   const ITEMS = [
     { emoji: '🎁', img: loadImg('xmas_item_gift.png'),  points: 10,  weight: 56 },
     { emoji: '🍬', img: loadImg('xmas_item_candy.png'), points: 5,   weight: 22 },
@@ -3870,6 +3871,7 @@ const GAME_SPRITES = {
   }
   const onMove = e => { if (activeGame === 'xmas' && running) sackX = xFromEvent(e); };
   canvas.addEventListener('pointermove', onMove);
+  canvas.addEventListener('pointerdown', onMove);   // 點一下畫面，雪橇也會移過去
   canvas.addEventListener('touchmove', onMove, { passive: true });
 
   function drawScene(dt){
@@ -3916,7 +3918,7 @@ const GAME_SPRITES = {
     for (let i = drops.length - 1; i >= 0; i--) {
       const d = drops[i];
       d.y += d.v * dt;
-      if (Math.abs(d.x - sackX) < CATCH_HALF && d.y >= CATCH_TOP && d.y <= CATCH_BOTTOM) {
+      if (Math.abs(d.x - sackX) < CATCH_HALF && d.y + ITEM_R >= CATCH_TOP && d.y - ITEM_R <= CATCH_BOTTOM) {
         score = Math.max(0, score + d.it.points);
         pops.push({ x: d.x, y: CATCH_TOP - 12, text: (d.it.points > 0 ? '+' : '') + d.it.points, color: d.it.points > 0 ? '#FFD100' : '#ff6b81', life: 40 });
         if (typeof playFlipSound === 'function' && d.it.points > 0) playFlipSound('coin_crisp');
@@ -4004,8 +4006,8 @@ const GAME_SPRITES = {
     if (key === 'qixi') return { title: '✦ 鵲橋傳情 ✦', hint: '拖曳畫面移動鵲橋，接住掉落的愛心，接不到不扣分，計時三十秒，看你能接多少顆！' };
     if (key === 'stack') return { title: t('game_meta_stack_title'), hint: t('game_meta_stack_hint') };
     if (key === 'xmas') return (typeof LANG !== 'undefined' && LANG === 'en')
-      ? { title: '✦ Catch the Christmas Gifts ✦', hint: 'Drag to move the sack and catch falling gifts. Coal costs points. You have 30 seconds!' }
-      : { title: '✦ 聖誕老人接禮物 ✦', hint: '拖曳畫面移動禮物袋，接住掉下來的禮物，接到煤炭會扣分，計時三十秒！' };
+      ? { title: '✦ Catch the Christmas Gifts ✦', hint: 'Drag or tap to move the sleigh and catch falling gifts. Coal costs points. You have 30 seconds!' }
+      : { title: '✦ 聖誕老人接禮物 ✦', hint: '拖曳或點擊畫面移動雪橇，接住掉下來的禮物，接到煤炭會扣分，計時三十秒！' };
     return key === 'whack'
       ? { title: t('game_meta_whack_title'), hint: t('game_meta_whack_hint') }
       : { title: t('game_meta_runner_title'), hint: t('game_meta_runner_hint') };
