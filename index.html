@@ -3839,8 +3839,15 @@ const GAME_SPRITES = {
   const loadImg = src => { const im = new Image(); im.src = src; return im; };
   const ready = im => im.complete && im.naturalWidth > 0;
 
-  const SACK = loadImg('xmas_sack.png');
-  const SACK_W = 72, SACK_H = 56;
+  // 玩家：跟畫面上飛過的雪橇同一張圖（xmas_sleigh.png）；圖的左邊是車廂、右邊是麋鹿
+  const SLEIGH = loadImg('xmas_sleigh.png');
+  const SLEIGH_W = 180, SLEIGH_H = 91;               // 圖片比例 450×228
+  const SLED_CENTER = 0.23;                          // 車廂中心在圖片寬度 23% 的位置，手指對準的是車廂
+  const CATCH_HALF = 34;                             // 接住範圍：車廂中心左右各 34
+  const SLEIGH_TOP = GROUND_Y + 26 - SLEIGH_H;       // 滑板貼著雪地
+  const CATCH_TOP = SLEIGH_TOP + SLEIGH_H * 0.40;    // 車廂開口
+  const CATCH_BOTTOM = SLEIGH_TOP + SLEIGH_H * 0.66;
+  const MIN_X = SLEIGH_W * SLED_CENTER + 4, MAX_X = CW - 45;
   const ITEMS = [
     { emoji: '🎁', img: loadImg('xmas_item_gift.png'),  points: 10,  weight: 56 },
     { emoji: '🍬', img: loadImg('xmas_item_candy.png'), points: 5,   weight: 22 },
@@ -3852,14 +3859,14 @@ const GAME_SPRITES = {
 
   let best = 0;
   try { best = Number(localStorage.getItem('xmas_best') || 0); } catch (e) {}
-  let score = 0, timeLeft = DURATION, running = false, sackX = CW / 2;
+  let score = 0, timeLeft = DURATION, running = false, sackX = CW * 0.35;
   let drops = [], pops = [], spawnTimer = 0, timerInterval = null, last = 0;
   const flakes = Array.from({ length: 30 }, () => ({ x: Math.random() * CW, y: Math.random() * CH, r: Math.random() < .25 ? 1.8 : 1, v: .3 + Math.random() * .5 }));
 
   function xFromEvent(e){
     const rect = canvas.getBoundingClientRect();
     const clientX = (e.touches && e.touches[0]) ? e.touches[0].clientX : e.clientX;
-    return Math.max(30, Math.min(CW - 30, (clientX - rect.left) * (CW / rect.width)));
+    return Math.max(MIN_X, Math.min(MAX_X, (clientX - rect.left) * (CW / rect.width)));
   }
   const onMove = e => { if (activeGame === 'xmas' && running) sackX = xFromEvent(e); };
   canvas.addEventListener('pointermove', onMove);
@@ -3876,8 +3883,8 @@ const GAME_SPRITES = {
     ctx.fillRect(0, GROUND_Y + 24, CW, CH - GROUND_Y - 24);
   }
   function drawSack(){
-    if (ready(SACK)) ctx.drawImage(SACK, sackX - SACK_W / 2, GROUND_Y - SACK_H / 2, SACK_W, SACK_H);
-    else { ctx.font = '42px sans-serif'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle'; ctx.fillText('🎅', sackX, GROUND_Y); }
+    if (ready(SLEIGH)) ctx.drawImage(SLEIGH, sackX - SLEIGH_W * SLED_CENTER, SLEIGH_TOP, SLEIGH_W, SLEIGH_H);
+    else { ctx.font = '46px sans-serif'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle'; ctx.fillText('🛷', sackX, GROUND_Y); }
   }
   function drawDrops(){
     ctx.font = '28px sans-serif'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
@@ -3909,9 +3916,9 @@ const GAME_SPRITES = {
     for (let i = drops.length - 1; i >= 0; i--) {
       const d = drops[i];
       d.y += d.v * dt;
-      if (Math.abs(d.x - sackX) < 36 && d.y >= GROUND_Y - 24 && d.y <= GROUND_Y + 14) {
+      if (Math.abs(d.x - sackX) < CATCH_HALF && d.y >= CATCH_TOP && d.y <= CATCH_BOTTOM) {
         score = Math.max(0, score + d.it.points);
-        pops.push({ x: d.x, y: GROUND_Y - 30, text: (d.it.points > 0 ? '+' : '') + d.it.points, color: d.it.points > 0 ? '#FFD100' : '#ff6b81', life: 40 });
+        pops.push({ x: d.x, y: CATCH_TOP - 12, text: (d.it.points > 0 ? '+' : '') + d.it.points, color: d.it.points > 0 ? '#FFD100' : '#ff6b81', life: 40 });
         if (typeof playFlipSound === 'function' && d.it.points > 0) playFlipSound('coin_crisp');
         drops.splice(i, 1);
         continue;
@@ -3932,7 +3939,7 @@ const GAME_SPRITES = {
     if (timeLeft <= 0) endGame();
   }
   function startGame(){
-    score = 0; timeLeft = DURATION; drops = []; pops = []; spawnTimer = 20; sackX = CW / 2; last = 0;
+    score = 0; timeLeft = DURATION; drops = []; pops = []; spawnTimer = 20; sackX = CW * 0.35; last = 0;
     scoreEl.textContent = t('score_prefix') + '0';
     timerEl.textContent = t('timer_prefix') + timeLeft;
     gameOverActions.classList.remove('show');
